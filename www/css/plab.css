@@ -1,0 +1,136 @@
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+
+body {
+    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+}
+
+.plab {
+	background-color: #333333;
+	color: #ddeeff;
+    /*background-image:linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-webkit-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-ms-linear-gradient(top, #A7A7A7 0%, #E4E4E4 51%);
+    background-image:-webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, #A7A7A7),
+        color-stop(0.51, #E4E4E4)
+    );
+    background-attachment:fixed;*/
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size:200%;
+}
+
+#plab-content {
+	display: none;
+}
+
+.plab #plab-content {
+	display: block;
+}
+
+#plab-header {
+	min-height: 19%;
+}
+
+#plab-status {
+	min-height: 9%%;
+}
+
+#plab-main {
+	min-height: 49%;
+}
+
+#plab-footer {
+	height: 19%;
+}
+
+.plab-intro-select .plab-connect,
+.plab-intro-select .plab-user-select,
+.plab-intro-select .plab-redirect {
+	display: none;
+}
+
+.plab-connect-select .plab-intro,
+.plab-connect-select .plab-user-select,
+.plab-connect-select .plab-redirect {
+	display: none;
+}
+
+.plab-user-select-select .plab-intro,
+.plab-user-select-select .plab-connect,
+.plab-user-select-select .plab-redirect {
+	display: none;
+}
+
+.plab-redirect-select .plab-intro,
+.plab-redirect-select .plab-user-select,
+.plab-redirect-select .plab-connect {
+	display: none;
+}
+
+.plab-init-select .plab-ready,
+.plab-init-select .plab-failed {
+	display: none;
+}
+
+.plab-ready-select .plab-init,
+.plab-ready-select .plab-failed {
+	display: none;
+}
+
+.plab-failed-select .plab-ready,
+.plab-failed-select .plab-init {
+	display: none;
+}
+
+.plab-init {
+	background-color: #eedd55;
+}
+
+.plab-ready {
+	background-color: #66ff77;
+}
+
+.plab-failed {
+	background-color: #ff4433;
+}
+
+.plab-intro.plab-ready {
+	background-color: inherit;
+}
+
+.plab button, .plab input {
+	font-size: inherit;
+	width: 95%;
+}
+
+@keyframes fade {
+    from { opacity: 1.0; }
+    50% { opacity: 0.6; }
+    to { opacity: 1.0; }
+}
+ 
+@-webkit-keyframes fade {
+    from { opacity: 1.0; }
+    50% { opacity: 0.6; }
+    to { opacity: 1.0; }
+}
+ 
+#plab-status {
+	color: #000000;
+	background-color: #ffffff;
+    animation:fade 2000ms infinite;
+    -webkit-animation:fade 2000ms infinite;
+}
