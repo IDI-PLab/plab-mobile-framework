@@ -39,7 +39,8 @@ var plab = {
 		
 		btInfo : {
 			initialized : false,
-			failed : false
+			failed : false,
+			connected : false
 		},
 
 		// Initialize er funksjonen som starter det hele
@@ -113,6 +114,7 @@ var plab = {
 		
 		// -------------------------------------------------------------------
 		// Tilkobling til BLE spesifikke funksjoner
+		// INIT
 		initBLE : function() {
 			bluetoothle.initialize(this.initBLESuccess, this.initBLEFailure, {"request":false});
 		},
@@ -131,6 +133,7 @@ var plab = {
 			document.getElementById("plab-devices").innerHTML = "";
 			bluetoothle.startScan(this.startScanSuccess, this.startScanFailure, null);
 		},
+		// SCAN
 		startScanSuccess : function(obj) {
 			if (obj.status == "scanResult") {
 				// Hent lista
@@ -142,7 +145,7 @@ var plab = {
 				var btnVal = document.createTextNode(obj.name == null ? "? - " + obj.address : obj.name);
 				btn.appendChild(btnVal);
 				btn.addEventListener("click", function() {
-					connectDevice(obj.address);
+					plab.connectDevice(obj.address);
 				});
 				// Legge til elementene i lista
 				el.appendChild(btn);
@@ -159,10 +162,51 @@ var plab = {
 			bluetoothle.stopScan (function(obj){}, function(obj){});
 			plab.timers.scan = null;
 		},
+		stopAndClearScanTimeout : function() {
+			if (this.timer.scan != null) {
+				clearTimeout(this.timers.scan);
+				this.scanTimeout();
+			}
+		},
+		// CONNECT
 		connectDevice : function(address) {
 			// TODO
+			this.stopAndClearScanTimeout();
+		    var paramsObj = {"address":address};
+			bluetoothle.connect(this.connectSuccess, this.connectFailure, paramsObj);
+			this.timers.connect = setTimeout(this.connectTimeout, 5000);
 		},
-		
+		connectSuccess : function(obj) {
+			if (obj.status == "connected") {
+				plab.clearConnectTimeout();
+				plab.btInfo.connected = true;
+				plab.btInfo.failed = false;
+				plab.showUserSelect();
+			} else if (obj.status != "connecting") {
+				plab.btInfo.connected = false;
+				plab.btInfo.failed = true;
+				plab.clearConnectTimeout();
+				plab.updateScreen();
+			}
+		},
+		connectFailure : function(obj) {
+			plab.btInfo.connected = false;
+			plab.btInfo.failed = true;
+			plab.updateScreen();
+		},
+		connectTimeout : function() {
+			plab.btInfo.connected = false;
+			plab.btInfo.failed = true;
+			plab.updateScreen();
+			plab.timers.connect = null;
+		},
+		clearConnectTimeout : function() {
+			if (this.timers.connect != null) {
+				clearTimeout(this.timers.connect);
+				this.timers.connect = null;
+			}
+		},
+		//RECONNECT
 		
 		// -------------------------------------------------------------------
 		// Tilkobling til NTNU bruker spesifikke funksjoner
