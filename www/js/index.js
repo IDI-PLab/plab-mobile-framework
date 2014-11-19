@@ -40,7 +40,8 @@ var plab = {
 		btInfo : {
 			initialized : false,
 			failed : false,
-			connected : false
+			connected : false,
+			reconnecting : false
 		},
 
 		// Initialize er funksjonen som starter det hele
@@ -177,6 +178,7 @@ var plab = {
 		},
 		connectSuccess : function(obj) {
 			if (obj.status == "connected") {
+				// Her ville vi trengt tjenesteoppdagelse for iOS hvis vi brydde oss om slikt
 				plab.clearConnectTimeout();
 				plab.btInfo.connected = true;
 				plab.btInfo.failed = false;
@@ -184,13 +186,13 @@ var plab = {
 			} else if (obj.status != "connecting") {
 				plab.btInfo.connected = false;
 				plab.btInfo.failed = true;
-				plab.clearConnectTimeout();
 				plab.updateScreen();
 			}
 		},
 		connectFailure : function(obj) {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
+			plab.clearConnectTimeout();
 			plab.updateScreen();
 		},
 		connectTimeout : function() {
@@ -206,16 +208,53 @@ var plab = {
 			}
 		},
 		//RECONNECT
+		afterReconnect : [],
 		reconnect : function() {
-			bluetoothle.reconnect(plab.reconnectSuccess, plab.reconnectFailure);
-			plab.timers.reconnect = setTimeout(reconnectTimeout, 5000);
+			if (!this.btInfo.reconnecting) {
+				this.btInfo.reconnecting = true;
+				bluetoothle.reconnect(plab.reconnectSuccess, plab.reconnectFailure);
+				plab.timers.reconnect = setTimeout(reconnectTimeout, 5000);
+			}
 		},
-		reconnectSuccess : function(obj) {},
-		reconnectFailure : function(obj) {},
+		reconnectSuccess : function(obj) {
+			if (obj.status == "connected") {
+				plab.clearReconnectTimeout();
+				for (var i = 0; i < plab.afterReconnect.length; i++) {
+					plab.afterReconnect[i] ();
+				}
+				plab.btInfo.reconnecting = false;
+				plab.afterReconnect.length = 0;
+			} else if (obj.status == "connecting") {
+				// Lar denne stå om vi oppdager noe vi trenger den til.
+			} else {
+				plab.disconnectDevice();
+				plab.btInfo.reconnecting = false;
+				plab.clearReconnectTimeout();
+			}
+		},
+		reconnectFailure : function(obj) {
+			plab.clearReconnectTimeout();
+			plab.btInfo.connected = false;
+			plab.btInfo.reconnecting = false;
+			plab.btInfo.failed = true;
+			plab.updateScreen();
+		},
 		reconnectTimeout : function() {
-			// TODO
+			plab.btInfo.connected = false;
+			plab.btInfo.reconnecting = false;
+			plab.btInfo.failed = true;
+			plab.updateScreen();
+			plab.timers.reconnect = null;
 		},
-		clearReconnectTimeout : function() {},
+		clearReconnectTimeout : function() {
+			if (this.timers.reconnect != null) {
+				clearTimeout(this.timers.reconnect);
+				this.timers.reconnect = null;
+			}
+		},
+		
+		// DISCONNECT
+		disconnectDevice : function() {},
 		
 		// -------------------------------------------------------------------
 		// Tilkobling til NTNU bruker spesifikke funksjoner
