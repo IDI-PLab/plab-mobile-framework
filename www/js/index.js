@@ -43,6 +43,20 @@ var plab = {
 			connected : false,
 			reconnecting : false
 		},
+		
+		errorSubscribers : [],
+		messageSubscribers : [],
+		
+		notifyErrorString : function (string) {
+			for (var i = 0; i < plab.errorSubscribers.length; i++) {
+				plab.errorSubscribers[i] (string);
+			}
+		},
+		notifyMessage : function (string) {
+			for (var i = 0; i < plab.messageSubscribers.length; i++) {
+				plab.messageSubscribers[i] (string);
+			}
+		},
 
 		// Initialize er funksjonen som starter det hele
 		initialize : function() {
@@ -294,6 +308,24 @@ var plab = {
 			// TODO
 		}
 };
+
+var plabPjsBridge {
+	getWidth : function () {
+		return window.innerWidth;
+	},
+	getHeight : function () {
+		return window.innerHeight;
+	},
+	write : function (string) {
+		// TODO
+	},
+	subscribeRead : function (obj) {
+		// TODO
+	},
+	subscribeError : function (obj) {
+		// TODO
+	}
+}
 
 plab.initialize();
 
