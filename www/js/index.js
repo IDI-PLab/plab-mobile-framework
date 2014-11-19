@@ -142,6 +142,7 @@ var plab = {
 		},
 		initBLEFailure : function(obj) {
 			plab.btInfo.failed = true;
+			plab.notifyErrorString ("InitFailure: " + obj.error + " - " + obj.message);
 			plab.updateScreen();
 		},
 		updateBLEList : function() {
@@ -171,6 +172,7 @@ var plab = {
 		},
 		startScanFailure : function(obj) {
 			plab.btInfo.failed = true;
+			plab.notifyErrorString ("ScanFailure: " + obj.error + " - " + obj.message);
 			plab.updateScreen();
 		},
 		scanTimeout : function() {
@@ -207,12 +209,14 @@ var plab = {
 		connectFailure : function(obj) {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
+			plab.notifyErrorString ("ConnectFailure: " + obj.error + " - " + obj.message);
 			plab.clearConnectTimeout ();
 			plab.updateScreen ();
 		},
 		connectTimeout : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
+			plab.notifyErrorString ("ConnectFailure: Timeout");
 			plab.updateScreen ();
 			plab.timers.connect = null;
 		},
@@ -252,12 +256,14 @@ var plab = {
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
 			plab.btInfo.failed = true;
+			plab.notifyErrorString ("ReconnectFailure: " + obj.error + " - " + obj.message);
 			plab.updateScreen ();
 		},
 		reconnectTimeout : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
 			plab.btInfo.failed = true;
+			plab.notifyErrorString ("ReconnectFailure: Timeout");
 			plab.updateScreen ();
 			plab.timers.reconnect = null;
 		},
@@ -285,6 +291,7 @@ var plab = {
 		},
 		disconnectFailure : function (obj) {
 			// hundre prosent sikker på at tilkobling er lukket
+			plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
 			plab.closeDevice ();
 		},
 		closeDevice : function () {
@@ -300,7 +307,7 @@ var plab = {
 			}
 		},
 		closeFailure : function (obj) {
-			// Lar denne stå om vi trenger den senere
+			plab.notifyErrorString ("CloseFailure: " + obj.error + " - " + obj.message);
 		},
 		
 		// SUBSCRIBE
