@@ -398,6 +398,16 @@ var plabPjsBridge {
 	}
 }
 
+/*
+ * -------------------------DEBUG-----------------------
+ */
+plab.errorSubscribers[0] = function (string) {
+	document.getElementById("plab-debug").innerHTML += string + "<br />";
+}
+/*
+ * -----------------------END--------------------------
+ */
+
 plab.initialize();
 
 /*
