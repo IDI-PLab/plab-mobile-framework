@@ -86,44 +86,44 @@ var plab = {
 		},
 		
 		// onDeviceReady er metoden som blir kjørt når det er trygt å kalle cordova funksjoner
-		onDeviceReady : function() {
+		onDeviceReady : function () {
 			// plab.r... pga scope av kallet. Metoden kjøres ikke som klassemetode.
-			plab.receivedEvent("deviceready");
+			plab.receivedEvent ("deviceready");
 		},
 		// receivedEvent er funksjon som kalles når vi mottar en livssykel event for appen 
-		receivedEvent : function(id) {
+		receivedEvent : function (id) {
 			if (id == "deviceready") {
 				this.ready = true;
-				this.updateScreen();
+				this.updateScreen ();
 			}
 		},
 		// updateScreen har ansvar for å tegne valgt skjerm
-		updateScreen : function() {
+		updateScreen : function () {
 			var cont = document.getElementById("plab-content");
 			cont.className = this.state + "-select plab-" + this.getStatus() + "-select";
 		},
 		// showIntro er funksjonen vi skal kalle når vi skal vise intro skjermen
-		showIntro : function() {
+		showIntro : function () {
 			this.state = this.states[0];
 			this.updateScreen();
 		},
 		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
-		showConnect : function() {
+		showConnect : function () {
 			this.state = this.states[1];
-			// TODO
-			this.updateScreen();
+			this.initBLE ();
+			this.updateScreen ();
 		},
 		// showUserSelect er funksjonen vi skal kalle når vi skal vise ntnu brukernavn velgeren 
-		showUserSelect : function() {
+		showUserSelect : function () {
 			this.state = this.states[2];
 			// TODO
-			this.updateScreen();
+			this.updateScreen ();
 		},
 		// showRedirect er funksjonen vi skal kalle når vi holder på å navigere til brukerside
-		showRedirect : function() {
+		showRedirect : function () {
 			this.state = this.states[3];
 			// TODO
-			this.updateScreen();
+			this.updateScreen ();
 		},
 		
 		
@@ -146,6 +146,7 @@ var plab = {
 			plab.updateScreen();
 		},
 		updateBLEList : function() {
+			// TODO Restart scan
 			document.getElementById("plab-devices").innerHTML = "";
 			bluetoothle.startScan(this.startScanSuccess, this.startScanFailure, null);
 		},
@@ -180,19 +181,20 @@ var plab = {
 			plab.timers.scan = null;
 		},
 		stopAndClearScanTimeout : function() {
-			if (this.timer.scan != null) {
+			if (this.timers.scan != null) {
 				clearTimeout(this.timers.scan);
 				this.scanTimeout();
 			}
 		},
 		// CONNECT
 		connectDevice : function(address) {
-			this.stopAndClearScanTimeout();
+			plab.stopAndClearScanTimeout ();
 		    var paramsObj = {"address":address};
-			bluetoothle.connect(this.connectSuccess, this.connectFailure, paramsObj);
-			this.timers.connect = setTimeout(this.connectTimeout, 5000);
+			bluetoothle.connect (plab.connectSuccess, plab.connectFailure, paramsObj);
+			plab.timers.connect = setTimeout(plab.connectTimeout, 5000);
 		},
 		connectSuccess : function(obj) {
+			alert(JSON.stringify(obj));
 			if (obj.status == "connected") {
 				// Her ville vi trengt tjenesteoppdagelse for iOS hvis vi brydde oss om slikt
 				plab.clearConnectTimeout ();
@@ -404,6 +406,18 @@ var plabPjsBridge = {
  */
 plab.errorSubscribers[0] = function (string) {
 	document.getElementById("plab-debug").innerHTML += string + "<br />";
+}
+
+function sendLong() {
+	plab.write("hei. Dette er en kjempemye lengre en bare så du vet det. Tester masse rart her. æøå. Skjønner du");
+}
+function sendShort() {
+	plab.write("hei");
+}
+function listenNow() {
+	plab.messageSubscribers[plab.messageSubscribers.length] = function (string) {
+		document.getElementById("test-out").innerHTML += string + "<br />";
+	}
 }
 /*
  * -----------------------END--------------------------
