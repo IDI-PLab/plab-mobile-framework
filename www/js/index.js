@@ -254,7 +254,39 @@ var plab = {
 		},
 		
 		// DISCONNECT
-		disconnectDevice : function() {},
+		disconnectDevice : function() {
+			bluetoothle.disconnect(plab.disconnectSuccess, plab.disconnectFailure);
+			plab.btInfo.connected = false;
+			plab.btInfo.reconnecting = false;
+		},
+		disconnectSuccess : function(obj) {
+			if (obj.status == "disconnected") {
+				plab.closeDevice();
+			} else if (obj.status == "disconnecting") {
+				// Lar denne stå hvis den trengs seinere
+			} else {
+				// Lar denne stå hvis den trengs seinere
+			}
+		},
+		disconnectFailure : function(obj) {
+			// hundre prosent sikker på at tilkobling er lukket
+			plab.closeDevice();
+		},
+		closeDevice : function () {
+			plab.btInfo.connected = false;
+			plab.btInfo.reconnecting = false;
+			bluetoothle.close(plab.closeSuccess, plab.closeFailure);
+		},
+		closeSuccess : function (obj) {
+			if (obj.status == "closed") {
+				// Lar denne stå om vi trenger den senere
+			} else {
+				// Lar denne stå om vi trenger den senere
+			}
+		},
+		closeFailure : function (obj) {
+			// Lar denne stå om vi trenger den senere
+		},
 		
 		// -------------------------------------------------------------------
 		// Tilkobling til NTNU bruker spesifikke funksjoner
