@@ -193,46 +193,47 @@ var plab = {
 		connectSuccess : function(obj) {
 			if (obj.status == "connected") {
 				// Her ville vi trengt tjenesteoppdagelse for iOS hvis vi brydde oss om slikt
-				plab.clearConnectTimeout();
+				plab.clearConnectTimeout ();
 				plab.btInfo.connected = true;
 				plab.btInfo.failed = false;
-				plab.showUserSelect();
+				plab.showUserSelect ();
+				plab.startSubscribe ();
 			} else if (obj.status != "connecting") {
 				plab.btInfo.connected = false;
 				plab.btInfo.failed = true;
-				plab.updateScreen();
+				plab.updateScreen ();
 			}
 		},
 		connectFailure : function(obj) {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
-			plab.clearConnectTimeout();
-			plab.updateScreen();
+			plab.clearConnectTimeout ();
+			plab.updateScreen ();
 		},
-		connectTimeout : function() {
+		connectTimeout : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
-			plab.updateScreen();
+			plab.updateScreen ();
 			plab.timers.connect = null;
 		},
-		clearConnectTimeout : function() {
+		clearConnectTimeout : function () {
 			if (this.timers.connect != null) {
-				clearTimeout(this.timers.connect);
+				clearTimeout (this.timers.connect);
 				this.timers.connect = null;
 			}
 		},
 		//RECONNECT
 		afterReconnect : [],
-		reconnect : function() {
+		reconnect : function () {
 			if (!this.btInfo.reconnecting) {
 				this.btInfo.reconnecting = true;
-				bluetoothle.reconnect(plab.reconnectSuccess, plab.reconnectFailure);
-				plab.timers.reconnect = setTimeout(reconnectTimeout, 5000);
+				bluetoothle.reconnect (plab.reconnectSuccess, plab.reconnectFailure);
+				plab.timers.reconnect = setTimeout (reconnectTimeout, 5000);
 			}
 		},
 		reconnectSuccess : function(obj) {
 			if (obj.status == "connected") {
-				plab.clearReconnectTimeout();
+				plab.clearReconnectTimeout ();
 				for (var i = 0; i < plab.afterReconnect.length; i++) {
 					plab.afterReconnect[i] ();
 				}
@@ -241,55 +242,55 @@ var plab = {
 			} else if (obj.status == "connecting") {
 				// Lar denne stå om vi oppdager noe vi trenger den til.
 			} else {
-				plab.disconnectDevice();
+				plab.disconnectDevice ();
 				plab.btInfo.reconnecting = false;
-				plab.clearReconnectTimeout();
+				plab.clearReconnectTimeout ();
 			}
 		},
-		reconnectFailure : function(obj) {
-			plab.clearReconnectTimeout();
+		reconnectFailure : function (obj) {
+			plab.clearReconnectTimeout ();
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
 			plab.btInfo.failed = true;
-			plab.updateScreen();
+			plab.updateScreen ();
 		},
-		reconnectTimeout : function() {
+		reconnectTimeout : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
 			plab.btInfo.failed = true;
-			plab.updateScreen();
+			plab.updateScreen ();
 			plab.timers.reconnect = null;
 		},
-		clearReconnectTimeout : function() {
+		clearReconnectTimeout : function () {
 			if (this.timers.reconnect != null) {
-				clearTimeout(this.timers.reconnect);
+				clearTimeout (this.timers.reconnect);
 				this.timers.reconnect = null;
 			}
 		},
 		
 		// DISCONNECT
-		disconnectDevice : function() {
-			bluetoothle.disconnect(plab.disconnectSuccess, plab.disconnectFailure);
+		disconnectDevice : function () {
+			bluetoothle.disconnect (plab.disconnectSuccess, plab.disconnectFailure);
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
 		},
-		disconnectSuccess : function(obj) {
+		disconnectSuccess : function (obj) {
 			if (obj.status == "disconnected") {
-				plab.closeDevice();
+				plab.closeDevice ();
 			} else if (obj.status == "disconnecting") {
 				// Lar denne stå hvis den trengs seinere
 			} else {
 				// Lar denne stå hvis den trengs seinere
 			}
 		},
-		disconnectFailure : function(obj) {
+		disconnectFailure : function (obj) {
 			// hundre prosent sikker på at tilkobling er lukket
-			plab.closeDevice();
+			plab.closeDevice ();
 		},
 		closeDevice : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
-			bluetoothle.close(plab.closeSuccess, plab.closeFailure);
+			bluetoothle.close (plab.closeSuccess, plab.closeFailure);
 		},
 		closeSuccess : function (obj) {
 			if (obj.status == "closed") {
@@ -300,6 +301,36 @@ var plab = {
 		},
 		closeFailure : function (obj) {
 			// Lar denne stå om vi trenger den senere
+		},
+		
+		// SUBSCRIBE
+		startSubscribe : function () {
+			var params = {
+					"serviceUuid":plab.serviceInfo.serviceUUID,
+					"characteristicUuid":plab.serviceInfo.rxUUID,
+					"isNotification":true
+					};
+			
+			bluetoothle.subscribe(
+					function (obj) {
+						try {
+							if (obj.status == "subscribedResult") {
+								// Send videre.
+								plab.notifyMessage (bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
+							} else if (obj.status == "subscribed") {
+								// Ingenting her
+							} else {
+								plab.notifyErrorString ("UnknownSubscribeStatus");
+							}
+						} catch (e) {
+							plab.notifyErrorString ("SubscribeFailure: " + e.message);
+						}
+					},
+					function (obj) {
+						plab.notifyErrorString ("SubscribeFailure: " + obj.error + " - " + obj.message);
+					},
+					params
+			);
 		},
 		
 		// -------------------------------------------------------------------
@@ -320,10 +351,10 @@ var plabPjsBridge {
 		// TODO
 	},
 	subscribeRead : function (obj) {
-		// TODO
+		messageSubscribers[messageSubscribers.length] = obj.read;
 	},
 	subscribeError : function (obj) {
-		// TODO
+		errorSubscribers[errorSubscribers.length] = obj.read;
 	}
 }
 
