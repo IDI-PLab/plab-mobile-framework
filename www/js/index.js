@@ -170,7 +170,6 @@ var plab = {
 		},
 		// CONNECT
 		connectDevice : function(address) {
-			// TODO
 			this.stopAndClearScanTimeout();
 		    var paramsObj = {"address":address};
 			bluetoothle.connect(this.connectSuccess, this.connectFailure, paramsObj);
@@ -207,6 +206,16 @@ var plab = {
 			}
 		},
 		//RECONNECT
+		reconnect : function() {
+			bluetoothle.reconnect(plab.reconnectSuccess, plab.reconnectFailure);
+			plab.timers.reconnect = setTimeout(reconnectTimeout, 5000);
+		},
+		reconnectSuccess : function(obj) {},
+		reconnectFailure : function(obj) {},
+		reconnectTimeout : function() {
+			// TODO
+		},
+		clearReconnectTimeout : function() {},
 		
 		// -------------------------------------------------------------------
 		// Tilkobling til NTNU bruker spesifikke funksjoner
