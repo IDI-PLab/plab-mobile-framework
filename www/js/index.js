@@ -17,7 +17,7 @@
  * under the License.
  */
 var plab = {
-		// States er alle tilstandene/ skrjermene som vises i appen
+		// States er alle tilstandene/ skjermene som vises i appen
 		states : ["plab-intro","plab-connect","plab-user-select","plab-redirect"],
 		// state er tilstanden vi er i akkurat nå
 		state : null,
@@ -57,7 +57,7 @@ var plab = {
 				plab.messageSubscribers[i] (string);
 			}
 		},
-
+		
 		// Initialize er funksjonen som starter det hele
 		initialize : function() {
 			this.state = this.states[0];
@@ -309,7 +309,7 @@ var plab = {
 		closeFailure : function (obj) {
 			plab.notifyErrorString ("CloseFailure: " + obj.error + " - " + obj.message);
 		},
-		
+
 		// SUBSCRIBE
 		startSubscribe : function () {
 			var params = {
@@ -344,28 +344,28 @@ var plab = {
 		write : function (string) {
 			if (plab.btInfo.connected) {
 				var params = {
-						"value":bluetoothle.bytesToEncodedString(bluetoothle.stringToBytes(message)),
-						"serviceUuid":plab.serviceInfo.serviceUUID,
-						"characteristicUuid":plab.serviceInfo.txUUID,
-						"type":"noResponse"
+						"value" : bluetoothle.bytesToEncodedString (bluetoothle.stringToBytes (message)),
+						"serviceUuid" : plab.serviceInfo.serviceUUID,
+						"characteristicUuid" : plab.serviceInfo.txUUID,
+						"type" : "noResponse"
 				};
 				bluetootle.isConnected (
-						function (conn) {
-							if (conn.isConnected)) {
-								bluetoothle.write (
-										function (obj) {/*Inget svar*/},
-										function (obj) {
-											plab.notifyErrorString ("WriteFailure: " + obj.error + " - " + obj.message);
-										},
-										params
-								);
-							} else {
-								plab.afterReconnect[plab.afterReconnect.length] = function() {
-									plab.write(string);
-								};
-								plab.reconnect ();
-							}
+					function (conn) {
+						if (conn.isConnected) {
+							bluetoothle.write (
+									function (obj) {},
+									function (obj) {
+										plab.notifyErrorString ("WriteFailure: " + obj.error + " - " + obj.message);
+									},
+									params
+							);
+						} else {
+							plab.afterReconnect[plab.afterReconnect.length] = function() {
+								plab.write(string);
+							};
+							plab.reconnect ();
 						}
+					}
 				);
 				
 			} else {
@@ -379,7 +379,7 @@ var plab = {
 			// TODO
 		}
 };
-
+/*
 var plabPjsBridge {
 	getWidth : function () {
 		return window.innerWidth;
@@ -397,7 +397,7 @@ var plabPjsBridge {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
 	}
 }
-
+*/
 /*
  * -------------------------DEBUG-----------------------
  */
@@ -409,7 +409,6 @@ plab.errorSubscribers[0] = function (string) {
  */
 
 plab.initialize();
-
 /*
  * Her følger kode some er spesiell for rammeverksappen
  */
