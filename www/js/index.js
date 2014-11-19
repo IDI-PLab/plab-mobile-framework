@@ -333,6 +333,39 @@ var plab = {
 			);
 		},
 		
+		// WRITE
+		write : function (string) {
+			if (plab.btInfo.connected) {
+				var params = {
+						"value":bluetoothle.bytesToEncodedString(bluetoothle.stringToBytes(message)),
+						"serviceUuid":plab.serviceInfo.serviceUUID,
+						"characteristicUuid":plab.serviceInfo.txUUID,
+						"type":"noResponse"
+				};
+				bluetootle.isConnected (
+						function (conn) {
+							if (conn.isConnected)) {
+								bluetoothle.write (
+										function (obj) {/*Inget svar*/},
+										function (obj) {
+											plab.notifyErrorString ("WriteFailure: " + obj.error + " - " + obj.message);
+										},
+										params
+								);
+							} else {
+								plab.afterReconnect[plab.afterReconnect.length] = function() {
+									plab.write(string);
+								};
+								plab.reconnect ();
+							}
+						}
+				);
+				
+			} else {
+				plab.notifyErrorString ("WriteFailure: Not connected");
+			}
+		},
+		
 		// -------------------------------------------------------------------
 		// Tilkobling til NTNU bruker spesifikke funksjoner
 		userSelected : function() {
@@ -348,13 +381,13 @@ var plabPjsBridge {
 		return window.innerHeight;
 	},
 	write : function (string) {
-		// TODO
+		plab.write (string);
 	},
 	subscribeRead : function (obj) {
-		messageSubscribers[messageSubscribers.length] = obj.read;
+		plab.messageSubscribers[plab.messageSubscribers.length] = obj.read;
 	},
 	subscribeError : function (obj) {
-		errorSubscribers[errorSubscribers.length] = obj.read;
+		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
 	}
 }
 
