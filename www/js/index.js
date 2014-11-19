@@ -379,8 +379,9 @@ var plab = {
 			// TODO
 		}
 };
-/*
-var plabPjsBridge {
+
+
+var plabPjsBridge = {
 	getWidth : function () {
 		return window.innerWidth;
 	},
@@ -396,8 +397,8 @@ var plabPjsBridge {
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
 	}
-}
-*/
+};
+
 /*
  * -------------------------DEBUG-----------------------
  */
