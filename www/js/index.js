@@ -127,10 +127,37 @@ var plab = {
 		},
 		// showProcessing er funksjonen som gjør vi går over til processing
 		showProcessing : function () {
-			var usrName = document.getElementById("").value;
+			// Hent referanser til elementene som trengs
+			var usrName = document.getElementById("plab-username").value;
+			var procLoc = "http://folk.ntnu.no/" + usrName.replace(/\s/g, "") + "/plab/plab.pde";
 			var canvas = document.getElementById("plab-canvas");
-			Processing.loadSketchFromSources (canvas, [])
-			// TODO
+			// Gjør rammeverket usynlig
+			document.getElementsByTagName("body")[0].className = "";
+			// Last processing
+			Processing.loadSketchFromSources (canvas, [procLoc]);
+			
+			// Make canvas fill screen
+			var w = plabPjsBridge.getWidth ();
+			var h = plabPjsBridge.getHeight ();
+			canvas.width = w;
+			canvas.height = h;
+			/*
+			canvas.style.width = w + "px";
+			canvas.style.height = h + "px";*/
+			
+			var funk = function () {
+				var p = Processing.getInstanceById ("plab-canvas");
+				if (p != null) {
+					try {
+						p.bindPLabBridge (plabPjsBridge);
+					} catch (e) {
+						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
+					}
+				} else {
+					setTimeout (funk, 1000);
+				}
+			};
+			funk ();
 		},
 		
 		
@@ -423,12 +450,17 @@ var plabPjsBridge = {
 	},
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
-	},
+	}/*,
 	setSize : function (width, height) {
+		//alert ("size: " + width + " " + height);
 		var canvas = document.getElementById("plab-canvas");
 		canvas.width = width;
 		canvas.height = height;
-	}
+		// Make canvas fill screen
+		canvas.style.width = plabPjsBridge.getWidth () + "px";
+		canvas.style.height = plabPjsBridge.getHeight () + "px";
+		alert ("size done");
+	}*/
 };
 
 /*
