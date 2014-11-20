@@ -125,6 +125,13 @@ var plab = {
 			// TODO
 			this.updateScreen ();
 		},
+		// showProcessing er funksjonen som gjør vi går over til processing
+		showProcessing : function () {
+			var usrName = document.getElementById("").value;
+			var canvas = document.getElementById("plab-canvas");
+			Processing.loadSketchFromSources (canvas, [])
+			// TODO
+		},
 		
 		
 		// -------------------------------------------------------------------
@@ -391,13 +398,13 @@ var plab = {
 			} else {
 				plab.notifyErrorString ("WriteFailure: Not connected");
 			}
-		},
+		}/*,
 		
 		// -------------------------------------------------------------------
 		// Tilkobling til NTNU bruker spesifikke funksjoner
 		userSelected : function() {
 			// TODO
-		}
+		}*/
 };
 
 
@@ -416,6 +423,11 @@ var plabPjsBridge = {
 	},
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
+	},
+	setSize : function (width, height) {
+		var canvas = document.getElementById("plab-canvas");
+		canvas.width = width;
+		canvas.height = height;
 	}
 };
 

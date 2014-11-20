@@ -12,6 +12,7 @@
         
         
         <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/processing.js/processing.min.js"></script>
         <script type="text/javascript">
         
         </script>
@@ -54,15 +55,15 @@
     		</div>
     		<div class="plab-user-select">
     			<div class="plab-list">
-    				<!-- <div>Skriv inn NTNU bruker</div>
-    				<input id="plab-username" type="text" onchange="plab.userSelected()" />  -->
-    				<button onclick="testing.sendShort()">Send kort</button>
+    				<div>Skriv inn NTNU bruker</div>
+    				<input id="plab-username" type="text" /><!--  onchange="plab.userSelected()" /> -->
+    				<!-- <button onclick="testing.sendShort()">Send kort</button>
     				<br />
     				<button onclick="testing.sendLong()">Send lang</button>
     				<br />
     				<button onclick="plab.disconnectDevice()">Koble fra</button>
     				<br />
-    				<button onclick="testing.listenNow()">Hør etter</button>
+    				<button onclick="testing.listenNow()">Hør etter</button> -->
     				<div id="test-out"></div>
     			</div>
     		</div>
@@ -77,7 +78,8 @@
     			<button onclick="plab.showIntro()" class="plab-panic">Avbryt</button>
     		</div>
     		<div class="plab-user-select">
-    			<button onclick="plab.showRedirect()">Ok!</button>
+    			<!-- <button onclick="plab.showRedirect()">Ok!</button> -->
+    			<button onclick="plab.showProcessing()">Last Processing!</button>
     			<button onclick="plab.showIntro()" class="plab-panic">Tilbake</button>
     		</div>
     		<div class="plab-redirect">
@@ -86,6 +88,7 @@
     	</footer>
     </article>
     <div id="plab-debug"></div>
+    <canvas id="plab-canvas"></canvas>
     	<!-- <div id="plab-output"></div>
         <div id="content">
         	<div class="plab-app">
