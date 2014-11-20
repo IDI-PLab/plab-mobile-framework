@@ -141,9 +141,6 @@ var plab = {
 			var h = plabPjsBridge.getHeight ();
 			canvas.width = w;
 			canvas.height = h;
-			/*
-			canvas.style.width = w + "px";
-			canvas.style.height = h + "px";*/
 			
 			var funk = function () {
 				var p = Processing.getInstanceById ("plab-canvas");
@@ -450,17 +447,7 @@ var plabPjsBridge = {
 	},
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
-	}/*,
-	setSize : function (width, height) {
-		//alert ("size: " + width + " " + height);
-		var canvas = document.getElementById("plab-canvas");
-		canvas.width = width;
-		canvas.height = height;
-		// Make canvas fill screen
-		canvas.style.width = plabPjsBridge.getWidth () + "px";
-		canvas.style.height = plabPjsBridge.getHeight () + "px";
-		alert ("size done");
-	}*/
+	}
 };
 
 /*
