@@ -196,6 +196,8 @@ var plab = {
 		connectSuccess : function(obj) {
 			alert(JSON.stringify(obj));
 			if (obj.status == "connected") {
+				// TODO ------------------------------------------------------
+				// TODO Trengs discovery før vi kan koble til mon tro. Fikses snart
 				// Her ville vi trengt tjenesteoppdagelse for iOS hvis vi brydde oss om slikt
 				plab.clearConnectTimeout ();
 				plab.btInfo.connected = true;
@@ -322,7 +324,7 @@ var plab = {
 					};
 			
 			// TODO REMOVE TESTCODE
-			plab.notifyMessage (JSON.stringify (params));
+			alert (JSON.stringify (params));
 			
 			bluetoothle.subscribe(
 					function (obj) {
