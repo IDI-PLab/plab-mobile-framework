@@ -201,7 +201,8 @@ var plab = {
 				plab.btInfo.connected = true;
 				plab.btInfo.failed = false;
 				plab.showUserSelect ();
-				plab.startSubscribe ();
+				// Make subscription after 1 second, allow the connection time to finish
+				setTimeout (plab.startSubscribe, 1000);
 			} else if (obj.status != "connecting") {
 				plab.btInfo.connected = false;
 				plab.btInfo.failed = true;
@@ -320,8 +321,14 @@ var plab = {
 					"isNotification":true
 					};
 			
+			// TODO REMOVE TESTCODE
+			plab.notifyMessage (JSON.stringify (params));
+			
 			bluetoothle.subscribe(
 					function (obj) {
+						// TODO REMOVE TESTCODE
+						plab.notifyMessage (JSON.stringify (obj));
+						
 						try {
 							if (obj.status == "subscribedResult") {
 								// Send videre.
@@ -336,6 +343,9 @@ var plab = {
 						}
 					},
 					function (obj) {
+						// TODO REMOVE TESTCODE
+						plab.notifyMessage (JSON.stringify (obj));
+						
 						plab.notifyErrorString ("SubscribeFailure: " + obj.error + " - " + obj.message);
 					},
 					params
@@ -351,8 +361,14 @@ var plab = {
 						"characteristicUuid" : plab.serviceInfo.txUUID,
 						"type" : "noResponse"
 				};
+				// TODO REMOVE TESTCODE
+				plab.notifyMessage (JSON.stringify (params));
+				
 				bluetootle.isConnected (
 					function (conn) {
+						// TODO REMOVE TESTCODE
+						plab.notifyMessage (JSON.stringify (conn));
+						
 						if (conn.isConnected) {
 							bluetoothle.write (
 									function (obj) {},
@@ -408,17 +424,19 @@ plab.errorSubscribers[0] = function (string) {
 	document.getElementById("plab-debug").innerHTML += string + "<br />";
 }
 
-function sendLong() {
-	plab.write("hei. Dette er en kjempemye lengre en bare så du vet det. Tester masse rart her. æøå. Skjønner du");
-}
-function sendShort() {
-	plab.write("hei");
-}
-function listenNow() {
-	plab.messageSubscribers[plab.messageSubscribers.length] = function (string) {
-		document.getElementById("test-out").innerHTML += string + "<br />";
+var testing = {
+	sendLong : function () {
+		plab.write("hei. Dette er en kjempemye lengre en bare så du vet det. Tester masse rart her. æøå. Skjønner du");
+	}, 
+	sendShort : function () {
+		plab.write("hei");
+	},
+	listenNow : function () {
+		plab.messageSubscribers[plab.messageSubscribers.length] = function (string) {
+			document.getElementById("test-out").innerHTML += string + "<br />";
+		}
 	}
-}
+};
 /*
  * -----------------------END--------------------------
  */
@@ -428,7 +446,7 @@ plab.initialize();
  * Her følger kode some er spesiell for rammeverksappen
  */
 
-var ref;
+// TODO DET UNDER SKAL FJERNES: Det er ikke html vi skal hente, men rene *.pde filer
 
 // Henter html data lagret på brukerens hjemmeområde.
 // Vil evaluere alle script som ligger i html koden 
