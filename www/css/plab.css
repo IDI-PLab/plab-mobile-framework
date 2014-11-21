@@ -32,12 +32,27 @@ body {
     font-size:200%;
 }
 
+#plab-debug {
+	display: none;
+}
+
 #plab-content {
 	display: none;
 }
 
 .plab #plab-content {
 	display: block;
+}
+
+.plab #plab-canvas {
+	display: none;
+}
+
+#plab-canvas {
+	display: block;
+	margin: 0;
+	padding: 0;
+	border: none;
 }
 
 #plab-header {
