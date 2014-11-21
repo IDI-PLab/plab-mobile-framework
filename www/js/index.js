@@ -26,7 +26,8 @@ var plab = {
 		state : null,
 		// Ready er om vi kan kalle cordova funksjonalitet, om enheten er klar.
 		ready : false,
-		// Service info er riktig for adafruit ble. Ved annen maskinvare kan det være nødvendig å endre disse
+		// Service info er riktig for adafruit ble. Ved annen maskinvare kan det være noedvendig å endre disse
+		// Saavidt vi vet naa, stemmer det med UART for alle nordic semiconductor ble enheter
 		serviceInfo : {
 			serviceUUID : "6E400001-B5A3-F393-E0A9-E50E24DCCA9E", // for the Service
 			txUUID :  "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", // for the TX Characteristic (Property = Notify)
@@ -53,9 +54,15 @@ var plab = {
 		},
 		
 		// TODO HACK / TESTCODE
+		// Denne lagrer addressen til enheten vi er tilkoblet til.
+		// Den brukes i forbindelse med tjenesteoppdagelse.
+		// Tjenesteoppdagelsen er tenkt flyttet etterhvert, saa denne faar staa til da.
 		btAddr : null,
 		
-		// ----------------------- USER FEEDBACK -------------------
+		// ---------- METODER SOM KALLES ETTER RECONNECT ER KJOERT -----------
+		afterReconnect : [],
+		
+		// ----------------------- USER FEEDBACK -----------------------------
 		errorSubscribers : [],
 		messageSubscribers : [],
 		
@@ -78,12 +85,12 @@ var plab = {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			this.showIntro();
 		},
-		// onDeviceReady er metoden som blir kjørt når det er trygt å kalle cordova funksjoner
+		// onDeviceReady er metoden som blir kjørt når det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
-			// plab.r... pga scope av kallet. Metoden kjøres ikke som klassemetode.
+			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
 			plab.receivedEvent ("deviceready");
 		},
-		// receivedEvent er funksjon som kalles når vi mottar en livssykel event for appen 
+		// receivedEvent er funksjon som kalles naar vi mottar en livssykel event for appen 
 		receivedEvent : function (id) {
 			if (id == "deviceready") {
 				this.ready = true;
@@ -128,13 +135,14 @@ var plab = {
 			this.initBLE ();
 			this.updateScreen ();
 		},
-		// showUserSelect er funksjonen vi skal kalle når vi skal vise ntnu brukernavn velgeren 
+		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
 		showUserSelect : function () {
 			this.state = this.states[2];
 			// TODO
 			this.updateScreen ();
 		},
-		// showRedirect er funksjonen vi skal kalle når vi holder på å navigere til brukerside
+		// showRedirect er funksjonen vi skal kalle når vi holder paa aa navigere til brukerside
+		// TODO Denne er gjort obsolete naar vi kun skal bruke processing.js, og vil bli fjernet
 		showRedirect : function () {
 			this.state = this.states[3];
 			// TODO
@@ -194,7 +202,9 @@ var plab = {
 			plab.updateScreen();
 		},
 		updateBLEList : function() {
+			
 			// TODO Restart scan
+			
 			document.getElementById("plab-devices").innerHTML = "";
 			bluetoothle.startScan(this.startScanSuccess, this.startScanFailure, null);
 		},
@@ -236,15 +246,15 @@ var plab = {
 		},
 		// CONNECT
 		connectDevice : function(address) {
-			// TODO
+			// TODO se kommentar paa plab.btAddr
 			plab.btAddr = address;
 			plab.stopAndClearScanTimeout ();
 		    var paramsObj = {"address":address};
 			bluetoothle.connect (plab.connectSuccess, plab.connectFailure, paramsObj);
 			plab.timers.connect = setTimeout(plab.connectTimeout, 5000);
 		},
+		// Blir kallt naar tilkobling er vellykket
 		connectSuccess : function(obj) {
-			try {
 			if (obj.status == "connected") {
 				
 				plab.clearConnectTimeout ();
@@ -254,29 +264,31 @@ var plab = {
 				
 				// Veien videre bestemmes av plattform
 				if (window.device.platform == plab.platforms.iOS) {
+					// iOS: services finner kun den tjenesten vi vil koble til.
 					var params = {
 							"address" : plab.btAddr,
 							"serviceUuids": [ plab.serviceInfo.serviceUUID ] 
 					};
 					bluetoothle.services (plab.servicesSuccess, plab.servicesFailure, params);
 				} else if (window.device.platform == plab.platforms.android) {
+					// android: discover finner alle tjenester med beskrivelse som er paa enheten.
 					var params = {
 							"address" : plab.btAddr
 					};
 					bluetoothle.discover (plab.discoverSuccess, plab.discoverFailure, params);
 				} else {
+					// Greit aa si ifra om at dette ikke vil fungere, vi stoetter bare iOS/android
 					alert ("This platform is not supported");
 				}
 				
 			} else if (obj.status != "connecting") {
+				// Holder paa med tilkobling enda, ikke gjoer noe spesielt
 				plab.btInfo.connected = false;
 				plab.btInfo.failed = true;
 				plab.updateScreen ();
 			}
-			} catch (e) {
-				alert (e);
-			}
 		},
+		// connectFailure kalles hvis tilkobling til en enhet feiler av noen grunn
 		connectFailure : function(obj) {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
@@ -284,6 +296,7 @@ var plab = {
 			plab.clearConnectTimeout ();
 			plab.updateScreen ();
 		},
+		// Timout: connect har brukt for lang tid
 		connectTimeout : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.failed = true;
@@ -291,6 +304,7 @@ var plab = {
 			plab.updateScreen ();
 			plab.timers.connect = null;
 		},
+		// Soerg for at timeout funksjonen ikke kjoeres
 		clearConnectTimeout : function () {
 			if (this.timers.connect != null) {
 				clearTimeout (this.timers.connect);
@@ -298,7 +312,7 @@ var plab = {
 			}
 		},
 		//RECONNECT
-		afterReconnect : [],
+		// reconnect kjoeres hvis en tilkobling feiler og vi proever aa koble til igjen
 		reconnect : function () {
 			if (!this.btInfo.reconnecting) {
 				this.btInfo.reconnecting = true;
@@ -366,6 +380,7 @@ var plab = {
 			plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
 			plab.closeDevice ();
 		},
+		// closeDevice er siste frakoblingsfunksjon
 		closeDevice : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
@@ -431,10 +446,9 @@ var plab = {
 					"isNotification":true
 			};
 			
+			// Callback funksjonen for subscribes
 			bluetoothle.subscribe(
 					function (obj) {
-						// TODO REMOVE TESTCODE
-						plab.notifyMessage (JSON.stringify (obj));
 						
 						try {
 							if (obj.status == "subscribedResult") {
@@ -450,9 +464,6 @@ var plab = {
 						}
 					},
 					function (obj) {
-						// TODO REMOVE TESTCODE
-						plab.notifyMessage (JSON.stringify (obj));
-						
 						plab.notifyErrorString ("SubscribeFailure: " + obj.error + " - " + obj.message);
 					},
 					params
@@ -468,13 +479,9 @@ var plab = {
 						"characteristicUuid" : plab.serviceInfo.txUUID,
 						"type" : "noResponse"
 				};
-				// TODO REMOVE TESTCODE
-				plab.notifyMessage (JSON.stringify (params));
 				
 				bluetoothle.isConnected (
 					function (conn) {
-						// TODO REMOVE TESTCODE
-						plab.notifyMessage (JSON.stringify (conn));
 						
 						if (conn.isConnected) {
 							bluetoothle.write (
