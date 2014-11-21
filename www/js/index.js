@@ -430,12 +430,90 @@ var plab = {
 			plab.disconnectDevice ();
 		},
 		// IOS DISCOVER
-		servicesSuccess : function (obj) {},
-		servicesFailure : function (obj) {},
-		characteristicsSuccess : function (obj) {},
-		characteristicsFailure : function (obj) {},
+		servicesSuccess : function (obj) {
+			// TODO Make more robust
+			// Antar riktig tjeneste var oppdaget
+			if (obj.status == "services") {
+				var params = {
+						"address" : plab.btAddr,
+						"serviceUuid" : plab.serviceInfo.serviceUUID,
+						"characteristicUuids" : [ plab.serviceInfo.txUUID, plab.serviceInfo.rxUUID ]
+				};
+				bluetoothle.characteristics (characteristicsSuccess, characteristicsFailure, params);
+			} else {
+				plab.notifyErrorString ("ServicesFailure: Unknown status: " + obj.status);
+				plab.disconnectDevice ();
+			}
+			
+		},
+		servicesFailure : function (obj) {
+			plab.notifyErrorString ("ServicesFailure: " + obj.error + " - " + obj.message);
+			plab.disconnectDevice ();
+		},
+		characteristicsSuccess : function (obj) {
+			// TODO Make more robust
+			// Antar riktig characteristics var oppdaget
+			if (obj.status == "characteristics") {
+				var params1 = {
+						"address" : plab.btAddr,
+						"serviceUuid" : plab.serviceInfo.serviceUUID,
+						"characteristicUuid" : plab.serviceInfo.txUUID
+				};
+				var params2 = {
+						"address" : plab.btAddr,
+						"serviceUuid" : plab.serviceInfo.serviceUUID,
+						"characteristicUuid" : plab.serviceInfo.rxUUID
+				};
+				// Bruteforcer gjennom listen
+				bluetoothle.descriptors (
+						
+						function (obj) {
+							if (obj.status == "descriptors") {
+								bluetoothle.descriptors (
+										
+										function (obj1) {
+											if (obj1.status == "descriptors") {
+												plab.postDiscovery (true);
+											} else {
+												plab.notifyErrorString ("DescriptorsFailure: Unknown status: " + obj1.status);
+												plab.disconnectDevice ();
+											}
+										},
+										
+										function (obj1) {
+											plab.notifyErrorString ("DescriptorsFailure: " + obj1.error + " - " + obj1.message);
+											plab.disconnectDevice ();
+										},
+										params2
+								);
+							} else {
+								plab.notifyErrorString ("DescriptorsFailure: Unknown status: " + obj.status);
+								plab.disconnectDevice ();
+							}
+						},
+						
+						function (obj) {
+							plab.notifyErrorString ("DescriptorsFailure: " + obj.error + " - " + obj.message);
+							plab.disconnectDevice ();
+						},
+						params1
+				);
+			} else {
+				plab.notifyErrorString ("CharacteristicsFailure: Unknown status: " + obj.status);
+				plab.disconnectDevice ();
+			}
+		},
+		characteristicsFailure : function (obj) {
+			plab.notifyErrorString ("CharacteristicsFailure: " + obj.error + " - " + obj.message);
+			plab.disconnectDevice ();
+		},
+		/*
 		descriptorsSuccess : function (obj) {},
-		descriptorsFailure : function (obj) {},
+		descriptorsFailure : function (obj) {
+			plab.notifyErrorString ("DescriptorsFailure: " + obj.error + " - " + obj.message);
+			plab.disconnectDevice ();
+		},
+		*/
 
 		// -------------- SERVICE USE ----------------------------------------
 		// SUBSCRIBE
