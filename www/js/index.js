@@ -153,31 +153,44 @@ var plab = {
 			// Hent referanser til elementene som trengs
 			var usrName = document.getElementById("plab-username").value;
 			var procLoc = "http://folk.ntnu.no/" + usrName.replace(/\s/g, "") + "/plab/plab.pde";
-			var canvas = document.getElementById("plab-canvas");
+			var canvas = document.createElement ("canvas");
+			canvas.id = "plab-canvas";
+			var debug = document.getElementById ("plab-debug");
+			//var canvas = document.getElementById("plab-canvas");
 			// Gjør rammeverket usynlig
-			document.getElementsByTagName("body")[0].className = "";
+			document.body.className = "";
+			// Setter inn canvasen
+			document.body.insertBefore (canvas, document.body.firstChild);
 			// Last processing
 			Processing.loadSketchFromSources (canvas, [procLoc]);
 			
-			// Make canvas fill screen
-			var w = plabPjsBridge.getWidth ();
-			var h = plabPjsBridge.getHeight ();
-			canvas.width = w;
-			canvas.height = h;
+			
+			
+			var i = 0;
 			
 			var funk = function () {
 				var p = Processing.getInstanceById ("plab-canvas");
 				if (p != null) {
 					try {
+						//
+						// Make canvas fill screen
+						var w = plabPjsBridge.getWidth ();
+						var h = plabPjsBridge.getHeight ();
+						canvas.width = w;
+						canvas.height = h;
 						p.bindPLabBridge (plabPjsBridge);
 					} catch (e) {
 						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
 					}
 				} else {
-					setTimeout (funk, 1000);
+					if (debug != null) {
+						i++;
+						debug.innerHTML = "funk fail, p==null " + i;
+					}
+					setTimeout (funk, 500);
 				}
 			};
-			funk ();
+			setTimeout (funk, 500);
 		},
 		
 		
@@ -599,7 +612,11 @@ var plabPjsBridge = {
 		return window.innerHeight;
 	},
 	write : function (string) {
+		try {
 		plab.write (string);
+		} catch (e) {
+			alert (e);
+		}
 	},
 	subscribeRead : function (obj) {
 		plab.messageSubscribers[plab.messageSubscribers.length] = obj.read;

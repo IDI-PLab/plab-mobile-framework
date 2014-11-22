@@ -32,10 +32,6 @@ body {
     font-size:200%;
 }
 
-#plab-debug {
-	display: none;
-}
-
 #plab-content {
 	display: none;
 }
