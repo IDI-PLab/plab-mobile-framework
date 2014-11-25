@@ -22,11 +22,11 @@ var plab = {
 		
 		// States er alle tilstandene/ skjermene som vises i appen
 		states : ["plab-intro","plab-connect","plab-user-select","plab-redirect"],
-		// state er tilstanden vi er i akkurat nå
+		// state er tilstanden vi er i akkurat nÃ¥
 		state : null,
 		// Ready er om vi kan kalle cordova funksjonalitet, om enheten er klar.
 		ready : false,
-		// Service info er riktig for adafruit ble. Ved annen maskinvare kan det være noedvendig å endre disse
+		// Service info er riktig for adafruit ble. Ved annen maskinvare kan det vÃ¦re noedvendig Ã¥ endre disse
 		// Saavidt vi vet naa, stemmer det med UART for alle nordic semiconductor ble enheter
 		serviceInfo : {
 			serviceUUID : "6E400001-B5A3-F393-E0A9-E50E24DCCA9E", // for the Service
@@ -34,7 +34,7 @@ var plab = {
 			rxUUID : "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // for the RX Characteristic (Property = Write without response)
 		},
 		
-		// Timers er brukt for å holde styr på tilkoblings timeouts
+		// Timers er brukt for Ã¥ holde styr pÃ¥ tilkoblings timeouts
 		timers : {
 			scan : null,
 			connect : null,
@@ -85,7 +85,7 @@ var plab = {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			this.showIntro();
 		},
-		// onDeviceReady er metoden som blir kjørt når det er trygt aa kalle cordova funksjoner
+		// onDeviceReady er metoden som blir kjÃ¸rt nÃ¥r det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
 			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
 			plab.receivedEvent ("deviceready");
@@ -99,7 +99,7 @@ var plab = {
 		},
 		
 		// ------------------------- DISPLAY --------------------------
-		// getStatus viser til hva com skal stå i statuslinja i appen
+		// getStatus viser til hva com skal stÃ¥ i statuslinja i appen
 		getStatus : function() {
 			var ret = "";
 			switch (this.state) {
@@ -119,12 +119,12 @@ var plab = {
 			return ret;
 		},
 		
-		// updateScreen har ansvar for å tegne valgt skjerm
+		// updateScreen har ansvar for Ã¥ tegne valgt skjerm
 		updateScreen : function () {
 			var cont = document.getElementById("plab-content");
 			cont.className = this.state + "-select plab-" + this.getStatus() + "-select";
 		},
-		// showIntro er funksjonen vi skal kalle når vi skal vise intro skjermen
+		// showIntro er funksjonen vi skal kalle nÃ¥r vi skal vise intro skjermen
 		showIntro : function () {
 			this.state = this.states[0];
 			this.updateScreen();
@@ -141,14 +141,14 @@ var plab = {
 			// TODO
 			this.updateScreen ();
 		},
-		// showRedirect er funksjonen vi skal kalle når vi holder paa aa navigere til brukerside
+		// showRedirect er funksjonen vi skal kalle nÃ¥r vi holder paa aa navigere til brukerside
 		// TODO Denne er gjort obsolete naar vi kun skal bruke processing.js, og vil bli fjernet
 		showRedirect : function () {
 			this.state = this.states[3];
 			// TODO
 			this.updateScreen ();
 		},
-		// showProcessing er funksjonen som gjør vi går over til processing
+		// showProcessing er funksjonen som gjÃ¸r vi gÃ¥r over til processing
 		showProcessing : function () {
 			// Hent referanser til elementene som trengs
 			var usrName = document.getElementById("plab-username").value;
@@ -157,7 +157,7 @@ var plab = {
 			canvas.id = "plab-canvas";
 			var debug = document.getElementById ("plab-debug");
 			//var canvas = document.getElementById("plab-canvas");
-			// Gjør rammeverket usynlig
+			// GjÃ¸r rammeverket usynlig
 			document.body.className = "";
 			// Setter inn canvasen
 			document.body.insertBefore (canvas, document.body.firstChild);
@@ -342,7 +342,7 @@ var plab = {
 				plab.btInfo.reconnecting = false;
 				plab.afterReconnect.length = 0;
 			} else if (obj.status == "connecting") {
-				// Lar denne stå om vi oppdager noe vi trenger den til.
+				// Lar denne stÃ¥ om vi oppdager noe vi trenger den til.
 			} else {
 				plab.disconnectDevice ();
 				plab.btInfo.reconnecting = false;
@@ -383,13 +383,13 @@ var plab = {
 			if (obj.status == "disconnected") {
 				plab.closeDevice ();
 			} else if (obj.status == "disconnecting") {
-				// Lar denne stå hvis den trengs seinere
+				// Lar denne stÃ¥ hvis den trengs seinere
 			} else {
-				// Lar denne stå hvis den trengs seinere
+				// Lar denne stÃ¥ hvis den trengs seinere
 			}
 		},
 		disconnectFailure : function (obj) {
-			// hundre prosent sikker på at tilkobling er lukket
+			// hundre prosent sikker pÃ¥ at tilkobling er lukket
 			plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
 			plab.closeDevice ();
 		},
@@ -401,9 +401,9 @@ var plab = {
 		},
 		closeSuccess : function (obj) {
 			if (obj.status == "closed") {
-				// Lar denne stå om vi trenger den senere
+				// Lar denne stÃ¥ om vi trenger den senere
 			} else {
-				// Lar denne stå om vi trenger den senere
+				// Lar denne stÃ¥ om vi trenger den senere
 			}
 		},
 		closeFailure : function (obj) {
@@ -452,7 +452,7 @@ var plab = {
 						"serviceUuid" : plab.serviceInfo.serviceUUID,
 						"characteristicUuids" : [ plab.serviceInfo.txUUID, plab.serviceInfo.rxUUID ]
 				};
-				bluetoothle.characteristics (characteristicsSuccess, characteristicsFailure, params);
+				bluetoothle.characteristics (plab.characteristicsSuccess, plab.characteristicsFailure, params);
 			} else {
 				plab.notifyErrorString ("ServicesFailure: Unknown status: " + obj.status);
 				plab.disconnectDevice ();
@@ -635,7 +635,7 @@ plab.errorSubscribers[0] = function (string) {
 
 var testing = {
 	sendLong : function () {
-		plab.write("hei. Dette er en kjempemye lengre en bare så du vet det. Tester masse rart her. æøå. Skjønner du");
+		plab.write("hei. Dette er en kjempemye lengre en bare sÃ¥ du vet det. Tester masse rart her. Ã¦Ã¸Ã¥. SkjÃ¸nner du");
 	}, 
 	sendShort : function () {
 		plab.write("hei");
@@ -652,25 +652,25 @@ var testing = {
 
 plab.initialize();
 /*
- * Her følger kode some er spesiell for rammeverksappen
+ * Her fÃ¸lger kode some er spesiell for rammeverksappen
  */
 
 // TODO DET UNDER SKAL FJERNES: Det er ikke html vi skal hente, men rene *.pde filer
 
-// Henter html data lagret på brukerens hjemmeområde.
+// Henter html data lagret pÃ¥ brukerens hjemmeomrÃ¥de.
 // Vil evaluere alle script som ligger i html koden 
 function fetchUserData(username) {
 	
 	// Bygg url som henter data
 	var url = encodeURI("http://folk.ntnu.no/" + username + "/plab/");
 	
-	// Selve forespørselen vi skal sende
+	// Selve forespÃ¸rselen vi skal sende
     var xmlhttp = new XMLHttpRequest();
 	
-    // Callback funksjonen som blir kallt når det er statusendringer
-    // på forespørselen
+    // Callback funksjonen som blir kallt nÃ¥r det er statusendringer
+    // pÃ¥ forespÃ¸rselen
     xmlhttp.onreadystatechange = function () {
-    	// Litt debug output. Vil vise status. Kjekt å vite hvis forspørselen feiler 
+    	// Litt debug output. Vil vise status. Kjekt Ã¥ vite hvis forspÃ¸rselen feiler 
     	var out = document.getElementById("plab-output");
     	out.innerHTML = "State: " + xmlhttp.readyState;
     	out.innerHTML += " Status: " + xmlhttp.status;
@@ -678,32 +678,32 @@ function fetchUserData(username) {
     	// Sjekk om alt var i orden
         if(xmlhttp.readyState === 4){
             if (xmlhttp.status === 200) {
-            	// Isåfall, fjern debug info
+            	// IsÃ¥fall, fjern debug info
             	out.innerHTML = "";
             	// Finn elementet som skal inneholde data mottatt 
             	var cont = document.getElementById("content");
                 cont.innerHTML = (xmlhttp.responseText);
                 
-                // Kjør alle script definert i html filen. 
+                // KjÃ¸r alle script definert i html filen. 
                 var scripts = cont.getElementsByTagName("script");
                 for (var i = 0; i < scripts.length; i++) {
                 	var scr = scripts[i];
                 	if (scr.hasAttribute("src")) {
                 		// TODO LAST EKSTERNE SKRIPT
-                		// VIKTIG Å GJØRE NOE MED
+                		// VIKTIG Ã… GJÃ˜RE NOE MED
                 	} else {
                 		eval(scr.innerHTML);
                 	}
                 }
                 
-                // Sjekke om funksjonen onEnter eksisterer, isåfall utfør den 
+                // Sjekke om funksjonen onEnter eksisterer, isÃ¥fall utfÃ¸r den 
                 if (typeof onEnter === "function") {
                 	onEnter();
                 }
             }
         }
     };
-    // Fortell hvilken forespørsel type, og send den asynkront. Bruker POST for å forhindre caching 
+    // Fortell hvilken forespÃ¸rsel type, og send den asynkront. Bruker POST for Ã¥ forhindre caching 
     xmlhttp.open("POST", url , true);
     xmlhttp.send();
 }
