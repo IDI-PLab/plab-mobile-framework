@@ -16,6 +16,77 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+/*
+ * The services available for the bluetooth device we should use are:
+ * 1800: Generic Access {2a00,2a01,2a02,2a03,2a04}
+ *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml
+ * 1801: Generic Attribute {2a05}
+ *         This tells if service has changed
+ * ffe0:
+ */
+// TODO
+/*
+var rcvd = {
+		"address":"B4:99:4C:56:76:9F",
+		"status":"discovered",
+		"services":[{
+			"characteristics":[{
+				"descriptors":[],
+				"characteristicUuid":"2a00",
+				"properties":{"read":true}
+			},
+			{
+				"descriptors":[],
+				"characteristicUuid":"2a01",
+				"properties":{"read":true}
+			},
+			{
+				"descriptors":[],
+				"characteristicUuid":"2a02",
+				"properties":{"write":true,"read":true}
+			},
+			{
+				"descriptors":[],
+				"characteristicUuid":"2a03",
+				"properties":{"write":true,"read":true}
+			},
+			{
+				"descriptors":[],
+				"characteristicUuid":"2a04",
+				"properties":{"read":true}
+			}],
+			"serviceUuid":"1800"
+		},
+		{
+			"characteristics":[{
+				"descriptors":[{"descriptorUuid":"2902"}],
+				"characteristicUuid":"2a05",
+				"properties":{"indicate":true}
+			}],
+			"serviceUuid":"1801"
+		},
+		{
+			"characteristics":[{
+				"descriptors":[{
+					"descriptorUuid":"2902"
+				},
+				{
+					"descriptorUuid":"2901"
+				}],
+				"characteristicsUuid":"ffe1",
+				"properties":{
+					"writeWithoutResponse":true,
+					"read":true,
+					"notify":true}
+			}],
+			"serviceUuid":"ffe0"
+		}],
+		"name":"HMSoft"
+};
+*/
+// TODO
+
 var plab = {
 		
 		// ---------------- OBJECT FIELDS --------------------------
@@ -29,9 +100,9 @@ var plab = {
 		// Service info er riktig for adafruit ble. Ved annen maskinvare kan det være noedvendig å endre disse
 		// Saavidt vi vet naa, stemmer det med UART for alle nordic semiconductor ble enheter
 		serviceInfo : {
-			serviceUUID : "6E400001-B5A3-F393-E0A9-E50E24DCCA9E", // for the Service
-			txUUID :  "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", // for the TX Characteristic (Property = Notify)
-			rxUUID : "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" // for the RX Characteristic (Property = Write without response)
+			serviceUUID : "FFE0", // for the Service
+			txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
+			rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
 		},
 		
 		// Timers er brukt for å holde styr på tilkoblings timeouts
@@ -707,6 +778,8 @@ function fetchUserData(username) {
     xmlhttp.open("POST", url , true);
     xmlhttp.send();
 }
+
+
 
 function userReady() {
 	var user = document.getElementById("plab-username").value;
