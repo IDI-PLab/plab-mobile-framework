@@ -2,11 +2,12 @@
 <widget id="no.ntnu.plab.bt-framework" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>PLab</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        A simple app that developed for the course Programming lab at NTNU. It allows the students to easily connect their mobile devices to a bluetooth 4.0 device and communicate to it through processing.
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+    <author email="halsaune@stud.ntnu.no" href="https://github.com/IDI-PLab/plab-mobile-framework">
+        Inge Edward Halsaunet
     </author>
     <content src="index.html" />
-    <access origin="*" />
+    <access origin="http://folk.ntnu.no/*/plab" />
+    <icon src="res/logo.png" />
 </widget>

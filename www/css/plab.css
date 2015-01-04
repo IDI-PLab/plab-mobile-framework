@@ -28,8 +28,14 @@ body {
         color-stop(0.51, #E4E4E4)
     );
     background-attachment:fixed;*/
+    text-align: center;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
     font-size:200%;
+}
+
+#plab-header {
+	font-size: 150%;
+	margin: 10px;
 }
 
 #plab-content {
@@ -125,6 +131,7 @@ body {
 .plab button, .plab input {
 	font-size: inherit;
 	width: 95%;
+	margin: 0.5ex 0;
 }
 
 @keyframes fade {
