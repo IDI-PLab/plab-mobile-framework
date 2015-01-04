@@ -23,69 +23,8 @@
  *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml
  * 1801: Generic Attribute {2a05}
  *         This tells if service has changed
- * ffe0:
+ * ffe0: Default service currently used to communicate with bt device.
  */
-// TODO
-/*
-var rcvd = {
-		"address":"B4:99:4C:56:76:9F",
-		"status":"discovered",
-		"services":[{
-			"characteristics":[{
-				"descriptors":[],
-				"characteristicUuid":"2a00",
-				"properties":{"read":true}
-			},
-			{
-				"descriptors":[],
-				"characteristicUuid":"2a01",
-				"properties":{"read":true}
-			},
-			{
-				"descriptors":[],
-				"characteristicUuid":"2a02",
-				"properties":{"write":true,"read":true}
-			},
-			{
-				"descriptors":[],
-				"characteristicUuid":"2a03",
-				"properties":{"write":true,"read":true}
-			},
-			{
-				"descriptors":[],
-				"characteristicUuid":"2a04",
-				"properties":{"read":true}
-			}],
-			"serviceUuid":"1800"
-		},
-		{
-			"characteristics":[{
-				"descriptors":[{"descriptorUuid":"2902"}],
-				"characteristicUuid":"2a05",
-				"properties":{"indicate":true}
-			}],
-			"serviceUuid":"1801"
-		},
-		{
-			"characteristics":[{
-				"descriptors":[{
-					"descriptorUuid":"2902"
-				},
-				{
-					"descriptorUuid":"2901"
-				}],
-				"characteristicsUuid":"ffe1",
-				"properties":{
-					"writeWithoutResponse":true,
-					"read":true,
-					"notify":true}
-			}],
-			"serviceUuid":"ffe0"
-		}],
-		"name":"HMSoft"
-};
-*/
-// TODO
 
 var plab = {
 		
@@ -93,19 +32,18 @@ var plab = {
 		
 		// States er alle tilstandene/ skjermene som vises i appen
 		states : ["plab-intro","plab-connect","plab-user-select","plab-redirect"],
-		// state er tilstanden vi er i akkurat nå
+		// state er tilstanden vi er i akkurat naa
 		state : null,
 		// Ready er om vi kan kalle cordova funksjonalitet, om enheten er klar.
 		ready : false,
-		// Service info er riktig for adafruit ble. Ved annen maskinvare kan det være noedvendig å endre disse
-		// Saavidt vi vet naa, stemmer det med UART for alle nordic semiconductor ble enheter
+		// Service info er riktig for ble vi bruker. Ved annen maskinvare kan det vaere noedvendig aa endre disse
 		serviceInfo : {
 			serviceUUID : "FFE0", // for the Service
 			txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
 			rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
 		},
 		
-		// Timers er brukt for å holde styr på tilkoblings timeouts
+		// Timers er brukt for aa holde styr paa tilkoblings timeouts
 		timers : {
 			scan : null,
 			connect : null,
@@ -156,7 +94,7 @@ var plab = {
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			this.showIntro();
 		},
-		// onDeviceReady er metoden som blir kjørt når det er trygt aa kalle cordova funksjoner
+		// onDeviceReady er metoden som blir kjoert naar det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
 			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
 			plab.receivedEvent ("deviceready");
@@ -170,7 +108,7 @@ var plab = {
 		},
 		
 		// ------------------------- DISPLAY --------------------------
-		// getStatus viser til hva com skal stå i statuslinja i appen
+		// getStatus viser til hva com skal staa i statuslinja i appen
 		getStatus : function() {
 			var ret = "";
 			switch (this.state) {
@@ -190,12 +128,12 @@ var plab = {
 			return ret;
 		},
 		
-		// updateScreen har ansvar for å tegne valgt skjerm
+		// updateScreen har ansvar for aa tegne valgt skjerm
 		updateScreen : function () {
 			var cont = document.getElementById("plab-content");
 			cont.className = this.state + "-select plab-" + this.getStatus() + "-select";
 		},
-		// showIntro er funksjonen vi skal kalle når vi skal vise intro skjermen
+		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
 		showIntro : function () {
 			this.state = this.states[0];
 			this.updateScreen();
@@ -219,7 +157,7 @@ var plab = {
 			// TODO
 			this.updateScreen ();
 		},
-		// showProcessing er funksjonen som gjør vi går over til processing
+		// showProcessing er funksjonen som gjoer vi gaar over til processing
 		showProcessing : function () {
 			// Hent referanser til elementene som trengs
 			var usrName = document.getElementById("plab-username").value;
@@ -228,7 +166,7 @@ var plab = {
 			canvas.id = "plab-canvas";
 			var debug = document.getElementById ("plab-debug");
 			//var canvas = document.getElementById("plab-canvas");
-			// Gjør rammeverket usynlig
+			// Gjoer rammeverket usynlig
 			document.body.className = "";
 			// Setter inn canvasen
 			document.body.insertBefore (canvas, document.body.firstChild);
@@ -665,16 +603,15 @@ var plab = {
 			} else {
 				plab.notifyErrorString ("WriteFailure: Not connected");
 			}
-		}/*,
-		
-		// -------------------------------------------------------------------
-		// Tilkobling til NTNU bruker spesifikke funksjoner
-		userSelected : function() {
-			// TODO
-		}*/
+		}
 };
 
 
+
+/*
+ * plabPjsBridge, processing - javascript bru. Objektet som injiseres i processing skissen.
+ * Bindeleddet mellom denne koden og brukerspesifikk kode.
+ */
 var plabPjsBridge = {
 	getWidth : function () {
 		return window.innerWidth;
@@ -706,7 +643,7 @@ plab.errorSubscribers[0] = function (string) {
 
 var testing = {
 	sendLong : function () {
-		plab.write("hei. Dette er en kjempemye lengre en bare så du vet det. Tester masse rart her. æøå. Skjønner du");
+		plab.write("hei. Dette er en kjempemye lengre en bare saa du vet det. Tester masse rart her. aeoeaa. Skjoenner du");
 	}, 
 	sendShort : function () {
 		plab.write("hei");
@@ -722,66 +659,3 @@ var testing = {
  */
 
 plab.initialize();
-/*
- * Her følger kode some er spesiell for rammeverksappen
- */
-
-// TODO DET UNDER SKAL FJERNES: Det er ikke html vi skal hente, men rene *.pde filer
-
-// Henter html data lagret på brukerens hjemmeområde.
-// Vil evaluere alle script som ligger i html koden 
-function fetchUserData(username) {
-	
-	// Bygg url som henter data
-	var url = encodeURI("http://folk.ntnu.no/" + username + "/plab/");
-	
-	// Selve forespørselen vi skal sende
-    var xmlhttp = new XMLHttpRequest();
-	
-    // Callback funksjonen som blir kallt når det er statusendringer
-    // på forespørselen
-    xmlhttp.onreadystatechange = function () {
-    	// Litt debug output. Vil vise status. Kjekt å vite hvis forspørselen feiler 
-    	var out = document.getElementById("plab-output");
-    	out.innerHTML = "State: " + xmlhttp.readyState;
-    	out.innerHTML += " Status: " + xmlhttp.status;
-    	
-    	// Sjekk om alt var i orden
-        if(xmlhttp.readyState === 4){
-            if (xmlhttp.status === 200) {
-            	// Isåfall, fjern debug info
-            	out.innerHTML = "";
-            	// Finn elementet som skal inneholde data mottatt 
-            	var cont = document.getElementById("content");
-                cont.innerHTML = (xmlhttp.responseText);
-                
-                // Kjør alle script definert i html filen. 
-                var scripts = cont.getElementsByTagName("script");
-                for (var i = 0; i < scripts.length; i++) {
-                	var scr = scripts[i];
-                	if (scr.hasAttribute("src")) {
-                		// TODO LAST EKSTERNE SKRIPT
-                		// VIKTIG Å GJØRE NOE MED
-                	} else {
-                		eval(scr.innerHTML);
-                	}
-                }
-                
-                // Sjekke om funksjonen onEnter eksisterer, isåfall utfør den 
-                if (typeof onEnter === "function") {
-                	onEnter();
-                }
-            }
-        }
-    };
-    // Fortell hvilken forespørsel type, og send den asynkront. Bruker POST for å forhindre caching 
-    xmlhttp.open("POST", url , true);
-    xmlhttp.send();
-}
-
-
-
-function userReady() {
-	var user = document.getElementById("plab-username").value;
-	fetchUserData(user);
-}
