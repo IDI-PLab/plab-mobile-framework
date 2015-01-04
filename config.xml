@@ -8,6 +8,6 @@
         Inge Edward Halsaunet
     </author>
     <content src="index.html" />
-    <access origin="http://folk.ntnu.no/*/plab" />
+    <access origin="http://folk.ntnu.no/*" />
     <icon src="res/logo.png" />
 </widget>
