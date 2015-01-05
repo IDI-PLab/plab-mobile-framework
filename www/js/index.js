@@ -430,12 +430,13 @@ var plab = {
 		// COMMON
 		postDiscovery : function (success) {
 			if (success) {
-				// Go to next screen
+				// Gaa til neste skjerm
 				plab.showUserSelect ();
-				// Make subscription
+				// Gjennomfoer abbonement
 				plab.startSubscribe ();
 			} else {
-				// TODO Update screen with failure to discover UART
+				// Oppdater skjermen med info om feilet aa oppdage UART tjeneste
+				// TODO Skal denne gi mer info/ endre mer enn det den gjoer?
 				plab.notifyErrorString ("DiscoverFailure: Failed to discover UART service");
 			}
 		},
@@ -444,7 +445,7 @@ var plab = {
 		discoverSuccess : function (obj) {
 			try {
 				if (obj.status == "discovered") {
-					// TODO check if service is present
+					// TODO Sjekk om tjenesten er tilstede
 					plab.postDiscovery (true);
 				} else {
 					plab.notifyErrorString ("DiscoverFailure: Unknown status: " + obj.status);
@@ -460,7 +461,7 @@ var plab = {
 		},
 		// IOS DISCOVER
 		servicesSuccess : function (obj) {
-			// TODO Make more robust
+			// TODO Gjoer denne mer robust
 			// Antar riktig tjeneste var oppdaget
 			if (obj.status == "services") {
 				var params = {
@@ -480,7 +481,7 @@ var plab = {
 			plab.disconnectDevice ();
 		},
 		characteristicsSuccess : function (obj) {
-			// TODO Make more robust
+			// TODO Gjoer denne mer robust
 			// Antar riktig characteristics var oppdaget
 			if (obj.status == "characteristics") {
 				var params1 = {
@@ -536,13 +537,6 @@ var plab = {
 			plab.notifyErrorString ("CharacteristicsFailure: " + obj.error + " - " + obj.message);
 			plab.disconnectDevice ();
 		},
-		/*
-		descriptorsSuccess : function (obj) {},
-		descriptorsFailure : function (obj) {
-			plab.notifyErrorString ("DescriptorsFailure: " + obj.error + " - " + obj.message);
-			plab.disconnectDevice ();
-		},
-		*/
 
 		// -------------- SERVICE USE ----------------------------------------
 		// SUBSCRIBE
