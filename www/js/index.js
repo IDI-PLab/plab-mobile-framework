@@ -47,7 +47,8 @@ var plab = {
 		timers : {
 			scan : null,
 			connect : null,
-			reconnect : null
+			reconnect : null,
+			processing : null
 		},
 		
 		btInfo : {
@@ -62,7 +63,6 @@ var plab = {
 			android : "Android"
 		},
 		
-		// TODO HACK / TESTCODE
 		// Denne lagrer addressen til enheten vi er tilkoblet til.
 		// Den brukes i forbindelse med tjenesteoppdagelse.
 		// Tjenesteoppdagelsen er tenkt flyttet etterhvert, saa denne faar staa til da.
@@ -135,8 +135,15 @@ var plab = {
 		},
 		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
 		showIntro : function () {
+			// Stopper lasting av processing, hvis det er startet.
+			if (plab.timers.processing != null) {
+				clearTimeout(plab.timers.processing);
+				plab.timers.processing = null;
+			}
+			// Oppdaterer tilstand og skjerm
 			this.state = this.states[0];
 			this.updateScreen();
+			// Forsikre oss om at vi er frakoblet enhet
 			if (this.btInfo.connected) {
 				this.disconnectDevice ();
 			}
@@ -175,21 +182,23 @@ var plab = {
 			
 			// Setter inn canvasen
 			document.body.insertBefore (canvas, document.body.firstChild);
-			// Last processing
-			Processing.loadSketchFromSources (canvas, [procLoc]);
 			
-			
-			
+			// attempt -> hvilket forsoek det er paa aa laste processing sketch
+			var attempt = 0;
+			// Skal holde load funksjonen
+			var startLoad;
+			// Funksjonalitet for aa sjekke om processing er lastet
 			var i = 0;
-			
 			var funk = function () {
+				
 				var p = Processing.getInstanceById ("plab-canvas");
 				if (p != null) {
+					// Funksjonen skal kun kalles naar timeren har talt ned, husk aa nullstille
+					plab.timers.processing = null;
 					// Gjoer rammeverket usynlig
 					document.body.className = "";
 					try {
-						//
-						// Make canvas fill screen
+						// Canvas skal fylle skjermen
 						var w = plabPjsBridge.getWidth ();
 						var h = plabPjsBridge.getHeight ();
 						canvas.width = w;
@@ -199,14 +208,31 @@ var plab = {
 						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
 					}
 				} else {
+					i++;
 					if (attemptCounter != null) {
-						i++;
-						attemptCounter.innerHTML = i;
+						attemptCounter.innerHTML = attempt + " (" + i + ")";
 					}
-					setTimeout (funk, 500);
+					if (i < 20) {
+						plab.timers.processing = setTimeout (funk, 500);
+					} else {
+						startLoad ();
+					}
 				}
 			};
-			setTimeout (funk, 500);
+			
+			// Funksjonen som faktisk starter aa laste processing
+			startLoad = function () {
+				// Nullstill sjekk om processing er lasta timer og inkrementer forsoeksnummer
+				i = 0;
+				attempt++;
+				// Last skissa
+				Processing.loadSketchFromSources (canvas, [procLoc]);
+				// Sett sjekk paa om skissa er lasta til aa starte
+				plab.timers.processing = setTimeout (funk, 500);
+			};
+			
+			// Last processing
+			startLoad ();
 		},
 		
 		
@@ -384,7 +410,7 @@ var plab = {
 				plab.btInfo.reconnecting = false;
 				plab.afterReconnect.length = 0;
 			} else if (obj.status == "connecting") {
-				// Lar denne stå om vi oppdager noe vi trenger den til.
+				// Lar denne staa om vi oppdager noe vi trenger den til.
 			} else {
 				plab.disconnectDevice ();
 				plab.btInfo.reconnecting = false;
@@ -671,19 +697,6 @@ plab.errorSubscribers[0] = function (string) {
 	document.getElementById("plab-debug").innerHTML += string + "<br />";
 }
 
-var testing = {
-	sendLong : function () {
-		plab.write("hei. Dette er en kjempemye lengre en bare saa du vet det. Tester masse rart her. aeoeaa. Skjoenner du");
-	}, 
-	sendShort : function () {
-		plab.write("hei");
-	},
-	listenNow : function () {
-		plab.messageSubscribers[plab.messageSubscribers.length] = function (string) {
-			document.getElementById("test-out").innerHTML += string + "<br />";
-		}
-	}
-};
 /*
  * -----------------------END--------------------------
  */
