@@ -119,7 +119,7 @@ var plab = {
 				ret = this.btInfo.failed ? "failed" : (this.btInfo.initialized ? "ready" : "init");
 				break;
 			case this.states[2] :
-				ret = "init";
+				ret = this.btInfo.connected ? "ready" : "init";
 				break;
 			case this.states[3] :
 				ret = "init";
@@ -137,6 +137,9 @@ var plab = {
 		showIntro : function () {
 			this.state = this.states[0];
 			this.updateScreen();
+			if (this.btInfo.connected) {
+				this.disconnectDevice ();
+			}
 		},
 		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
 		showConnect : function () {
@@ -150,7 +153,7 @@ var plab = {
 			// TODO
 			this.updateScreen ();
 		},
-		// showRedirect er funksjonen vi skal kalle når vi holder paa aa navigere til brukerside
+		// showRedirect er funksjonen vi skal kalle naar vi holder paa aa navigere til brukerside
 		// TODO Denne er gjort obsolete naar vi kun skal bruke processing.js, og vil bli fjernet
 		showRedirect : function () {
 			this.state = this.states[3];
@@ -159,15 +162,18 @@ var plab = {
 		},
 		// showProcessing er funksjonen som gjoer vi gaar over til processing
 		showProcessing : function () {
+			
+			// Setter state til redirect state og oppdaterer skjermen
+			plab.state = plab.states[3];
+			plab.updateScreen ();
+			
 			// Hent referanser til elementene som trengs
 			var usrName = document.getElementById("plab-username").value;
 			var procLoc = "http://folk.ntnu.no/" + usrName.replace(/\s/g, "") + "/plab/plab.pde";
 			var canvas = document.createElement ("canvas");
 			canvas.id = "plab-canvas";
-			var debug = document.getElementById ("plab-debug");
-			//var canvas = document.getElementById("plab-canvas");
-			// Gjoer rammeverket usynlig
-			document.body.className = "";
+			var attemptCounter = document.getElementById ("plab-attempt");
+			
 			// Setter inn canvasen
 			document.body.insertBefore (canvas, document.body.firstChild);
 			// Last processing
@@ -180,6 +186,8 @@ var plab = {
 			var funk = function () {
 				var p = Processing.getInstanceById ("plab-canvas");
 				if (p != null) {
+					// Gjoer rammeverket usynlig
+					document.body.className = "";
 					try {
 						//
 						// Make canvas fill screen
@@ -192,9 +200,9 @@ var plab = {
 						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
 					}
 				} else {
-					if (debug != null) {
+					if (attemptCounter != null) {
 						i++;
-						debug.innerHTML = "funk fail, p==null " + i;
+						attemptCounter.innerHTML = i;
 					}
 					setTimeout (funk, 500);
 				}
@@ -392,13 +400,13 @@ var plab = {
 			if (obj.status == "disconnected") {
 				plab.closeDevice ();
 			} else if (obj.status == "disconnecting") {
-				// Lar denne stå hvis den trengs seinere
+				// Lar denne staa hvis den trengs seinere
 			} else {
-				// Lar denne stå hvis den trengs seinere
+				// Lar denne staa hvis den trengs seinere
 			}
 		},
 		disconnectFailure : function (obj) {
-			// hundre prosent sikker på at tilkobling er lukket
+			// hundre prosent sikker paa at tilkobling er lukket
 			plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
 			plab.closeDevice ();
 		},
@@ -410,9 +418,9 @@ var plab = {
 		},
 		closeSuccess : function (obj) {
 			if (obj.status == "closed") {
-				// Lar denne stå om vi trenger den senere
+				// Lar denne staa om vi trenger den senere
 			} else {
-				// Lar denne stå om vi trenger den senere
+				// Lar denne staa om vi trenger den senere
 			}
 		},
 		closeFailure : function (obj) {

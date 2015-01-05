@@ -86,6 +86,11 @@ body {
 	height: 19%;
 }
 
+.plab-panic {
+	background-color: #ff4433;
+	padding: 1ex;
+}
+
 .plab-intro-select .plab-connect,
 .plab-intro-select .plab-user-select,
 .plab-intro-select .plab-redirect {
