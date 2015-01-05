@@ -150,14 +150,10 @@ var plab = {
 		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
 		showUserSelect : function () {
 			this.state = this.states[2];
-			// TODO
-			this.updateScreen ();
-		},
-		// showRedirect er funksjonen vi skal kalle naar vi holder paa aa navigere til brukerside
-		// TODO Denne er gjort obsolete naar vi kun skal bruke processing.js, og vil bli fjernet
-		showRedirect : function () {
-			this.state = this.states[3];
-			// TODO
+			var oldName = window.localStorage.getItem('plab-username');
+			if (oldName != null) {
+				document.getElementById('plab-username').value = oldName;
+			}
 			this.updateScreen ();
 		},
 		// showProcessing er funksjonen som gjoer vi gaar over til processing
@@ -173,6 +169,9 @@ var plab = {
 			var canvas = document.createElement ("canvas");
 			canvas.id = "plab-canvas";
 			var attemptCounter = document.getElementById ("plab-attempt");
+			
+			// Lagre det innskrevne brukernavnet
+			window.localStorage.setItem('plab-username', usrName);
 			
 			// Setter inn canvasen
 			document.body.insertBefore (canvas, document.body.firstChild);
