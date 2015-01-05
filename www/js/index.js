@@ -232,10 +232,34 @@ var plab = {
 		},
 		updateBLEList : function() {
 			
-			// TODO Restart scan
-			
-			document.getElementById("plab-devices").innerHTML = "";
-			bluetoothle.startScan(this.startScanSuccess, this.startScanFailure, null);
+			if (this.timers.scan != null) {
+				// Skanner allerede -> start paa nytt
+				clearTimeout(this.timers.scan);
+				this.timers.scan = null;
+				
+				document.getElementById("plab-scan-status").innerHTML = "Omstart av skann";
+				
+				bluetoothle.stopScan (
+					function (obj) {
+						if (obj.status == "scanStopped") {
+							// Stoppet skannet. Start et nytt.
+							document.getElementById("plab-devices").innerHTML = "";
+							bluetoothle.startScan(plab.startScanSuccess, plab.startScanFailure, null);
+						} else {
+							plab.notifyErrorString ("StopScanFailure: Unknown status: " + obj.status);
+						}
+					},
+					function(obj){
+						plab.notifyErrorString ("StopScanFailure: " + obj.error + " - " + obj.message);
+					}
+				);
+				//
+			} else {
+				
+				// Skanner ikke
+				document.getElementById("plab-devices").innerHTML = "";
+				bluetoothle.startScan(plab.startScanSuccess, plab.startScanFailure, null);
+			}
 		},
 		// SCAN
 		startScanSuccess : function(obj) {
@@ -255,7 +279,8 @@ var plab = {
 				el.appendChild(btn);
 				list.appendChild(el);
 			} else if (obj.status == "scanStarted") {
-			  plab.timers.scan = setTimeout(plab.scanTimeout, 10000);
+				document.getElementById("plab-scan-status").innerHTML = "Skanner";
+				plab.timers.scan = setTimeout(plab.scanTimeout, 10000);
 			}
 		},
 		startScanFailure : function(obj) {
@@ -266,6 +291,7 @@ var plab = {
 		scanTimeout : function() {
 			bluetoothle.stopScan (function(obj){}, function(obj){});
 			plab.timers.scan = null;
+			document.getElementById("plab-scan-status").innerHTML = "Skann ferdig";
 		},
 		stopAndClearScanTimeout : function() {
 			if (this.timers.scan != null) {
