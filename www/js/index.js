@@ -417,7 +417,7 @@ var plab = {
 		
 		// DISCONNECT
 		disconnectDevice : function () {
-			bluetoothle.disconnect (plab.disconnectSuccess, plab.disconnectFailure);
+			bluetoothle.disconnect (plab.disconnectSuccess, plab.disconnectFailure, {"address":plab.btAddr});
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
 		},
@@ -439,7 +439,7 @@ var plab = {
 		closeDevice : function () {
 			plab.btInfo.connected = false;
 			plab.btInfo.reconnecting = false;
-			bluetoothle.close (plab.closeSuccess, plab.closeFailure);
+			bluetoothle.close (plab.closeSuccess, plab.closeFailure, {"address":plab.btAddr});
 		},
 		closeSuccess : function (obj) {
 			if (obj.status == "closed") {
@@ -568,6 +568,7 @@ var plab = {
 		// SUBSCRIBE
 		startSubscribe : function () {
 			var params = {
+					"address":plab.btAddr,
 					"serviceUuid":plab.serviceInfo.serviceUUID,
 					"characteristicUuid":plab.serviceInfo.rxUUID,
 					"isNotification":true
@@ -601,6 +602,8 @@ var plab = {
 		write : function (string) {
 			if (plab.btInfo.connected) {
 				var params = {
+						// TODO Se om denne ogsaa maa ha addresse
+						"address" : plab.btAddr,
 						"value" : bluetoothle.bytesToEncodedString (bluetoothle.stringToBytes (string)),
 						"serviceUuid" : plab.serviceInfo.serviceUUID,
 						"characteristicUuid" : plab.serviceInfo.txUUID,
