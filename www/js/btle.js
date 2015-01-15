@@ -1,5 +1,6 @@
 /*
- * 
+ * ADB for debug
+ * adb logcat Cordova:* DroidGap:* CordovaLog:* *:S
 var plabBTMode = {
 		id : "",
 		name : "",
@@ -42,10 +43,12 @@ var plabBTMode = {
 try {
 function plabAddBT4_0(debugOut, updateScreen) {
 	// See if necessary plugin is installed
+	alert("add");
 	if (typeof bluetoothle === "undefined") {
 		return;
 	}
-	
+	alert("typeof ok");
+	/*
 	// Creating a prototype object
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BlueTooth_4.0_randdusing";
@@ -65,6 +68,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
 	};
 	btMode.subscriptions = [];
+	
 	btMode.startSubscribe = function () {
 		var params = {
 				"address":btMode.address,
@@ -100,6 +104,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				params
 		);
 	};
+	alert("HOHO");
+	
 	
 	// Replacing the open mode function -> init the mode
 	btMode.openMode = function () {
@@ -424,7 +430,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							}
 						);
 						*/
-						
+						/*
 					} else {
 						debugOut.warn.println("WriteFailure: Not connected");
 					}
@@ -461,11 +467,19 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		}
 		// -------------- END INIT -------------------
 	};
-	
-	plabBT.modes[plabBT.modes.length] = btMode;
+	*/
+	plabBT.addMode(btMode);
 }
 
-plabAddBT4_0(plab.out, plab.updateScreen);
+document.addEventListener(
+		"deviceready",
+		function() {
+			plabAddBT4_0(plab.out, plab.updateScreen);
+		}, 
+		false
+);
+
+
 } catch (e) {
 	alert(e);
 }

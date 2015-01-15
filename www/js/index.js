@@ -26,7 +26,7 @@
  * ffe0: Default service currently used to communicate with bt device.
  */
 
-
+try {
 var plabPrintStream = {
 		// The node that will be written to
 		node : null,
@@ -140,7 +140,6 @@ var plab = {
 			this.state = this.states[0];
 			
 			document.addEventListener("deviceready", this.onDeviceReady, false);
-			this.showIntro();
 		},
 		// onDeviceReady er metoden som blir kjoert naar det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
@@ -173,7 +172,8 @@ var plab = {
 				element.insertBefore(btn, element.firstChild);
 			}
 			plab.ready = true;
-			plab.updateScreen();
+
+			plab.showIntro();
 			
 			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
 			// plab.receivedEvent ("deviceready");
@@ -210,7 +210,9 @@ var plab = {
 		// updateScreen har ansvar for aa tegne valgt skjerm
 		updateScreen : function () {
 			var cont = document.getElementById("plab-content");
-			cont.className = this.state + "-select plab-" + this.getStatus() + "-select";
+			if (cont !== null) {
+				cont.className = this.state + "-select plab-" + this.getStatus() + "-select";
+			}
 		},
 		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
 		showIntro : function () {
@@ -219,11 +221,15 @@ var plab = {
 				clearTimeout(plab.timers.processing);
 				plab.timers.processing = null;
 			}
+			// If we were in scan mode, we ensure scan stop
+			if (plab.state === plab.states[1]) {
+				plabBT.stopListDevices();
+			}
 			// Oppdaterer tilstand og skjerm
 			this.state = this.states[0];
 			this.updateScreen();
-			// Ensure we are disconnected from device
-			plabBT.disconnectDevice();
+			// Unset mode to make sure everything is closed
+			plabBT.unsetMode();
 			/*if (this.btInfo.connected) {
 				this.disconnectDevice ();
 			}*/
@@ -322,7 +328,7 @@ var plab = {
 			
 			// Last processing
 			startLoad ();
-		},
+		}//,
 		
 		
 		// -------------------------------------------------------------------
@@ -753,9 +759,10 @@ var plab = {
 				plab.notifyErrorString ("WriteFailure: Not connected");
 			}
 		}
+		*/
 };
 
-*/
+
 
 /*
  * plabPjsBridge, processing - javascript bru. Objektet som injiseres i processing skissen.
@@ -788,3 +795,6 @@ var plabPjsBridge = {
  */
 
 plab.initialize();
+} catch (e) {
+	alert(e);
+}
