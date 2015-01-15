@@ -30,6 +30,8 @@ var plabBTMode = {
 		closeMode : function () {},
 		
 		listDevices : function (listCallback, scanTime) {},
+		stopListDevices : function () {},
+		
 		connectDevice : function (id) {},
 		disconnectDevice : function () {},
 		
