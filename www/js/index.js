@@ -26,7 +26,44 @@
  * ffe0: Default service currently used to communicate with bt device.
  */
 
+
+var plabPrintStream = {
+		node : null,
+		className : "",
+		print : function (text) {
+			if (this.node == null) {
+				return;
+			}
+			var o = document.createElement("span");
+			o.className = this.classType;
+			o.appendChild (document.createTextNode(text));
+			this.node.appendChild (o);
+		},
+		println : function (text) {
+			if (this.node == null) {
+				return;
+			}
+			this.print(text);
+			this.node.appendChild (document.createElement("br"));
+		}
+}
+
 var plab = {
+		// ---------------- DEBUG OUTPUT ---------------------------
+		out : {
+			node : null,
+			notify : null,
+			warn : null,
+			err : null,
+			clear : function () {
+				if (this.node == null) {
+					return;
+				}
+				while (this.node.firstChild) {
+					this.node.removeChild(this.node.firstChild);
+				}
+			} 
+		},
 		
 		// ---------------- OBJECT FIELDS --------------------------
 		
@@ -91,6 +128,17 @@ var plab = {
 		// Initialize er funksjonen som starter det hele
 		initialize : function() {
 			this.state = this.states[0];
+			var n = document.getElementById ("plab-debug");
+			this.out.node = n;
+			this.out.notify = Object.create (plabPrintStream);
+			this.out.notify.node = n;
+			this.out.notify.className = "plab-notify";
+			this.out.warn = Object.create (plabPrintStream);
+			this.out.warn.node = n;
+			this.out.warn.className = "plab-warn";
+			this.out.err = Object.create (plabPrintStream);
+			this.out.err.node = n;
+			this.out.err.className = "plab-err";
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			this.showIntro();
 		},
