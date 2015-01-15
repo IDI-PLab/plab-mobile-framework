@@ -38,7 +38,7 @@ var plabPrintStream = {
 				return;
 			}
 			var o = document.createElement("span");
-			o.className = this.classType;
+			o.className = this.className;
 			o.appendChild (document.createTextNode(text));
 			this.node.appendChild (o);
 		},
@@ -138,22 +138,25 @@ var plab = {
 		// Initialize er funksjonen som starter det hele
 		initialize : function() {
 			this.state = this.states[0];
-			var n = document.getElementById ("plab-debug");
-			this.out.node = n;
-			this.out.notify = Object.create (plabPrintStream);
-			this.out.notify.node = n;
-			this.out.notify.className = "plab-notify";
-			this.out.warn = Object.create (plabPrintStream);
-			this.out.warn.node = n;
-			this.out.warn.className = "plab-warn";
-			this.out.err = Object.create (plabPrintStream);
-			this.out.err.node = n;
-			this.out.err.className = "plab-err";
+			
 			document.addEventListener("deviceready", this.onDeviceReady, false);
 			this.showIntro();
 		},
 		// onDeviceReady er metoden som blir kjoert naar det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
+			// Init debug
+			var n = document.getElementById ("plab-debug");
+			plab.out.node = n;
+			plab.out.notify = Object.create (plabPrintStream);
+			plab.out.notify.node = n;
+			plab.out.notify.className = "plab-notify";
+			plab.out.warn = Object.create (plabPrintStream);
+			plab.out.warn.node = n;
+			plab.out.warn.className = "plab-warn";
+			plab.out.err = Object.create (plabPrintStream);
+			plab.out.err.node = n;
+			plab.out.err.className = "plab-err";
+			
 			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
 			plab.receivedEvent ("deviceready");
 		},

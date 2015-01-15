@@ -131,15 +131,15 @@ body {
 	display: none;
 }
 
-.plab-init {
+.plab-init, .plab-warn {
 	background-color: #eedd55;
 }
 
-.plab-ready {
+.plab-ready, .plab-notify {
 	background-color: #66ff77;
 }
 
-.plab-failed {
+.plab-failed, .plab-err {
 	background-color: #ff4433;
 }
 
