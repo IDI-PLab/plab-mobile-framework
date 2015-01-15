@@ -78,26 +78,26 @@ var plab = {
 		// Ready er om vi kan kalle cordova funksjonalitet, om enheten er klar.
 		ready : false,
 		// Service info er riktig for ble vi bruker. Ved annen maskinvare kan det vaere noedvendig aa endre disse
-		serviceInfo : {
+		/*serviceInfo : {
 			serviceUUID : "FFE0", // for the Service
 			txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
 			rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
-		},
+		},*/
 		
 		// Timers er brukt for aa holde styr paa tilkoblings timeouts
 		timers : {
-			scan : null,
-			connect : null,
-			reconnect : null,
+		//	scan : null,
+		//	connect : null,
+		//	reconnect : null,
 			processing : null
 		},
 		
-		btInfo : {
+		/*btInfo : {
 			initialized : false,
 			failed : false,
 			connected : false,
 			reconnecting : false
-		},
+		},*/
 		
 		platforms : {
 			iOS : "iOS",
@@ -107,14 +107,14 @@ var plab = {
 		// Denne lagrer addressen til enheten vi er tilkoblet til.
 		// Den brukes i forbindelse med tjenesteoppdagelse.
 		// Tjenesteoppdagelsen er tenkt flyttet etterhvert, saa denne faar staa til da.
-		btAddr : null,
+		//btAddr : null,
 		
 		// ---------- METODER SOM KALLES ETTER RECONNECT ER KJOERT -----------
-		afterReconnect : [],
+		//afterReconnect : [],
 		
 		// ----------------------- USER FEEDBACK -----------------------------
 		errorSubscribers : [],
-		messageSubscribers : [],
+		//messageSubscribers : [],
 		
 		notifyErrorString : function (string) {
 			// Send error out to debug output
@@ -125,13 +125,13 @@ var plab = {
 				plab.errorSubscribers[i] (string);
 			}
 		},
-		notifyMessage : function (string) {
+		/*notifyMessage : function (string) {
 			
 			// Notify others
 			for (var i = 0; i < plab.messageSubscribers.length; i++) {
 				plab.messageSubscribers[i] (string);
 			}
-		},
+		},*/
 		
 		
 		// -------------------------- INITIALIZATION -----------------
@@ -157,16 +157,34 @@ var plab = {
 			plab.out.err.node = n;
 			plab.out.err.className = "plab-err";
 			
+			// Updating screen with installed bt support
+			var element = document.getElementById("plab-first-select");
+			for (var i = 0; i < plabBT.modes.length; i++) {
+				var btn = document.createElement("button");
+				var txt = document.createTextNode("Koble til " + plabBT.modes[i].name);
+				btn.appendChild(txt);
+				btn.addEventListener(
+						"click", 
+						function() {
+							plabBT.setMode(plabBT.modes[i].id);
+							plab.showConnect();
+						}
+				);
+				element.insertBefore(btn, element.firstChild);
+			}
+			plab.ready = true;
+			plab.updateScreen();
+			
 			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
-			plab.receivedEvent ("deviceready");
+			// plab.receivedEvent ("deviceready");
 		},
 		// receivedEvent er funksjon som kalles naar vi mottar en livssykel event for appen 
-		receivedEvent : function (id) {
+		/*receivedEvent : function (id) {
 			if (id == "deviceready") {
 				this.ready = true;
 				this.updateScreen ();
 			}
-		},
+		},*/
 		
 		// ------------------------- DISPLAY --------------------------
 		// getStatus viser til hva com skal staa i statuslinja i appen
@@ -177,10 +195,10 @@ var plab = {
 				ret = this.ready ? "ready" : "init";
 				break;
 			case this.states[1] :
-				ret = this.btInfo.failed ? "failed" : (this.btInfo.initialized ? "ready" : "init");
+				ret = (plabBT.mode === null || plabBT.mode.status.failure) ? "failed" : (plabBT.mode.status.initialized ? "ready" : "init");
 				break;
 			case this.states[2] :
-				ret = this.btInfo.connected ? "ready" : "init";
+				ret = (plabBT.mode !== null) && (plabBT.mode.status.connected && plabBT.mode.status.ready) ? "ready" : "init";
 				break;
 			case this.states[3] :
 				ret = "init";
@@ -204,15 +222,25 @@ var plab = {
 			// Oppdaterer tilstand og skjerm
 			this.state = this.states[0];
 			this.updateScreen();
-			// Forsikre oss om at vi er frakoblet enhet
-			if (this.btInfo.connected) {
+			// Ensure we are disconnected from device
+			plabBT.disconnectDevice();
+			/*if (this.btInfo.connected) {
 				this.disconnectDevice ();
-			}
+			}*/
 		},
 		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
 		showConnect : function () {
 			this.state = this.states[1];
-			this.initBLE ();
+			// Clear scan list
+			var li = document.getElementById("plab-devices");
+			while (li.firstChild) {
+				li.removeChild(li.firstChild);
+			}
+			
+			this.updateScreen ();
+			plabBT.listDevices(li, 10000);
+			//this.initBLE ();
+			
 			this.updateScreen ();
 		},
 		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
@@ -302,6 +330,7 @@ var plab = {
 		// ----------- CONNECT -----------------------------------------------
 		// Tilkobling til BLE spesifikke funksjoner
 		// INIT
+		/*
 		initBLE : function() {
 			bluetoothle.initialize(this.initBLESuccess, this.initBLEFailure, {"request":false});
 		},
@@ -726,7 +755,7 @@ var plab = {
 		}
 };
 
-
+*/
 
 /*
  * plabPjsBridge, processing - javascript bru. Objektet som injiseres i processing skissen.
@@ -741,13 +770,13 @@ var plabPjsBridge = {
 	},
 	write : function (string) {
 		try {
-		plab.write (string);
+			plabBT.send(string);
 		} catch (e) {
 			alert (e);
 		}
 	},
 	subscribeRead : function (obj) {
-		plab.messageSubscribers[plab.messageSubscribers.length] = obj.read;
+		plabBT.receiveCallback(obj.read);
 	},
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;

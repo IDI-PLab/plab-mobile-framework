@@ -55,7 +55,7 @@ var plabBT = {
 						el.appendChild(btn);
 						holderNode.appendChild(el);
 					},
-					10000
+					scanTime
 			);
 		},
 		createDeviceDescriptor : function (theId, theName) {
