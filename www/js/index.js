@@ -28,8 +28,11 @@
 
 
 var plabPrintStream = {
+		// The node that will be written to
 		node : null,
+		// css class type of stream
 		className : "",
+		// wrap string in a span node and print
 		print : function (text) {
 			if (this.node == null) {
 				return;
@@ -39,6 +42,7 @@ var plabPrintStream = {
 			o.appendChild (document.createTextNode(text));
 			this.node.appendChild (o);
 		},
+		// print the text and add a br node. See print
 		println : function (text) {
 			if (this.node == null) {
 				return;
@@ -113,11 +117,17 @@ var plab = {
 		messageSubscribers : [],
 		
 		notifyErrorString : function (string) {
+			// Send error out to debug output
+			plab.out.err.println(string);
+			
+			// Notify others
 			for (var i = 0; i < plab.errorSubscribers.length; i++) {
 				plab.errorSubscribers[i] (string);
 			}
 		},
 		notifyMessage : function (string) {
+			
+			// Notify others
 			for (var i = 0; i < plab.messageSubscribers.length; i++) {
 				plab.messageSubscribers[i] (string);
 			}
@@ -654,6 +664,9 @@ var plab = {
 						
 						try {
 							if (obj.status == "subscribedResult") {
+								// Debug output
+								plab.out.notify.print("Mottok data: ");
+								plab.out.notify.println(JSON.sringify(obj));
 								// Send videre.
 								plab.notifyMessage (bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
 							} else if (obj.status == "subscribed") {
@@ -737,13 +750,6 @@ var plabPjsBridge = {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
 	}
 };
-
-/*
- * -------------------------DEBUG-----------------------
- */
-plab.errorSubscribers[0] = function (string) {
-	document.getElementById("plab-debug").innerHTML += string + "<br />";
-}
 
 /*
  * -----------------------END--------------------------
