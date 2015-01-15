@@ -19,6 +19,12 @@ var plabBT = {
 var plabBTMode = {
 		id : "",
 		name : "",
+		status : {
+			initialized : false,
+			connected : false,
+			ready : false,
+			failure : false
+		},
 		
 		openMode : function () {},
 		closeMode : function () {},
