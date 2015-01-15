@@ -39,7 +39,7 @@ var plabBTMode = {
 }
  *
  */
-
+try {
 function plabAddBT4_0(debugOut, updateScreen) {
 	// See if necessary plugin is installed
 	if (typeof bluetoothle === "undefined") {
@@ -466,3 +466,6 @@ function plabAddBT4_0(debugOut, updateScreen) {
 }
 
 plabAddBT4_0(plab.out, plab.updateScreen);
+} catch (e) {
+	alert(e);
+}
