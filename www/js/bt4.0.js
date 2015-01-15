@@ -22,6 +22,9 @@ var plabBTMode = {
 		// }
 		// address : null
 		
+		// subscriptions : []
+		// startSubscribe : function() {},
+		
 		openMode : function () {},
 		closeMode : function () {},
 		
@@ -60,6 +63,42 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		serviceUUID : "FFE0", // for the Service
 		txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
 		rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
+	};
+	btMode.subscriptions = [];
+	btMode.startSubscribe = function () {
+		var params = {
+				"address":btMode.address,
+				"serviceUuid":btMode.serviceInfo.serviceUUID,
+				"characteristicUuid":btMode.serviceInfo.rxUUID,
+				"isNotification":true
+		};
+		
+		// Callback funksjonen for subscribes
+		bluetoothle.subscribe(
+				function (obj) {
+					try {
+						if (obj.status == "subscribedResult") {
+							// Debug output
+							debugOut.notify.print("Mottok data: ");
+							debugOut.notify.println(JSON.stringify(obj));
+							// Pass to subscribers
+							for (var i = 0; i < btMode.subscriptions.length; i++) {
+								btMode.subscriptions[i](bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
+							}
+						} else if (obj.status == "subscribed") {
+							// Nothing here
+						} else {
+							debugOut.err.println("UnknownSubscribeStatus");
+						}
+					} catch (e) {
+						debugOut.err.println("SubscribeFailure: " + e.message);
+					}
+				},
+				function (obj) {
+					debugOut.err.println"SubscribeFailure: " + obj.error + " - " + obj.message);
+				},
+				params
+		);
 	};
 	
 	// Replacing the open mode function -> init the mode
@@ -160,11 +199,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 									if (success) {
 										// Do callback
 										successCallback();
-										// TODO
-										// TODO
-										// TODO
-										// Gjennomfoer abbonement
-										//plab.startSubscribe ();
+										// Start message subscription
+										btMode.startSubscribe();
 									} else {
 										// Alert that UART failed
 										debugOut.err.println("DiscoverFailure: Failed to discover UART service");
@@ -352,8 +388,50 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			
 			
 			// -------------- SEND / RECEIVE ------------
-			btMode.send = function (text) {};
-			btMode.receiveCallback = function (callback) {};
+			btMode.send = function (text) {
+					if (btMode.status.connected) {
+						var params = {
+								"address" : btMode.address,
+								"value" : bluetoothle.bytesToEncodedString(bluetoothle.stringToBytes(text)),
+								"serviceUuid" : btMode.serviceInfo.serviceUUID,
+								"characteristicUuid" : btMode.serviceInfo.txUUID,
+								"type" : "noResponse"
+						};
+						bluetoothle.write (
+								function (obj) {},
+								function (obj) {
+									debugOut.err.println("WriteFailure: " + obj.error + " - " + obj.message);
+								},
+								params
+						);
+						/*
+						bluetoothle.isConnected (
+							function (conn) {
+								if (conn.isConnected) {
+									bluetoothle.write (
+											function (obj) {},
+											function (obj) {
+												plab.notifyErrorString ("WriteFailure: " + obj.error + " - " + obj.message);
+											},
+											params
+									);
+								} else {
+									plab.afterReconnect[plab.afterReconnect.length] = function() {
+										plab.write(string);
+									};
+									plab.reconnect ();
+								}
+							}
+						);
+						*/
+						
+					} else {
+						debugOut.warn.println("WriteFailure: Not connected");
+					}
+			};
+			btMode.receiveCallback = function (callback) {
+				btMode.subscriptions[btMode.subscriptions.length] = callback;
+			};
 			// -------------- END SEND / RECEIVE ------------
 			// TODO
 		}

@@ -669,7 +669,7 @@ var plab = {
 							if (obj.status == "subscribedResult") {
 								// Debug output
 								plab.out.notify.print("Mottok data: ");
-								plab.out.notify.println(JSON.sringify(obj));
+								plab.out.notify.println(JSON.stringify(obj));
 								// Send videre.
 								plab.notifyMessage (bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
 							} else if (obj.status == "subscribed") {
