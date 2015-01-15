@@ -10,7 +10,16 @@ var plabBTMode = {
 			failure : false
 		},
 		
-		// timers : { scanning : null }
+		// serviceInfo : {
+		//	serviceUUID : "FFE0", // for the Service
+		//	txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
+		//	rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
+		//},
+		
+		// timers : {
+		//	scanning : null,
+		//	connecting : null
+		// }
 		// address : null
 		
 		openMode : function () {},
@@ -43,9 +52,15 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	btMode.status.started = false;
 	btMode.status.scanning = false;
 	btMode.timers = {
-			scanning : null
+			scanning : null,
+			connecting : null
 	};
 	btMode.address = null;
+	btMode.serviceInfo = {
+		serviceUUID : "FFE0", // for the Service
+		txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
+		rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
+	};
 	
 	// Replacing the open mode function -> init the mode
 	btMode.openMode = function () {
@@ -109,9 +124,186 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			};
 			// ------------------ END SCAN ------------------------
 			
+			
+			
+			
+			
 			// ------------------ CONNECT ------------------
-			btMode.connectDevice = function (id) {};
+			btMode.connectDevice = function (id, successCallback) {
+				// Remember address
+				btMode.address = id;
+				
+				// Stop scan if needed
+				if (btMode.timers.scanning !== null){
+					clearTimeout(btMode.timers.scanning);
+					btMode.timers.scanning = null;
+					btMode.stopListDevices();
+				}
+				// Connect
+				bluetoothle.connect (
+						function(obj) {
+							if (obj.status == "connected") {
+								
+								// Clear connect timeout
+								if (btMode.timers.connecting !== null) {
+									clearTimeout(btMode.timers.connecting);
+									btMode.timers.connecting = null;
+								}
+								
+								// Update status
+								btMode.status.connected = true;
+								btMode.status.failure = false;
+								updateScreen();
+								
+								// common function after discovery
+								var common = function (success) {
+									if (success) {
+										// Do callback
+										successCallback();
+										// TODO
+										// TODO
+										// TODO
+										// Gjennomfoer abbonement
+										//plab.startSubscribe ();
+									} else {
+										// Alert that UART failed
+										debugOut.err.println("DiscoverFailure: Failed to discover UART service");
+										btMode.status.failure = true;
+									}
+								};
+								
+								// The path from here is platform dependent
+								if (window.device.platform == plab.platforms.iOS) {
+									// iOS: Discover only the service we want to connect to
+									bluetoothle.services (
+											function (obj) {
+												// TODO Make more robust
+												// Assuming correct service was discovered
+												if (obj.status == "services") {
+													var params = {
+															"address" : btMode.address,
+															"serviceUuid" : btMode.serviceInfo.serviceUUID,
+															"characteristicUuids" : [ btMode.serviceInfo.txUUID, btMode.serviceInfo.rxUUID ]
+													};
+													bluetoothle.characteristics (
+															function (obj) {
+																// TODO Make more robust
+																// Assuming correct characteristic discovered
+																if (obj.status == "characteristics") {
+																	var params1 = {
+																			"address" : btMode.address,
+																			"serviceUuid" : btMode.serviceInfo.serviceUUID,
+																			"characteristicUuid" : btMode.serviceInfo.txUUID
+																	};
+																	var params2 = {
+																			"address" : btMode.address,
+																			"serviceUuid" : btMode.serviceInfo.serviceUUID,
+																			"characteristicUuid" : btMode.serviceInfo.rxUUID
+																	};
+																	// Bruteforcer gjennom listen
+																	bluetoothle.descriptors (
+																			
+																			function (obj) {
+																				if (obj.status == "descriptors") {
+																					bluetoothle.descriptors (
+																							
+																							function (obj1) {
+																								if (obj1.status == "descriptors") {
+																									common(true);
+																								} else {
+																									debugOut.err.println("DescriptorsFailure: Unknown status: " + obj1.status);
+																									btMode.disconnectDevice();
+																								}
+																							},
+																							
+																							function (obj1) {
+																								debugOut.err.println("DescriptorsFailure: " + obj1.error + " - " + obj1.message);
+																								btMode.disconnectDevice ();
+																							},
+																							params2
+																					);
+																				} else {
+																					debugOut.err.println("DescriptorsFailure: Unknown status: " + obj.status);
+																					btMode.disconnectDevice ();
+																				}
+																			},
+																			
+																			function (obj) {
+																				debugOut.err.println("DescriptorsFailure: " + obj.error + " - " + obj.message);
+																				btMode.disconnectDevice ();
+																			},
+																			params1
+																	);
+																} else {
+																	debugOut.err.println("CharacteristicsFailure: Unknown status: " + obj.status);
+																	btMode.disconnectDevice ();
+																}
+															}, 
+															function (obj) {
+																debugOut.err.println("CharacteristicsFailure: " + obj.error + " - " + obj.message);
+																btMode.disconnectDevice ();
+															},
+															params
+													);
+												} else {
+													debugOut.err.println("ServicesFailure: Unknown status: " + obj.status);
+													btMode.disconnectDevice ();
+												}
+											},
+											function (obj) {
+												debugOut.err.println("ServicesFailure: " + obj.error + " - " + obj.message);
+												btMode.disconnectDevice ();
+											},
+											{"address":id , "serviceUuids":[btMode.serviceInfo.serviceUUID]}
+									);
+								} else if (window.device.platform == plab.platforms.android) {
+									// android: discover discovers all services and descriptors
+									bluetoothle.discover (
+											function (obj) {
+												if (obj.status == "discovered") {
+													// TODO check if service is available
+													common(true);
+												} else {
+													debugOut.err.println("DiscoverFailure: Unknown status: " + obj.status);
+													btMode.disconnectDevice ();
+												}
+											},
+											function (obj) {
+												debugOut.err.println("DiscoverFailure: " + obj.error + " - " + obj.message);
+												btMode.disconnectDevice ();
+											},
+											{"address" : id}
+									);
+								} else {
+									// Greit aa si ifra om at dette ikke vil fungere, vi stoetter bare iOS/android
+									alert ("This platform is not supported");
+								}
+								
+							} else if (obj.status != "connecting") {
+								// Holder paa med tilkobling enda, ikke gjoer noe spesielt
+								btMode.status.connected = false;
+								btMode.status.ready = false;
+								updateScreen();
+							}
+						},
+						function(obj) {
+							btMode.status.connected = false;
+							btMode.status.ready = false;
+							btMode.status.failure = true;
+							debugOut.err.println("ConnectFailure: " + obj.error + " - " + obj.message);
+							// Clear connect timeout
+							if (btMode.timers.connecting !== null) {
+								clearTimeout(btMode.timers.connecting);
+								btMode.timers.connecting = null;
+							}
+							updateScreen ();
+						},
+						{"address":id}
+				);
+				plab.timers.connect = setTimeout(btMode.stopListDevices, 5000);
+			};
 			// ------------------ END CONNECT ------------------
+			
 			// ------------------ DICCONNECT ------------------
 			btMode.disconnectDevice = function () {
 				var closeDev = function() {
@@ -120,9 +312,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					bluetoothle.close(
 							function (obj) {
 								if (obj.status == "closed") {
-									// Allowed to stand if needed later
+									btMode.address = null;
 								} else {
-									// Allowed to stand if needed later
+									debugOut.warn("CloseFailure: Unknown status: " + obj.status);
 								}
 							},
 							function (obj) {
@@ -130,8 +322,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							},
 							{"address":btMode.address}
 					);
-				}
-				bluetoothle.disconnect(
+				};
+				if (btMode.status.connected || btMode.address !== null) {
+					bluetoothle.disconnect(
 						function (obj) {
 							if (obj.status == "disconnected") {
 								closeDev();
@@ -148,28 +341,20 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						},
 						{"address":btMode.address}
 					);
-					btMode.status.ready = false;
-				},
-				disconnectFailure : function (obj) {
-					// hundre prosent sikker paa at tilkobling er lukket
-					plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
-					plab.closeDevice ();
-				},
-				closeSuccess : function (obj) {
-					if (obj.status == "closed") {
-						// Lar denne staa om vi trenger den senere
-					} else {
-						// Lar denne staa om vi trenger den senere
-					}
-				},
-				closeFailure : function (obj) {
-					plab.notifyErrorString ("CloseFailure: " + obj.error + " - " + obj.message);
-				},
+				}
+				btMode.status.ready = false;
 			};
 			// ------------------ END DICCONNECT ------------------
 			
+			
+			
+			
+			
+			
+			// -------------- SEND / RECEIVE ------------
 			btMode.send = function (text) {};
 			btMode.receiveCallback = function (callback) {};
+			// -------------- END SEND / RECEIVE ------------
 			// TODO
 		}
 		

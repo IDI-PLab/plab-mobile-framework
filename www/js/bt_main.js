@@ -32,7 +32,7 @@ var plabBTMode = {
 		listDevices : function (listCallback, scanTime) {},
 		stopListDevices : function () {},
 		
-		connectDevice : function (id) {},
+		connectDevice : function (id, successCallback) {},
 		disconnectDevice : function () {},
 		
 		send : function (text) {},
