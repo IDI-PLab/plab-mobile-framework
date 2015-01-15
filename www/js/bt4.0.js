@@ -11,6 +11,7 @@ var plabBTMode = {
 		},
 		
 		// timers : { scanning : null }
+		// address : null
 		
 		openMode : function () {},
 		closeMode : function () {},
@@ -44,6 +45,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	btMode.timers = {
 			scanning : null
 	};
+	btMode.address = null;
 	
 	// Replacing the open mode function -> init the mode
 	btMode.openMode = function () {
@@ -107,8 +109,64 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			};
 			// ------------------ END SCAN ------------------------
 			
+			// ------------------ CONNECT ------------------
 			btMode.connectDevice = function (id) {};
-			btMode.disconnectDevice = function () {};
+			// ------------------ END CONNECT ------------------
+			// ------------------ DICCONNECT ------------------
+			btMode.disconnectDevice = function () {
+				var closeDev = function() {
+					btMode.status.connected = false;
+					btMode.status.ready = false;
+					bluetoothle.close(
+							function (obj) {
+								if (obj.status == "closed") {
+									// Allowed to stand if needed later
+								} else {
+									// Allowed to stand if needed later
+								}
+							},
+							function (obj) {
+								debugOut.err.println("CloseFailure: " + obj.error + " - " + obj.message);
+							},
+							{"address":btMode.address}
+					);
+				}
+				bluetoothle.disconnect(
+						function (obj) {
+							if (obj.status == "disconnected") {
+								closeDev();
+							} else if (obj.status == "disconnecting") {
+								// Allowed to stand if needed later
+							} else {
+								// Allowed to stand if needed later
+							}
+						},
+						function (obj) {
+							// Ensure the connection is closed
+							debugOut.err.println("DisconnectFailure: " + obj.error + " - " + obj.message);
+							closeDev();
+						},
+						{"address":btMode.address}
+					);
+					btMode.status.ready = false;
+				},
+				disconnectFailure : function (obj) {
+					// hundre prosent sikker paa at tilkobling er lukket
+					plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
+					plab.closeDevice ();
+				},
+				closeSuccess : function (obj) {
+					if (obj.status == "closed") {
+						// Lar denne staa om vi trenger den senere
+					} else {
+						// Lar denne staa om vi trenger den senere
+					}
+				},
+				closeFailure : function (obj) {
+					plab.notifyErrorString ("CloseFailure: " + obj.error + " - " + obj.message);
+				},
+			};
+			// ------------------ END DICCONNECT ------------------
 			
 			btMode.send = function (text) {};
 			btMode.receiveCallback = function (callback) {};
