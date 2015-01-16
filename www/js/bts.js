@@ -100,7 +100,28 @@ function plabAddBTSerial(debugOut, updateScreen) {
 			btMode.status.started = true;
 			
 			btMode.closeMode = function () {
-				// TODO
+				if (btMode.status.connected){
+					if (btMode.status.ready) {
+						// Unsubscribe
+						bluetoothSerial.unsubscribe(
+								function(){
+									debugOut.notify.println("bluetoothSerial unsubscribed");
+									// Remeber to disconnect
+									btMode.disconnectDevice();
+									updateScreen();
+								},
+								function(){
+									debug.warn.println("bluetoothSerial failed to unsubscribe");
+									// Remeber to disconnect
+									btMode.disconnectDevice();
+									updateScreen();
+								}
+						);
+					} else {
+						// Disconnect
+						btMode.disconnectDevice();
+					}
+				}
 			};
 			
 			btMode.listDevices = function (listCallback, scanTime) {
