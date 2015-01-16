@@ -43,12 +43,10 @@ var plabBTMode = {
 try {
 function plabAddBT4_0(debugOut, updateScreen) {
 	// See if necessary plugin is installed
-	alert("add");
 	if (typeof bluetoothle === "undefined") {
 		return;
 	}
-	alert("typeof ok");
-	/*
+	
 	// Creating a prototype object
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BlueTooth_4.0_randdusing";
@@ -77,7 +75,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				"isNotification":true
 		};
 		
-		// Callback funksjonen for subscribes
+		// Callback functions for subscribe
 		bluetoothle.subscribe(
 				function (obj) {
 					try {
@@ -99,13 +97,12 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					}
 				},
 				function (obj) {
-					debugOut.err.println"SubscribeFailure: " + obj.error + " - " + obj.message);
+					debugOut.err.println("SubscribeFailure: " + obj.error + " - " + obj.message);
 				},
 				params
 		);
+		
 	};
-	alert("HOHO");
-	
 	
 	// Replacing the open mode function -> init the mode
 	btMode.openMode = function () {
@@ -346,6 +343,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			};
 			// ------------------ END CONNECT ------------------
 			
+			
 			// ------------------ DICCONNECT ------------------
 			btMode.disconnectDevice = function () {
 				var closeDev = function() {
@@ -430,7 +428,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							}
 						);
 						*/
-						/*
+						
 					} else {
 						debugOut.warn.println("WriteFailure: Not connected");
 					}
@@ -439,9 +437,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				btMode.subscriptions[btMode.subscriptions.length] = callback;
 			};
 			// -------------- END SEND / RECEIVE ------------
+			
 			// TODO
 		}
-		
 		
 		// -------------- INIT -------------------
 		if (!btMode.status.initialized) {
@@ -466,8 +464,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			);
 		}
 		// -------------- END INIT -------------------
+		
 	};
-	*/
 	plabBT.addMode(btMode);
 }
 
