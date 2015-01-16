@@ -52,6 +52,27 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BluetoothSerial-com.megster";
 	btMode.name = "BlueTooth";
+	
+	// Adding info since this is init
+	btMode.status.started = false;
+	
+	btMode.openMode = function() {
+		// Is this first run?
+		if (!btMode.status.started) {
+			btMode.status.started = true;
+			
+			btMode.closeMode = function () {};
+			
+			btMode.listDevices = function (listCallback, scanTime) {};
+			btMode.stopListDevices = function () {};
+			
+			btMode.connectDevice = function (id, successCallback) {};
+			btMode.disconnectDevice = function () {};
+			
+			btMode.send = function (text) {};
+			btMode.receiveCallback = function (callback) {};
+		}
+	};
 	// TODO
 	plabBT.addMode(btMode);
 	debugOut.notify.println("buetoothSerial added");
