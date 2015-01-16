@@ -341,9 +341,17 @@ var plabPjsBridge = {
  * -------------------------------------------------------------
  */
 
+/*
+ * The plabBT object is the object responsible to communicate with the
+ * different BT modules. It keeps track of which modules are installed and
+ * which (if any) is currently active.
+ */
 var plabBT = {
+		// The different installed modules are kept here
 		modes : [],
+		// The current active module
 		mode : null,
+		// Sets a new module as active (if known)
 		setMode : function (id) {
 			
 			plab.out.notify.println("[plabBT]: setting mode: " + id);
@@ -360,6 +368,7 @@ var plabBT = {
 				}
 			}
 		},
+		// Tells the current active module to stand down and unsets the current module.
 		unsetMode : function () {
 			plab.out.notify.println("[plabBT]: unsetMode");
 			if (plabBT.mode !== null) {
@@ -367,6 +376,7 @@ var plabBT = {
 				plabBT.mode = null;
 			}
 		},
+		// Adds a new module, if not already present
 		addMode : function (mode) {
 			plab.out.notify.println("[plabBT]: addMode: " + mode.id);
 			for (var i = 0; i < plabBT.modes.length; i++) {
@@ -379,7 +389,8 @@ var plabBT = {
 			plab.updateIntro();
 		},
 		
-		
+		// Lists all devices detected by the module. Results are updated to the holder node provided.
+		// Enforce listing stop after predefined time (scanTime in milliseconds)
 		listDevices : function (holderNode, scanTime) {
 			plab.out.notify.println("[plabBT]: Listing devices");
 			if (plabBT.mode === null) {
@@ -407,15 +418,18 @@ var plabBT = {
 					scanTime
 			);
 		},
+		// Force the current module to stop listing devices
 		stopListDevices : function() {
 			plab.out.notify.println("[plabBT]: stopListDevices");
 			if (plabBT.mode !== null) {
 				plabBT.mode.stopListDevices();
 			}
 		},
+		// Create a devuce descriptor. Should be used by the different modules.
 		createDeviceDescriptor : function (theId, theName) {
 			return { id : theId, name : theName };
 		},
+		// Force the current module to attempt to connect to the device identified by id
 		connectDevice : function (id) {
 			plab.out.notify.println("[plabBT]: connectDevice: " + id);
 			if (plabBT.mode === null) {
@@ -423,6 +437,7 @@ var plabBT = {
 			}
 			plabBT.mode.connectDevice(id, plab.showUserSelect);
 		},
+		// Force the current module to disconnect from device
 		disconnectDevice : function () {
 			plab.out.notify.println("[plabBT]: disconnectDevice");
 			if (plabBT.mode === null) {
@@ -431,6 +446,7 @@ var plabBT = {
 			plabBT.mode.disconnectDevice();
 		},
 		
+		// If a module is set, this will force it to attempt sending of a string
 		send : function (text) {
 			plab.out.notify.println("[plabBT]: send text: " + text);
 			if (plabBT.mode === null) {
@@ -438,6 +454,8 @@ var plabBT = {
 			}
 			plabBT.mode.send(text);
 		},
+		// Register a callback function for the current module to make it listen for incomming messages.
+		// Will be reset if module is changed
 		receiveCallback : function (callback) {
 			plab.out.notify.println("[plabBT]: receiveCallback; someone is listening");
 			if (plabBT.mode === null) {
@@ -447,26 +465,47 @@ var plabBT = {
 		}
 }
 
+/*
+ * plabBTMode is a prototype object for a bt module. It must implement all
+ * functions specified here, and must hold identifiers and names as given
+ * described here.
+ */
 var plabBTMode = {
+		// Unique identifier for the module
 		id : "",
+		// Name of the module. What is displayed in the app
 		name : "",
+		// Status: Connection status
 		status : {
+			// Device initialized
 			initialized : false,
+			// Device connected
 			connected : false,
+			// Device ready to send/receive messages
 			ready : false,
+			// Device failed somehow
 			failure : false
 		},
 		
+		// Start the module. Initialize and ready for interaction
 		openMode : function () {},
+		// Stop the module. Close all connections and remove all listeners
 		closeMode : function () {},
 		
+		// List the devices ready for connection. scanTime describes max time this function should run.
+		// listCallback should be called with a descriptor created by plabBT.createDeviceDescriptor
 		listDevices : function (listCallback, scanTime) {},
+		// Force the device to stop looking for other devices
 		stopListDevices : function () {},
 		
+		// Connect to a device identified by id. Call successCallback if successful
 		connectDevice : function (id, successCallback) {},
+		// Disconnect from the device currently connected to
 		disconnectDevice : function () {},
 		
+		// Send a string to the current device
 		send : function (text) {},
+		// Register a callback function to listen for incomming messages from device
 		receiveCallback : function (callback) {}
 }
 
