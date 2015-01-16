@@ -181,13 +181,13 @@ function plabAddBTSerial(debugOut, updateScreen) {
 			};
 			
 			btMode.send = function (text) {
-				bluetootSerial.write(
+				bluetoothSerial.write(
 						text,
 						function(){
-							debugOut.notify.println("bluetootSerial sent: " + text);
+							debugOut.notify.println("bluetoothSerial sent: " + text);
 						},
 						function(){
-							debugOut.err.println("bluetootSerial failed to send data");
+							debugOut.err.println("bluetoothSerial failed to send data");
 						}
 				);
 			};
