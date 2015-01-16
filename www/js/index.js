@@ -17,16 +17,7 @@
  * under the License.
  */
 
-/*
- * The services available for the bluetooth device we should use are:
- * 1800: Generic Access {2a00,2a01,2a02,2a03,2a04}
- *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml
- * 1801: Generic Attribute {2a05}
- *         This tells if service has changed
- * ffe0: Default service currently used to communicate with bt device.
- */
 
-try {
 var plabPrintStream = {
 		// The node that will be written to
 		node : null,
@@ -96,44 +87,14 @@ var plab = {
 		state : null,
 		// Ready er om vi kan kalle cordova funksjonalitet, om enheten er klar.
 		ready : false,
-		// Service info er riktig for ble vi bruker. Ved annen maskinvare kan det vaere noedvendig aa endre disse
-		/*serviceInfo : {
-			serviceUUID : "FFE0", // for the Service
-			txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
-			rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
-		},*/
 		
 		// Timers er brukt for aa holde styr paa tilkoblings timeouts
 		timers : {
-		//	scan : null,
-		//	connect : null,
-		//	reconnect : null,
 			processing : null
 		},
 		
-		/*btInfo : {
-			initialized : false,
-			failed : false,
-			connected : false,
-			reconnecting : false
-		},*/
-		
-		/*platforms : {
-			iOS : "iOS",
-			android : "Android"
-		},*/
-		
-		// Denne lagrer addressen til enheten vi er tilkoblet til.
-		// Den brukes i forbindelse med tjenesteoppdagelse.
-		// Tjenesteoppdagelsen er tenkt flyttet etterhvert, saa denne faar staa til da.
-		//btAddr : null,
-		
-		// ---------- METODER SOM KALLES ETTER RECONNECT ER KJOERT -----------
-		//afterReconnect : [],
-		
 		// ----------------------- USER FEEDBACK -----------------------------
 		errorSubscribers : [],
-		//messageSubscribers : [],
 		
 		notifyErrorString : function (string) {
 			// Send error out to debug output
@@ -144,13 +105,6 @@ var plab = {
 				plab.errorSubscribers[i] (string);
 			}
 		},
-		/*notifyMessage : function (string) {
-			
-			// Notify others
-			for (var i = 0; i < plab.messageSubscribers.length; i++) {
-				plab.messageSubscribers[i] (string);
-			}
-		},*/
 		
 		
 		// -------------------------- INITIALIZATION -----------------
@@ -169,17 +123,7 @@ var plab = {
 			plab.ready = true;
 
 			plab.showIntro();
-			
-			// plab.r... pga scope av kallet. Metoden kjoeres ikke som klassemetode.
-			// plab.receivedEvent ("deviceready");
 		},
-		// receivedEvent er funksjon som kalles naar vi mottar en livssykel event for appen 
-		/*receivedEvent : function (id) {
-			if (id == "deviceready") {
-				this.ready = true;
-				this.updateScreen ();
-			}
-		},*/
 		
 		// ------------------------- DISPLAY --------------------------
 		// getStatus viser til hva com skal staa i statuslinja i appen
@@ -352,438 +296,7 @@ var plab = {
 			
 			// Last processing
 			startLoad ();
-		}//,
-		
-		
-		// -------------------------------------------------------------------
-		// ------------------------ BLUETOOTH --------------------------------
-		// ----------- CONNECT -----------------------------------------------
-		// Tilkobling til BLE spesifikke funksjoner
-		// INIT
-		/*
-		initBLE : function() {
-			bluetoothle.initialize(this.initBLESuccess, this.initBLEFailure, {"request":false});
-		},
-		initBLESuccess : function(obj) {
-			if (obj.status == "enabled") {
-				plab.btInfo.initialized = true;
-				plab.updateScreen();
-				plab.updateBLEList();
-			}
-		},
-		initBLEFailure : function(obj) {
-			plab.btInfo.failed = true;
-			plab.notifyErrorString ("InitFailure: " + obj.error + " - " + obj.message);
-			plab.updateScreen();
-		},
-		updateBLEList : function() {
-			
-			if (this.timers.scan != null) {
-				// Skanner allerede -> start paa nytt
-				clearTimeout(this.timers.scan);
-				this.timers.scan = null;
-				
-				document.getElementById("plab-scan-status").innerHTML = "Omstart av skann";
-				
-				bluetoothle.stopScan (
-					function (obj) {
-						if (obj.status == "scanStopped") {
-							// Stoppet skannet. Start et nytt.
-							document.getElementById("plab-devices").innerHTML = "";
-							bluetoothle.startScan(plab.startScanSuccess, plab.startScanFailure, null);
-						} else {
-							plab.notifyErrorString ("StopScanFailure: Unknown status: " + obj.status);
-						}
-					},
-					function(obj){
-						plab.notifyErrorString ("StopScanFailure: " + obj.error + " - " + obj.message);
-					}
-				);
-				//
-			} else {
-				
-				// Skanner ikke
-				document.getElementById("plab-devices").innerHTML = "";
-				bluetoothle.startScan(plab.startScanSuccess, plab.startScanFailure, null);
-			}
-		},
-		// SCAN
-		startScanSuccess : function(obj) {
-			if (obj.status == "scanResult") {
-				// Hent lista
-				var list = document.getElementById("plab-devices");
-				// lag listeelement
-				var el = document.createElement("li");
-				// Lag tilkoblingsknapp
-				var btn = document.createElement("button");
-				var btnVal = document.createTextNode(obj.name == null ? "? - " + obj.address : obj.name);
-				btn.appendChild(btnVal);
-				btn.addEventListener("click", function() {
-					plab.connectDevice(obj.address);
-				});
-				// Legge til elementene i lista
-				el.appendChild(btn);
-				list.appendChild(el);
-			} else if (obj.status == "scanStarted") {
-				document.getElementById("plab-scan-status").innerHTML = "Skanner";
-				plab.timers.scan = setTimeout(plab.scanTimeout, 10000);
-			}
-		},
-		startScanFailure : function(obj) {
-			plab.btInfo.failed = true;
-			plab.notifyErrorString ("ScanFailure: " + obj.error + " - " + obj.message);
-			plab.updateScreen();
-		},
-		scanTimeout : function() {
-			bluetoothle.stopScan (function(obj){}, function(obj){});
-			plab.timers.scan = null;
-			document.getElementById("plab-scan-status").innerHTML = "Skann ferdig";
-		},
-		stopAndClearScanTimeout : function() {
-			if (this.timers.scan != null) {
-				clearTimeout(this.timers.scan);
-				this.scanTimeout();
-			}
-		},
-		// CONNECT
-		connectDevice : function(address) {
-			// TODO se kommentar paa plab.btAddr
-			plab.btAddr = address;
-			plab.stopAndClearScanTimeout ();
-		    var paramsObj = {"address":address};
-			bluetoothle.connect (plab.connectSuccess, plab.connectFailure, paramsObj);
-			plab.timers.connect = setTimeout(plab.connectTimeout, 5000);
-		},
-		// Blir kallt naar tilkobling er vellykket
-		connectSuccess : function(obj) {
-			if (obj.status == "connected") {
-				
-				plab.clearConnectTimeout ();
-				plab.btInfo.connected = true;
-				plab.btInfo.failed = false;
-				plab.updateScreen ();
-				
-				// Veien videre bestemmes av plattform
-				if (window.device.platform == plab.platforms.iOS) {
-					// iOS: services finner kun den tjenesten vi vil koble til.
-					var params = {
-							"address" : plab.btAddr,
-							"serviceUuids": [ plab.serviceInfo.serviceUUID ] 
-					};
-					bluetoothle.services (plab.servicesSuccess, plab.servicesFailure, params);
-				} else if (window.device.platform == plab.platforms.android) {
-					// android: discover finner alle tjenester med beskrivelse som er paa enheten.
-					var params = {
-							"address" : plab.btAddr
-					};
-					bluetoothle.discover (plab.discoverSuccess, plab.discoverFailure, params);
-				} else {
-					// Greit aa si ifra om at dette ikke vil fungere, vi stoetter bare iOS/android
-					alert ("This platform is not supported");
-				}
-				
-			} else if (obj.status != "connecting") {
-				// Holder paa med tilkobling enda, ikke gjoer noe spesielt
-				plab.btInfo.connected = false;
-				plab.btInfo.failed = true;
-				plab.updateScreen ();
-			}
-		},
-		// connectFailure kalles hvis tilkobling til en enhet feiler av noen grunn
-		connectFailure : function(obj) {
-			plab.btInfo.connected = false;
-			plab.btInfo.failed = true;
-			plab.notifyErrorString ("ConnectFailure: " + obj.error + " - " + obj.message);
-			plab.clearConnectTimeout ();
-			plab.updateScreen ();
-		},
-		// Timout: connect har brukt for lang tid
-		connectTimeout : function () {
-			plab.btInfo.connected = false;
-			plab.btInfo.failed = true;
-			plab.notifyErrorString ("ConnectFailure: Timeout");
-			plab.updateScreen ();
-			plab.timers.connect = null;
-		},
-		// Soerg for at timeout funksjonen ikke kjoeres
-		clearConnectTimeout : function () {
-			if (this.timers.connect != null) {
-				clearTimeout (this.timers.connect);
-				this.timers.connect = null;
-			}
-		},
-		//RECONNECT
-		// reconnect kjoeres hvis en tilkobling feiler og vi proever aa koble til igjen
-		reconnect : function () {
-			if (!this.btInfo.reconnecting) {
-				this.btInfo.reconnecting = true;
-				bluetoothle.reconnect (plab.reconnectSuccess, plab.reconnectFailure);
-				plab.timers.reconnect = setTimeout (reconnectTimeout, 5000);
-			}
-		},
-		reconnectSuccess : function(obj) {
-			if (obj.status == "connected") {
-				plab.clearReconnectTimeout ();
-				for (var i = 0; i < plab.afterReconnect.length; i++) {
-					plab.afterReconnect[i] ();
-				}
-				plab.btInfo.reconnecting = false;
-				plab.afterReconnect.length = 0;
-			} else if (obj.status == "connecting") {
-				// Lar denne staa om vi oppdager noe vi trenger den til.
-			} else {
-				plab.disconnectDevice ();
-				plab.btInfo.reconnecting = false;
-				plab.clearReconnectTimeout ();
-			}
-		},
-		reconnectFailure : function (obj) {
-			plab.clearReconnectTimeout ();
-			plab.btInfo.connected = false;
-			plab.btInfo.reconnecting = false;
-			plab.btInfo.failed = true;
-			plab.notifyErrorString ("ReconnectFailure: " + obj.error + " - " + obj.message);
-			plab.updateScreen ();
-		},
-		reconnectTimeout : function () {
-			plab.btInfo.connected = false;
-			plab.btInfo.reconnecting = false;
-			plab.btInfo.failed = true;
-			plab.disconnectDevice ();
-			plab.notifyErrorString ("ReconnectFailure: Timeout");
-			plab.updateScreen ();
-			plab.timers.reconnect = null;
-		},
-		clearReconnectTimeout : function () {
-			if (this.timers.reconnect != null) {
-				clearTimeout (this.timers.reconnect);
-				this.timers.reconnect = null;
-			}
-		},
-		
-		// DISCONNECT
-		disconnectDevice : function () {
-			bluetoothle.disconnect (plab.disconnectSuccess, plab.disconnectFailure, {"address":plab.btAddr});
-			plab.btInfo.connected = false;
-			plab.btInfo.reconnecting = false;
-		},
-		disconnectSuccess : function (obj) {
-			if (obj.status == "disconnected") {
-				plab.closeDevice ();
-			} else if (obj.status == "disconnecting") {
-				// Lar denne staa hvis den trengs seinere
-			} else {
-				// Lar denne staa hvis den trengs seinere
-			}
-		},
-		disconnectFailure : function (obj) {
-			// hundre prosent sikker paa at tilkobling er lukket
-			plab.notifyErrorString ("DisconnectFailure: " + obj.error + " - " + obj.message);
-			plab.closeDevice ();
-		},
-		// closeDevice er siste frakoblingsfunksjon
-		closeDevice : function () {
-			plab.btInfo.connected = false;
-			plab.btInfo.reconnecting = false;
-			bluetoothle.close (plab.closeSuccess, plab.closeFailure, {"address":plab.btAddr});
-		},
-		closeSuccess : function (obj) {
-			if (obj.status == "closed") {
-				// Lar denne staa om vi trenger den senere
-			} else {
-				// Lar denne staa om vi trenger den senere
-			}
-		},
-		closeFailure : function (obj) {
-			plab.notifyErrorString ("CloseFailure: " + obj.error + " - " + obj.message);
-		},
-		
-		// ------------------ SERVICE DISCOVERY ------------------------------
-		// COMMON
-		postDiscovery : function (success) {
-			if (success) {
-				// Gaa til neste skjerm
-				plab.showUserSelect ();
-				// Gjennomfoer abbonement
-				plab.startSubscribe ();
-			} else {
-				// Oppdater skjermen med info om feilet aa oppdage UART tjeneste
-				// TODO Skal denne gi mer info/ endre mer enn det den gjoer?
-				plab.notifyErrorString ("DiscoverFailure: Failed to discover UART service");
-			}
-		},
-		
-		// ANDROID DISCOVER
-		discoverSuccess : function (obj) {
-			try {
-				if (obj.status == "discovered") {
-					// TODO Sjekk om tjenesten er tilstede
-					plab.postDiscovery (true);
-				} else {
-					plab.notifyErrorString ("DiscoverFailure: Unknown status: " + obj.status);
-					plab.disconnectDevice ();
-				}
-			} catch (e) {
-				alert (e);
-			}
-		},
-		discoverFailure : function (obj) {
-			plab.notifyErrorString ("DiscoverFailure: " + obj.error + " - " + obj.message);
-			plab.disconnectDevice ();
-		},
-		// IOS DISCOVER
-		servicesSuccess : function (obj) {
-			// TODO Gjoer denne mer robust
-			// Antar riktig tjeneste var oppdaget
-			if (obj.status == "services") {
-				var params = {
-						"address" : plab.btAddr,
-						"serviceUuid" : plab.serviceInfo.serviceUUID,
-						"characteristicUuids" : [ plab.serviceInfo.txUUID, plab.serviceInfo.rxUUID ]
-				};
-				bluetoothle.characteristics (plab.characteristicsSuccess, plab.characteristicsFailure, params);
-			} else {
-				plab.notifyErrorString ("ServicesFailure: Unknown status: " + obj.status);
-				plab.disconnectDevice ();
-			}
-			
-		},
-		servicesFailure : function (obj) {
-			plab.notifyErrorString ("ServicesFailure: " + obj.error + " - " + obj.message);
-			plab.disconnectDevice ();
-		},
-		characteristicsSuccess : function (obj) {
-			// TODO Gjoer denne mer robust
-			// Antar riktig characteristics var oppdaget
-			if (obj.status == "characteristics") {
-				var params1 = {
-						"address" : plab.btAddr,
-						"serviceUuid" : plab.serviceInfo.serviceUUID,
-						"characteristicUuid" : plab.serviceInfo.txUUID
-				};
-				var params2 = {
-						"address" : plab.btAddr,
-						"serviceUuid" : plab.serviceInfo.serviceUUID,
-						"characteristicUuid" : plab.serviceInfo.rxUUID
-				};
-				// Bruteforcer gjennom listen
-				bluetoothle.descriptors (
-						
-						function (obj) {
-							if (obj.status == "descriptors") {
-								bluetoothle.descriptors (
-										
-										function (obj1) {
-											if (obj1.status == "descriptors") {
-												plab.postDiscovery (true);
-											} else {
-												plab.notifyErrorString ("DescriptorsFailure: Unknown status: " + obj1.status);
-												plab.disconnectDevice ();
-											}
-										},
-										
-										function (obj1) {
-											plab.notifyErrorString ("DescriptorsFailure: " + obj1.error + " - " + obj1.message);
-											plab.disconnectDevice ();
-										},
-										params2
-								);
-							} else {
-								plab.notifyErrorString ("DescriptorsFailure: Unknown status: " + obj.status);
-								plab.disconnectDevice ();
-							}
-						},
-						
-						function (obj) {
-							plab.notifyErrorString ("DescriptorsFailure: " + obj.error + " - " + obj.message);
-							plab.disconnectDevice ();
-						},
-						params1
-				);
-			} else {
-				plab.notifyErrorString ("CharacteristicsFailure: Unknown status: " + obj.status);
-				plab.disconnectDevice ();
-			}
-		},
-		characteristicsFailure : function (obj) {
-			plab.notifyErrorString ("CharacteristicsFailure: " + obj.error + " - " + obj.message);
-			plab.disconnectDevice ();
-		},
-
-		// -------------- SERVICE USE ----------------------------------------
-		// SUBSCRIBE
-		startSubscribe : function () {
-			var params = {
-					"address":plab.btAddr,
-					"serviceUuid":plab.serviceInfo.serviceUUID,
-					"characteristicUuid":plab.serviceInfo.rxUUID,
-					"isNotification":true
-			};
-			
-			// Callback funksjonen for subscribes
-			bluetoothle.subscribe(
-					function (obj) {
-						
-						try {
-							if (obj.status == "subscribedResult") {
-								// Debug output
-								plab.out.notify.print("Mottok data: ");
-								plab.out.notify.println(JSON.stringify(obj));
-								// Send videre.
-								plab.notifyMessage (bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
-							} else if (obj.status == "subscribed") {
-								// Ingenting her
-							} else {
-								plab.notifyErrorString ("UnknownSubscribeStatus");
-							}
-						} catch (e) {
-							plab.notifyErrorString ("SubscribeFailure: " + e.message);
-						}
-					},
-					function (obj) {
-						plab.notifyErrorString ("SubscribeFailure: " + obj.error + " - " + obj.message);
-					},
-					params
-			);
-		},
-		
-		// WRITE
-		write : function (string) {
-			if (plab.btInfo.connected) {
-				var params = {
-						// TODO Se om denne ogsaa maa ha addresse
-						"address" : plab.btAddr,
-						"value" : bluetoothle.bytesToEncodedString (bluetoothle.stringToBytes (string)),
-						"serviceUuid" : plab.serviceInfo.serviceUUID,
-						"characteristicUuid" : plab.serviceInfo.txUUID,
-						"type" : "noResponse"
-				};
-				
-				bluetoothle.isConnected (
-					function (conn) {
-						
-						if (conn.isConnected) {
-							bluetoothle.write (
-									function (obj) {},
-									function (obj) {
-										plab.notifyErrorString ("WriteFailure: " + obj.error + " - " + obj.message);
-									},
-									params
-							);
-						} else {
-							plab.afterReconnect[plab.afterReconnect.length] = function() {
-								plab.write(string);
-							};
-							plab.reconnect ();
-						}
-					}
-				);
-				
-			} else {
-				plab.notifyErrorString ("WriteFailure: Not connected");
-			}
 		}
-		*/
 };
 
 
@@ -815,10 +328,157 @@ var plabPjsBridge = {
 };
 
 /*
- * -----------------------END--------------------------
+ * -------------------------------------------------------------
+ * -------------------------------------------------------------
+ * -----------------------END MAIN APP--------------------------
+ * -------------------------------------------------------------
+ * -------------------------------------------------------------
+ * 
+ * -------------------------------------------------------------
+ * -------------------------------------------------------------
+ * -----------------------BT------------------------------------
+ * -------------------------------------------------------------
+ * -------------------------------------------------------------
  */
 
-plab.initialize();
-} catch (e) {
-	alert(e);
+var plabBT = {
+		modes : [],
+		mode : null,
+		setMode : function (id) {
+			
+			plab.out.notify.println("[plabBT]: setting mode: " + id);
+			
+			if (plabBT.mode !== null) {
+				plabBT.unsetMode ();
+			}
+			
+			for (var i = 0; i < plabBT.modes.length; i++) {
+				if (id == plabBT.modes[i].id) {
+					plabBT.mode = plabBT.modes[i];
+					plabBT.mode.openMode();
+					return;
+				}
+			}
+		},
+		unsetMode : function () {
+			plab.out.notify.println("[plabBT]: unsetMode");
+			if (plabBT.mode !== null) {
+				plabBT.mode.closeMode();
+				plabBT.mode = null;
+			}
+		},
+		addMode : function (mode) {
+			plab.out.notify.println("[plabBT]: addMode: " + mode.id);
+			for (var i = 0; i < plabBT.modes.length; i++) {
+				if (mode.id === plabBT.modes[i].id) {
+					return;
+				}
+			}
+			plabBT.modes[plabBT.modes.length] = mode;
+			
+			plab.updateIntro();
+		},
+		
+		
+		listDevices : function (holderNode, scanTime) {
+			plab.out.notify.println("[plabBT]: Listing devices");
+			if (plabBT.mode === null) {
+				return;
+			}
+			plabBT.mode.listDevices(
+					function(desc) {
+						// list element to hold element
+						var el = document.createElement("li");
+						// Connect button
+						var btn = document.createElement("button");
+						var btnVal = document.createTextNode(desc.name);
+						btn.appendChild(btnVal);
+						// Add the click event listener
+						btn.addEventListener(
+								"click",
+								function() {
+									plabBT.connectDevice(desc.id);
+								}
+						);
+						// Legge til elementene i lista
+						el.appendChild(btn);
+						holderNode.appendChild(el);
+					},
+					scanTime
+			);
+		},
+		stopListDevices : function() {
+			plab.out.notify.println("[plabBT]: stopListDevices");
+			if (plabBT.mode !== null) {
+				plabBT.mode.stopListDevices();
+			}
+		},
+		createDeviceDescriptor : function (theId, theName) {
+			return { id : theId, name : theName };
+		},
+		connectDevice : function (id) {
+			plab.out.notify.println("[plabBT]: connectDevice: " + id);
+			if (plabBT.mode === null) {
+				return;
+			}
+			plabBT.mode.connectDevice(id, plab.showUserSelect);
+		},
+		disconnectDevice : function () {
+			plab.out.notify.println("[plabBT]: disconnectDevice");
+			if (plabBT.mode === null) {
+				return;
+			}
+			plabBT.mode.disconnectDevice();
+		},
+		
+		send : function (text) {
+			plab.out.notify.println("[plabBT]: send text: " + text);
+			if (plabBT.mode === null) {
+				return;
+			}
+			plabBT.mode.send(text);
+		},
+		receiveCallback : function (callback) {
+			plab.out.notify.println("[plabBT]: receiveCallback; someone is listening");
+			if (plabBT.mode === null) {
+				return;
+			}
+			plabBT.mode.receiveCallback(callback);
+		}
 }
+
+var plabBTMode = {
+		id : "",
+		name : "",
+		status : {
+			initialized : false,
+			connected : false,
+			ready : false,
+			failure : false
+		},
+		
+		openMode : function () {},
+		closeMode : function () {},
+		
+		listDevices : function (listCallback, scanTime) {},
+		stopListDevices : function () {},
+		
+		connectDevice : function (id, successCallback) {},
+		disconnectDevice : function () {},
+		
+		send : function (text) {},
+		receiveCallback : function (callback) {}
+}
+
+/*
+ * -------------------------------------------------------------
+ * -------------------------------------------------------------
+ * -----------------------END BT--------------------------------
+ * -------------------------------------------------------------
+ * -------------------------------------------------------------
+ */
+
+// -------------------------------------------------------------
+// -------------- Startup --------------------------------------
+// -------------------------------------------------------------
+plab.initialize();

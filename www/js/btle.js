@@ -1,6 +1,33 @@
 /*
- * ADB for debug
- * adb logcat Cordova:* DroidGap:* CordovaLog:* *:S
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/*
+ * The services available for the bluetooth device we should use are:
+ * 1800: Generic Access {2a00,2a01,2a02,2a03,2a04}
+ *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml
+ * 1801: Generic Attribute {2a05}
+ *         This tells if service has changed
+ * ffe0: Default service currently used to communicate with bt device.
+ */
+
+/*
+ * Reference, describes the object. comments within the comment imply added fields.
 var plabBTMode = {
 		id : "",
 		name : "",
@@ -45,7 +72,6 @@ var plabBTMode = {
 }
  *
  */
-try {
 function plabAddBT4_0(debugOut, updateScreen) {
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
 	// See if necessary plugin is installed
@@ -438,6 +464,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								params
 						);
 						/*
+						 * This code was in the original app. It may be more safe.
+						 * It is maintained for REFERENCE/HISTORIC VALUE ONLY
 						bluetoothle.isConnected (
 							function (conn) {
 								if (conn.isConnected) {
@@ -466,8 +494,6 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				btMode.subscriptions[btMode.subscriptions.length] = callback;
 			};
 			// -------------- END SEND / RECEIVE ------------
-			
-			// TODO
 		}
 		
 		// -------------- INIT -------------------
@@ -499,6 +525,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	plabBT.addMode(btMode);
 }
 
+// Adding the btle module must be done after device is ready.
 document.addEventListener(
 		"deviceready",
 		function() {
@@ -507,7 +534,56 @@ document.addEventListener(
 		false
 );
 
-
-} catch (e) {
-	alert(e);
-}
+// The following code was previously held in index.js. It should not be there as it is technology dependent
+// It is held here to show how reconnect was done in the original app. This is no longer valid of course.
+// REFERENCE/HISTORIC VALUE ONLY
+/*
+//RECONNECT
+// reconnect kjoeres hvis en tilkobling feiler og vi proever aa koble til igjen
+reconnect : function () {
+	if (!this.btInfo.reconnecting) {
+		this.btInfo.reconnecting = true;
+		bluetoothle.reconnect (plab.reconnectSuccess, plab.reconnectFailure);
+		plab.timers.reconnect = setTimeout (reconnectTimeout, 5000);
+	}
+},
+reconnectSuccess : function(obj) {
+	if (obj.status == "connected") {
+		plab.clearReconnectTimeout ();
+		for (var i = 0; i < plab.afterReconnect.length; i++) {
+			plab.afterReconnect[i] ();
+		}
+		plab.btInfo.reconnecting = false;
+		plab.afterReconnect.length = 0;
+	} else if (obj.status == "connecting") {
+		// Lar denne staa om vi oppdager noe vi trenger den til.
+	} else {
+		plab.disconnectDevice ();
+		plab.btInfo.reconnecting = false;
+		plab.clearReconnectTimeout ();
+	}
+},
+reconnectFailure : function (obj) {
+	plab.clearReconnectTimeout ();
+	plab.btInfo.connected = false;
+	plab.btInfo.reconnecting = false;
+	plab.btInfo.failed = true;
+	plab.notifyErrorString ("ReconnectFailure: " + obj.error + " - " + obj.message);
+	plab.updateScreen ();
+},
+reconnectTimeout : function () {
+	plab.btInfo.connected = false;
+	plab.btInfo.reconnecting = false;
+	plab.btInfo.failed = true;
+	plab.disconnectDevice ();
+	plab.notifyErrorString ("ReconnectFailure: Timeout");
+	plab.updateScreen ();
+	plab.timers.reconnect = null;
+},
+clearReconnectTimeout : function () {
+	if (this.timers.reconnect != null) {
+		clearTimeout (this.timers.reconnect);
+		this.timers.reconnect = null;
+	}
+},
+*/
