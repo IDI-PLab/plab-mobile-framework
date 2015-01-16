@@ -51,6 +51,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	if (typeof bluetoothSerial === "undefined") {
 		return;
 	}
+	debugOut.notify.println("bluetoothSerial plugin detected");
 	
 	// Creating the must have fields
 	var btMode = Object.create(plabBTMode);
@@ -62,7 +63,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	btMode.subscribers = [];
 	
 	// start subscribe call
-	var startSubscription() {
+	var startSubscription = function() {
 		bluetoothSerial.subscribe(
 				'\n',
 				function(data){
@@ -97,6 +98,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 		
 		// Is this first run?
 		if (!btMode.status.started) {
+			
 			btMode.status.started = true;
 			
 			btMode.closeMode = function () {
@@ -128,11 +130,11 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				bluetoothSerial.list(
 						function(list) {
 							debugOut.notify.println("bluetoothSerial received list of devices");
-							list.forEach(function(device)) {
+							list.forEach(function(device) {
 								var n = device.name === null ? "? - " + device.id : device.name;
 								var desc = plabBT.createDeviceDescriptor(device.id, n);
 								listCallback(desc);
-							}
+							});
 						},
 						function() {
 							debugOut.err.println("bluetoothSerial could not list devices");
@@ -193,10 +195,12 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				btMode.subscriptions[btMode.subscriptions.length] = callback;
 			};
 		}
+		
 	};
 
 	plabBT.addMode(btMode);
 	debugOut.notify.println("buetoothSerial added");
+	
 }
 
 document.addEventListener(
