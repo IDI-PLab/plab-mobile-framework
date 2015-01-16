@@ -246,8 +246,8 @@ var plab = {
 				plabBT.stopListDevices();
 			}
 			// Oppdaterer tilstand og skjerm
-			this.state = this.states[0];
-			this.updateScreen();
+			plab.state = plab.states[0];
+			plab.updateScreen();
 			// Unset mode to make sure everything is closed
 			plabBT.unsetMode();
 			/*if (this.btInfo.connected) {

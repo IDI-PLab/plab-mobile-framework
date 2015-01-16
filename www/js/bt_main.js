@@ -65,6 +65,12 @@ var plabBT = {
 					scanTime
 			);
 		},
+		stopListDevices : function() {
+			plab.out.notify.println("[plabBT]: stopListDevices");
+			if (plabBT.mode !== null) {
+				plabBT.mode.stopListDevices();
+			}
+		},
 		createDeviceDescriptor : function (theId, theName) {
 			return { id : theId, name : theName };
 		},
