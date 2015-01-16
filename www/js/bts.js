@@ -157,7 +157,17 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				);
 			};
 			
-			btMode.send = function (text) {};
+			btMode.send = function (text) {
+				bluetootSerial.write(
+						text,
+						function(){
+							debugOut.notify.println("bluetootSerial sent: " + text);
+						},
+						function(){
+							debugOut.err.println("bluetootSerial failed to send data");
+						}
+				);
+			};
 			btMode.receiveCallback = function (callback) {
 				btMode.subscriptions[btMode.subscriptions.length] = callback;
 			};
