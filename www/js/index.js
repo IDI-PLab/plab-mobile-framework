@@ -55,6 +55,7 @@ var plabPrintStream = {
 var plab = {
 		// ---------------- DEBUG OUTPUT ---------------------------
 		out : {
+			logLevel : 2,
 			node : null,
 			notify : null,
 			warn : null,
@@ -66,7 +67,25 @@ var plab = {
 				while (this.node.firstChild) {
 					this.node.removeChild(this.node.firstChild);
 				}
-			} 
+			},
+			init : function (outNode) {
+				this.node = outNode;
+				this.err = Object.create (plabPrintStream);
+				this.warn = Object.create (plabPrintStream);
+				this.notify = Object.create (plabPrintStream);
+				this.warn.className = "plab-warn";
+				this.err.className = "plab-err";
+				this.notify.className = "plab-notify";
+				if (this.logLevel >= 0) {
+					this.err.node = outNode;
+					if (this.logLevel >= 1) {
+						this.warn.node = outNode;
+						if (this.logLevel >= 2) {
+							this.notify.node = outNode;
+						}
+					}
+				}
+			}
 		},
 		
 		// ---------------- OBJECT FIELDS --------------------------
@@ -145,32 +164,8 @@ var plab = {
 		onDeviceReady : function () {
 			// Init debug
 			var n = document.getElementById ("plab-debug");
-			plab.out.node = n;
-			plab.out.notify = Object.create (plabPrintStream);
-			plab.out.notify.node = n;
-			plab.out.notify.className = "plab-notify";
-			plab.out.warn = Object.create (plabPrintStream);
-			plab.out.warn.node = n;
-			plab.out.warn.className = "plab-warn";
-			plab.out.err = Object.create (plabPrintStream);
-			plab.out.err.node = n;
-			plab.out.err.className = "plab-err";
+			plab.out.init(n);
 			
-			// Updating screen with installed bt support
-			var element = document.getElementById("plab-first-select");
-			for (var i = 0; i < plabBT.modes.length; i++) {
-				var btn = document.createElement("button");
-				var txt = document.createTextNode("Koble til " + plabBT.modes[i].name);
-				btn.appendChild(txt);
-				btn.addEventListener(
-						"click", 
-						function() {
-							plabBT.setMode(plabBT.modes[i].id);
-							plab.showConnect();
-						}
-				);
-				element.insertBefore(btn, element.firstChild);
-			}
 			plab.ready = true;
 
 			plab.showIntro();
@@ -211,11 +206,36 @@ var plab = {
 		updateScreen : function () {
 			var cont = document.getElementById("plab-content");
 			if (cont !== null) {
-				cont.className = this.state + "-select plab-" + this.getStatus() + "-select";
+				cont.className = plab.state + "-select plab-" + plab.getStatus() + "-select";
 			}
 		},
+		// updateIntro is responsible for updating the installed bt supports and make them selectable
+		updateIntro : function () {
+			// Updating screen with installed bt support
+			var element = document.getElementById("plab-first-select");
+			while (element.firstChild) {
+				element.removeChild(element.firstChild);
+			}
+			for (var i = 0; i < plabBT.modes.length; i++) {
+				var btn = document.createElement("button");
+				var txt = document.createTextNode("Koble til " + plabBT.modes[i].name);
+				var id = plabBT.modes[i].id;
+				btn.appendChild(txt);
+				btn.addEventListener(
+						"click", 
+						function() {
+							plab.out.notify.println("[select bt]: Setting mode " + id);
+							plabBT.setMode(id);
+							plab.showConnect();
+						}
+				);
+				element.insertBefore(btn, element.firstChild);
+			}
+		},
+		
 		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
 		showIntro : function () {
+			plab.out.notify.println("showIntro");
 			// Stopper lasting av processing, hvis det er startet.
 			if (plab.timers.processing != null) {
 				clearTimeout(plab.timers.processing);
@@ -236,6 +256,7 @@ var plab = {
 		},
 		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
 		showConnect : function () {
+			plab.out.notify.println("showConnect");
 			this.state = this.states[1];
 			// Clear scan list
 			var li = document.getElementById("plab-devices");
@@ -251,6 +272,7 @@ var plab = {
 		},
 		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
 		showUserSelect : function () {
+			plab.out.notify.println("showUserSelect");
 			this.state = this.states[2];
 			var oldName = window.localStorage.getItem('plab-username');
 			if (oldName != null) {
@@ -260,6 +282,8 @@ var plab = {
 		},
 		// showProcessing er funksjonen som gjoer vi gaar over til processing
 		showProcessing : function () {
+			
+			plab.out.notify.println("showProcessing");
 			
 			// Setter state til redirect state og oppdaterer skjermen
 			plab.state = plab.states[3];

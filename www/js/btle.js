@@ -42,11 +42,12 @@ var plabBTMode = {
  */
 try {
 function plabAddBT4_0(debugOut, updateScreen) {
+	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
 	// See if necessary plugin is installed
 	if (typeof bluetoothle === "undefined") {
 		return;
 	}
-	
+	debugOut.notify.println("[BlueTooth_4.0_randdusing]: creating mode");
 	// Creating a prototype object
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BlueTooth_4.0_randdusing";
@@ -130,27 +131,36 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			
 			// ------------------ SCAN ------------------------
 			btMode.listDevices = function (listCallback, scanTime) {
-				btMode.timers.scanning = "";
-				bluetoothle.startScan(
-						function(obj) {
-							if (obj.status == "scanResult") {
-								// Create the descriptor
-								var name = obj.name === null ? "? - " + obj.address : obj.name;
-								var desc = plabBT.createDeviceDescriptor(obj.address, name);
-								listCallback(desc);
-							} else if (obj.status == "scanStarted") {
-								btMode.timers.scanning = setTimeout(btMode.stopListDevices, scanTime);
-							} else {
-								debugOut.warn.println("StartScanFailure: Unknown status: " + obj.status);
-							}
-						},
-						function(obj) {
-							btMode.status.failure = true;
-							debugOut.err.println("ScanFailure: " + obj.error + " - " + obj.message);
-							updateScreen();
-						},
-						null
-				);
+				var scan = function() {
+					if (btMode.status.initialized) {
+						debugOut.notify.println("Starting scan");
+						bluetoothle.startScan(
+								function(obj) {
+									debugOut.notify.println("Scan result: " + JSON.stringify(obj));
+									if (obj.status == "scanResult") {
+										// Create the descriptor
+										var name = obj.name === null ? "? - " + obj.address : obj.name;
+										var desc = plabBT.createDeviceDescriptor(obj.address, name);
+										listCallback(desc);
+									} else if (obj.status == "scanStarted") {
+										btMode.timers.scanning = setTimeout(btMode.stopListDevices, scanTime);
+									} else {
+										debugOut.warn.println("StartScanFailure: Unknown status: " + obj.status);
+									}
+								},
+								function(obj) {
+									btMode.status.failure = true;
+									debugOut.err.println("ScanFailure: " + obj.error + " - " + obj.message);
+									updateScreen();
+								},
+								null
+						);
+					} else {
+						debugOut.warn.println("Device not initialized, delaying scan!");
+						setTimeout(scan, 500);
+					}
+				};
+				scan();
 			};
 			btMode.stopListDevices = function () {
 				bluetoothle.stopScan (
@@ -466,6 +476,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		// -------------- END INIT -------------------
 		
 	};
+	debugOut.notify.println("[" + btMode.id + "]: Mode created");
 	plabBT.addMode(btMode);
 }
 

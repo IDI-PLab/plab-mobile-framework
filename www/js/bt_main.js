@@ -4,6 +4,8 @@ var plabBT = {
 		mode : null,
 		setMode : function (id) {
 			
+			plab.out.notify.println("[plabBT]: setting mode: " + id);
+			
 			if (plabBT.mode !== null) {
 				plabBT.unsetMode ();
 			}
@@ -17,22 +19,27 @@ var plabBT = {
 			}
 		},
 		unsetMode : function () {
+			plab.out.notify.println("[plabBT]: unsetMode");
 			if (plabBT.mode !== null) {
 				plabBT.mode.closeMode();
 				plabBT.mode = null;
 			}
 		},
 		addMode : function (mode) {
+			plab.out.notify.println("[plabBT]: addMode: " + mode.id);
 			for (var i = 0; i < plabBT.modes.length; i++) {
 				if (mode.id === plabBT.modes[i].id) {
 					return;
 				}
 			}
 			plabBT.modes[plabBT.modes.length] = mode;
+			
+			plab.updateIntro();
 		},
 		
 		
 		listDevices : function (holderNode, scanTime) {
+			plab.out.notify.println("[plabBT]: Listing devices");
 			if (plabBT.mode === null) {
 				return;
 			}
@@ -62,6 +69,7 @@ var plabBT = {
 			return { id : theId, name : theName };
 		},
 		connectDevice : function (id) {
+			plab.out.notify.println("[plabBT]: connectDevice: " + id);
 			if (plabBT.mode === null) {
 				return;
 			}
@@ -70,6 +78,7 @@ var plabBT = {
 			});
 		},
 		disconnectDevice : function () {
+			plab.out.notify.println("[plabBT]: disconnectDevice");
 			if (plabBT.mode === null) {
 				return;
 			}
@@ -77,12 +86,14 @@ var plabBT = {
 		},
 		
 		send : function (text) {
+			plab.out.notify.println("[plabBT]: send text: " + text);
 			if (plabBT.mode === null) {
 				return;
 			}
 			plabBT.mode.send(text);
 		},
 		receiveCallback : function (callback) {
+			plab.out.notify.println("[plabBT]: receiveCallback; someone is listening");
 			if (plabBT.mode === null) {
 				return;
 			}
