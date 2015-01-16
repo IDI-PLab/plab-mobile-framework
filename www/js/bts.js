@@ -98,7 +98,22 @@ function plabAddBTSerial(debugOut, updateScreen) {
 			};
 			// btMode.stopListDevices = function () {}; -  N/A
 			
-			btMode.connectDevice = function (id, successCallback) {};
+			btMode.connectDevice = function (id, successCallback) {
+				bluetoothSerial.connect(
+						id,
+						function() {
+							btMode.status.connected = true;
+							btMode.status.ready = true;
+							successCallback();
+						},
+						function() {
+							btMode.status.connected = true;
+							btMode.status.ready = true;
+							btMode.status.failure = true;
+							updateScreen();
+						}
+				);
+			};
 			btMode.disconnectDevice = function () {};
 			
 			btMode.send = function (text) {};
