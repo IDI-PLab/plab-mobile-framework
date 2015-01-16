@@ -118,10 +118,10 @@ var plab = {
 			reconnecting : false
 		},*/
 		
-		platforms : {
+		/*platforms : {
 			iOS : "iOS",
 			android : "Android"
-		},
+		},*/
 		
 		// Denne lagrer addressen til enheten vi er tilkoblet til.
 		// Den brukes i forbindelse med tjenesteoppdagelse.
@@ -156,9 +156,9 @@ var plab = {
 		// -------------------------- INITIALIZATION -----------------
 		// Initialize er funksjonen som starter det hele
 		initialize : function() {
-			this.state = this.states[0];
+			plab.state = plab.states[0];
 			
-			document.addEventListener("deviceready", this.onDeviceReady, false);
+			document.addEventListener("deviceready", plab.onDeviceReady, false);
 		},
 		// onDeviceReady er metoden som blir kjoert naar det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
@@ -185,17 +185,17 @@ var plab = {
 		// getStatus viser til hva com skal staa i statuslinja i appen
 		getStatus : function() {
 			var ret = "";
-			switch (this.state) {
-			case this.states[0] :
+			switch (plab.state) {
+			case plab.states[0] :
 				ret = this.ready ? "ready" : "init";
 				break;
-			case this.states[1] :
+			case plab.states[1] :
 				ret = (plabBT.mode === null || plabBT.mode.status.failure) ? "failed" : (plabBT.mode.status.initialized ? "ready" : "init");
 				break;
-			case this.states[2] :
+			case plab.states[2] :
 				ret = (plabBT.mode !== null) && (plabBT.mode.status.connected && plabBT.mode.status.ready) ? "ready" : "init";
 				break;
-			case this.states[3] :
+			case plab.states[3] :
 				ret = "init";
 				break;
 			}
@@ -257,28 +257,28 @@ var plab = {
 		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
 		showConnect : function () {
 			plab.out.notify.println("showConnect");
-			this.state = this.states[1];
+			plab.state = plab.states[1];
 			// Clear scan list
 			var li = document.getElementById("plab-devices");
 			while (li.firstChild) {
 				li.removeChild(li.firstChild);
 			}
 			
-			this.updateScreen ();
+			plab.updateScreen ();
 			plabBT.listDevices(li, 10000);
 			//this.initBLE ();
 			
-			this.updateScreen ();
+			plab.updateScreen ();
 		},
 		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
 		showUserSelect : function () {
 			plab.out.notify.println("showUserSelect");
-			this.state = this.states[2];
+			plab.state = plab.states[2];
 			var oldName = window.localStorage.getItem('plab-username');
 			if (oldName != null) {
 				document.getElementById('plab-username').value = oldName;
 			}
-			this.updateScreen ();
+			plab.updateScreen ();
 		},
 		// showProcessing er funksjonen som gjoer vi gaar over til processing
 		showProcessing : function () {

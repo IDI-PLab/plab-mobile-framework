@@ -26,6 +26,11 @@ var plabBTMode = {
 		// subscriptions : []
 		// startSubscribe : function() {},
 		
+		//platforms : {
+			iOS : "iOS",
+			android : "Android"
+		//},
+		
 		openMode : function () {},
 		closeMode : function () {},
 		
@@ -67,6 +72,10 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
 	};
 	btMode.subscriptions = [];
+	btMode.platforms = {
+		iOS : "iOS",
+		android : "Android"
+	};
 	
 	btMode.startSubscribe = function () {
 		var params = {
@@ -89,7 +98,10 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								btMode.subscriptions[i](bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
 							}
 						} else if (obj.status == "subscribed") {
-							// Nothing here
+							// Everything good, and we may update status to ready
+							debugOut.notify.print("Subscription done, Everything is good");
+							btMode.status.ready = true;
+							updateScreen();
 						} else {
 							debugOut.err.println("UnknownSubscribeStatus");
 						}
@@ -182,6 +194,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			
 			// ------------------ CONNECT ------------------
 			btMode.connectDevice = function (id, successCallback) {
+				debugOut.notify.println("btle: connect to: " + id);
 				// Remember address
 				btMode.address = id;
 				
@@ -190,6 +203,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					clearTimeout(btMode.timers.scanning);
 					btMode.timers.scanning = null;
 					btMode.stopListDevices();
+					debugOut.notify.println("btle: Scan stopped");
 				}
 				// Connect
 				bluetoothle.connect (
@@ -207,13 +221,16 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								btMode.status.failure = false;
 								updateScreen();
 								
+								debugOut.notify.println("btle: Connection initialized");
 								// common function after discovery
 								var common = function (success) {
 									if (success) {
+										debugOut.notify.println("btle: Connection successful");
 										// Do callback
 										successCallback();
 										// Start message subscription
 										btMode.startSubscribe();
+										// We are not ready until subscription is done
 									} else {
 										// Alert that UART failed
 										debugOut.err.println("DiscoverFailure: Failed to discover UART service");
@@ -222,7 +239,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								};
 								
 								// The path from here is platform dependent
-								if (window.device.platform == plab.platforms.iOS) {
+								if (window.device.platform == btMode.platforms.iOS) {
+									debugOut.notify.println("btle: iOS detected");
 									// iOS: Discover only the service we want to connect to
 									bluetoothle.services (
 											function (obj) {
@@ -305,7 +323,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 											},
 											{"address":id , "serviceUuids":[btMode.serviceInfo.serviceUUID]}
 									);
-								} else if (window.device.platform == plab.platforms.android) {
+								} else if (window.device.platform == btMode.platforms.android) {
+									debugOut.notify.println("btle: android detected");
 									// android: discover discovers all services and descriptors
 									bluetoothle.discover (
 											function (obj) {

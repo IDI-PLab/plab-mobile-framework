@@ -79,9 +79,7 @@ var plabBT = {
 			if (plabBT.mode === null) {
 				return;
 			}
-			plabMode.connectDevice(id, function() {
-				// TODO
-			});
+			plabBT.mode.connectDevice(id, plab.showUserSelect);
 		},
 		disconnectDevice : function () {
 			plab.out.notify.println("[plabBT]: disconnectDevice");
