@@ -158,7 +158,9 @@ function plabAddBTSerial(debugOut, updateScreen) {
 			};
 			
 			btMode.send = function (text) {};
-			btMode.receiveCallback = function (callback) {};
+			btMode.receiveCallback = function (callback) {
+				btMode.subscriptions[btMode.subscriptions.length] = callback;
+			};
 		}
 	};
 
