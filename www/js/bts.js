@@ -57,13 +57,43 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	btMode.status.started = false;
 	
 	btMode.openMode = function() {
+		// Check if bt is enabled
+		bluetoothSerial.isEnabled(
+				function() {
+					debugOut.notify.println("bluetoothserial reports enabled device");
+					btMode.status.initialized = true;
+					btMode.status.failure = false;
+					updateScreen();
+				},
+				function() {
+					debugOut.err.println("bluetoothserial reports disabled device");
+					btMode.status.initialized = false;
+					btMode.status.failure = true;
+					updateScreen();
+				}
+		);
+		
 		// Is this first run?
 		if (!btMode.status.started) {
 			btMode.status.started = true;
 			
 			btMode.closeMode = function () {};
 			
-			btMode.listDevices = function (listCallback, scanTime) {};
+			btMode.listDevices = function (listCallback, scanTime) {
+				bluetoothSerial.list(
+						function(list) {
+							debugOut.notify.println("bluetoothSerial received list of devices");
+							list.forEach(function(device)) {
+								var n = device.name === null ? "? - " + device.id : device.name;
+								var desc = plabBT.createDeviceDescriptor(device.id, n);
+								listCallback(desc);
+							}
+						},
+						function() {
+							debugOut.err.println("bluetoothSerial could not list devices");
+						}
+				);
+			};
 			btMode.stopListDevices = function () {};
 			
 			btMode.connectDevice = function (id, successCallback) {};
