@@ -77,7 +77,9 @@ function plabAddBTSerial(debugOut, updateScreen) {
 		if (!btMode.status.started) {
 			btMode.status.started = true;
 			
-			btMode.closeMode = function () {};
+			btMode.closeMode = function () {
+				// TODO
+			};
 			
 			btMode.listDevices = function (listCallback, scanTime) {
 				bluetoothSerial.list(
@@ -94,7 +96,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 						}
 				);
 			};
-			btMode.stopListDevices = function () {};
+			// btMode.stopListDevices = function () {}; -  N/A
 			
 			btMode.connectDevice = function (id, successCallback) {};
 			btMode.disconnectDevice = function () {};
