@@ -30,11 +30,13 @@
 			failure : false
 		},
 		
+		// subscribers : [],
+		
 		openMode : function () {},
 		closeMode : function () {},
 		
 		listDevices : function (listCallback, scanTime) {},
-		stopListDevices : function () {},
+		-- stopListDevices : function () {},
 		
 		connectDevice : function (id, successCallback) {},
 		disconnectDevice : function () {},
@@ -49,12 +51,32 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	if (typeof bluetoothSerial === "undefined") {
 		return;
 	}
+	
+	// Creating the must have fields
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BluetoothSerial-com.megster";
 	btMode.name = "BlueTooth";
 	
 	// Adding info since this is init
 	btMode.status.started = false;
+	btMode.subscribers = [];
+	
+	// start subscribe call
+	var startSubscription() {
+		bluetoothSerial.subscribe(
+				'\n',
+				function(data){
+					debugOut.notify.println("bluetoothSerial received message: " + data);
+					// Tell all subscribers about the data
+					btMode.subscribers.forEach(function(subscriber){subscriber(data);});
+				},
+				function(){
+					debugOut.err.println("bluetoothSerial could not start a subscription");
+					btMode.status.failure = true;
+					btMode.status.ready = false;
+				}
+		);
+	}
 	
 	btMode.openMode = function() {
 		// Check if bt is enabled
@@ -103,7 +125,9 @@ function plabAddBTSerial(debugOut, updateScreen) {
 						id,
 						function() {
 							btMode.status.connected = true;
+							startSubscription();
 							btMode.status.ready = true;
+							btMode.status.failure = false;
 							successCallback();
 						},
 						function() {
@@ -114,13 +138,30 @@ function plabAddBTSerial(debugOut, updateScreen) {
 						}
 				);
 			};
-			btMode.disconnectDevice = function () {};
+			btMode.disconnectDevice = function () {
+				bluetoothSerial.disconnect(
+						function(){
+							btMode.status.ready = false;
+							btMode.status.connected = false;
+							btMode.status.failure = false;
+							debugOut.notify.println("bluetoothSerial disconnected");
+							updateScreen();
+						},
+						function(){
+							btMode.status.ready = false;
+							btMode.status.connected = false;
+							btMode.status.failure = true;
+							debugOut.err.println("bluetoothSerial failed to disconnect");
+							updateScreen();
+						}
+				);
+			};
 			
 			btMode.send = function (text) {};
 			btMode.receiveCallback = function (callback) {};
 		}
 	};
-	// TODO
+
 	plabBT.addMode(btMode);
 	debugOut.notify.println("buetoothSerial added");
 }
