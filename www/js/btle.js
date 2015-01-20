@@ -82,7 +82,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	// Creating a prototype object
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BlueTooth_4.0_randdusing";
-	btMode.name = "BlueTooth LE";
+	btMode.name = "Bluetooth LE";
 	
 	// Adding info since this is init
 	btMode.status.started = false;

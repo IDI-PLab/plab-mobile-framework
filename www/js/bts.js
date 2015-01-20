@@ -56,7 +56,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	// Creating the must have fields
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BluetoothSerial-com.megster";
-	btMode.name = "BlueTooth";
+	btMode.name = "Bluetooth";
 	
 	// Adding info since this is init
 	btMode.status.started = false;

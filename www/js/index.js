@@ -163,13 +163,13 @@ var plab = {
 			for (var i = 0; i < plabBT.modes.length; i++) {
 				var btn = document.createElement("button");
 				var txt = document.createTextNode("Koble til " + plabBT.modes[i].name);
-				var id = plabBT.modes[i].id;
+				btn.modeId = plabBT.modes[i].id;
 				btn.appendChild(txt);
 				btn.addEventListener(
 						"click", 
-						function() {
-							plab.out.notify.println("[select bt]: Setting mode " + id);
-							plabBT.setMode(id);
+						function(evt) {
+							plab.out.notify.println("[select bt]: Setting mode " + evt.target.modeId);
+							plabBT.setMode(evt.target.modeId);
 							plab.showConnect();
 						}
 				);
