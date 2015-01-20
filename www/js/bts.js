@@ -192,7 +192,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				);
 			};
 			btMode.receiveCallback = function (callback) {
-				btMode.subscriptions[btMode.subscriptions.length] = callback;
+				btMode.subscribers[btMode.subscribers.length] = callback;
 			};
 		}
 		

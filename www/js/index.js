@@ -269,6 +269,7 @@ var plab = {
 						p.bindPLabBridge (plabPjsBridge);
 					} catch (e) {
 						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
+						plab.out.err.println("BridgeBinding failure: " + e);
 					}
 				} else {
 					i++;
