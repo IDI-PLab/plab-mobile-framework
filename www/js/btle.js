@@ -58,6 +58,8 @@ var plabBTMode = {
 			android : "Android"
 		//},
 		
+		//receiveString : "",
+		
 		openMode : function () {},
 		closeMode : function () {},
 		
@@ -73,6 +75,7 @@ var plabBTMode = {
  *
  */
 function plabAddBT4_0(debugOut, updateScreen) {
+	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
 	// See if necessary plugin is installed
 	if (typeof bluetoothle === "undefined") {
@@ -103,6 +106,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		android : "Android"
 	};
 	
+	btMode.receiveString = "";
+	
 	btMode.startSubscribe = function () {
 		var params = {
 				"address":btMode.address,
@@ -114,15 +119,36 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		// Callback functions for subscribe
 		bluetoothle.subscribe(
 				function (obj) {
+					
 					try {
 						if (obj.status == "subscribedResult") {
 							// Debug output
 							debugOut.notify.print("Mottok data: ");
 							debugOut.notify.println(JSON.stringify(obj));
-							// Pass to subscribers
-							for (var i = 0; i < btMode.subscriptions.length; i++) {
-								btMode.subscriptions[i](bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value)));
+							
+							// Translate received message to real string
+							var recString = bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(obj.value));
+							
+							// See if we received an "end of message" (aka newline)
+							if (recString.indexOf('\n') === -1) {
+								btMode.receiveString += recString;
+							} else {
+								// We received at least one message. concat the old string with the new
+								recString = btMode.receiveString + recString;
+								// Split on newline
+								var splitString = recString.split("\n");
+								// Send all completed messages to listeners
+								for (var i = 0; i < splitString.length - 1; i++) {
+									// Pass split messages to subscribers
+									debugOut.notify.println("Message passed on: " + splitString[i]);
+									for (var j = 0; j < btMode.subscriptions.length; j++) {
+										btMode.subscriptions[j](splitString[i]);
+									}
+								}
+								// Remember string element after last split
+								btMode.receiveString = splitString[splitString.length - 1];
 							}
+							
 						} else if (obj.status == "subscribed") {
 							// Everything good, and we may update status to ready
 							debugOut.notify.print("Subscription done, Everything is good");
@@ -131,8 +157,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						} else {
 							debugOut.err.println("UnknownSubscribeStatus");
 						}
+						
 					} catch (e) {
-						debugOut.err.println("SubscribeFailure: " + e.message);
+						debugOut.err.println("SubscribeFailure: " + e);
 					}
 				},
 				function (obj) {
@@ -158,6 +185,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				btMode.status.connected = false;
 				btMode.status.ready = false;
 				btMode.status.failure = false;
+				btMode.receiveString = "";
 				
 				// Call and clear scanners
 				if (btMode.timers.scanning !== null) {
