@@ -122,15 +122,19 @@ var plab = {
 			plab.out.init(n);
 			
 			// App is already initialized, do not reload
-			document.addEventListener("resume", function(){}, false);
+			document.addEventListener("resume", plab.onResume, false);
 			
 			plab.ready = true;
 
 			plab.showIntro();
 		},
 		
+		onResume : function () {
+		},
+		
 		onPause : function () {
 			plab.out.notify.println("onPause called");
+			document.removeEventListener("resume", plab.onResume, false);
 			// If bluetooth has been set up, make sure it disconnects and releases resources
 			if (typeof plabBT !== "undefined") {
 				plabBT.unsetMode();
