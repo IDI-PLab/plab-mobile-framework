@@ -113,6 +113,7 @@ var plab = {
 			plab.state = plab.states[0];
 			
 			document.addEventListener("deviceready", plab.onDeviceReady, false);
+			document.addEventListener("pause", plab.onPause, false);
 		},
 		// onDeviceReady er metoden som blir kjoert naar det er trygt aa kalle cordova funksjoner
 		onDeviceReady : function () {
@@ -123,6 +124,13 @@ var plab = {
 			plab.ready = true;
 
 			plab.showIntro();
+		},
+		
+		onPause : function () {
+			// If bluetooth has been set up, make sure it disconnects and releases resources
+			if (typeof plabBT !== "undefined") {
+				plabBT.unsetMode();
+			}
 		},
 		
 		// ------------------------- DISPLAY --------------------------
@@ -222,6 +230,16 @@ var plab = {
 			if (oldName != null) {
 				document.getElementById('plab-username').value = oldName;
 			}
+			
+			// If we are connected to a device, show the name of the device
+			if (plabBT.mode !== null) {
+				var txt = "";
+				if (plabBT.mode.status.connected && plabBT.deviceName !== null) {
+					txt = plabBT.deviceName;
+				}
+				document.getElementById("plab-device-name").innerHTML = txt;
+			}
+			
 			plab.updateScreen ();
 		},
 		// showProcessing er funksjonen som gjoer vi gaar over til processing
@@ -352,6 +370,12 @@ var plabBT = {
 		modes : [],
 		// The current active module
 		mode : null,
+		
+		// Name of the last connected device
+		deviceName : null,
+		// Id of the last connected device. Not currently used, but connect to prev device may be added later
+		deviceId : null,
+		
 		// Sets a new module as active (if known)
 		setMode : function (id) {
 			
@@ -409,7 +433,7 @@ var plabBT = {
 						btn.addEventListener(
 								"click",
 								function() {
-									plabBT.connectDevice(desc.id);
+									plabBT.connectDevice(desc.id, desc.name);
 								}
 						);
 						// Legge til elementene i lista
@@ -431,8 +455,10 @@ var plabBT = {
 			return { id : theId, name : theName };
 		},
 		// Force the current module to attempt to connect to the device identified by id
-		connectDevice : function (id) {
-			plab.out.notify.println("[plabBT]: connectDevice: " + id);
+		connectDevice : function (id, name) {
+			plab.out.notify.println("[plabBT]: connectDevice: " + id + " : " + name);
+			plabBT.deviceId = id;
+			plabBT.deviceName = name;
 			if (plabBT.mode === null) {
 				return;
 			}
@@ -453,7 +479,8 @@ var plabBT = {
 			if (plabBT.mode === null) {
 				return;
 			}
-			plabBT.mode.send(text);
+			// Adding newline after sent text. Ease the processing of sent message on the other side
+			plabBT.mode.send(text + "\n");
 		},
 		// Register a callback function for the current module to make it listen for incomming messages.
 		// Will be reset if module is changed
