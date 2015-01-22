@@ -93,6 +93,19 @@ var plab = {
 			processing : null
 		},
 		
+		// processingInstance is the instance of processing that is currently running, if any
+		processingInstance : null,
+		// To unload the processing instance, we use a simple function
+		unloadProcessing : function() {
+			if (plab.processingInstance !== null) {
+				plab.processingInstance.exit();
+				// Clear canvas?
+				plab.processingInstance = null;
+				// Reshow screen
+				document.body.className = "plab";
+			}
+		},
+		
 		// ----------------------- USER FEEDBACK -----------------------------
 		errorSubscribers : [],
 		
@@ -216,6 +229,9 @@ var plab = {
 		
 		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
 		showIntro : function () {
+			// The unloading of processing should be moved to a better location
+			plab.unloadProcessing();
+			
 			// De register back button call
 			plab.unregisterBackButton();
 			
@@ -312,6 +328,8 @@ var plab = {
 				
 				var p = Processing.getInstanceById ("plab-canvas");
 				if (p != null) {
+					// Remember the instance so it may be unloaded
+					plab.processingInstance = p;
 					// Funksjonen skal kun kalles naar timeren har talt ned, husk aa nullstille
 					plab.timers.processing = null;
 					// Gjoer rammeverket usynlig
