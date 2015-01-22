@@ -208,7 +208,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						}
 					},
 					function(obj){
-						debugOut.err.println("StopScanFailure: " + obj.error + " - " + obj.message);
+						if (obj.message === "Not scanning") {
+							debugOut.warn.println("StopScanFailure: " + obj.error + " - " + obj.message);
+						} else {
+							debugOut.err.println("StopScanFailure: " + obj.error + " - " + obj.message);
+						}
 					}
 				);
 			};

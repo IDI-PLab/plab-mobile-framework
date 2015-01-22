@@ -121,15 +121,40 @@ var plab = {
 			var n = document.getElementById ("plab-debug");
 			plab.out.init(n);
 			
+			// App is already initialized, do not reload
+			document.addEventListener("resume", function(){}, false);
+			
 			plab.ready = true;
 
 			plab.showIntro();
 		},
 		
 		onPause : function () {
+			plab.out.notify.println("onPause called");
 			// If bluetooth has been set up, make sure it disconnects and releases resources
 			if (typeof plabBT !== "undefined") {
 				plabBT.unsetMode();
+			}
+		},
+		
+		// onBackButton should only be registered as a callback when we are not in intro 
+		onBackButton : function () {
+			plab.showIntro();
+		},
+		// A field to make onBackButton register only once
+		onBackRegistered : false,
+		// function that registers onBackButton
+		registerBackButton : function () {
+			if (!plab.onBackRegistered) {
+				document.addEventListener("backbutton", plab.onBackButton, false);
+				plab.onBackRegistered = true;
+			}
+		},
+		// function that unregisters onBackButton
+		unregisterBackButton : function () {
+			if (plab.onBackRegistered) {
+				document.removeEventListener("backbutton", plab.onBackButton, false);
+				plab.onBackRegistered = false;
 			}
 		},
 		
@@ -187,6 +212,9 @@ var plab = {
 		
 		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
 		showIntro : function () {
+			// De register back button call
+			plab.unregisterBackButton();
+			
 			plab.out.notify.println("showIntro");
 			// Stopper lasting av processing, hvis det er startet.
 			if (plab.timers.processing != null) {
@@ -202,12 +230,12 @@ var plab = {
 			plab.updateScreen();
 			// Unset mode to make sure everything is closed
 			plabBT.unsetMode();
-			/*if (this.btInfo.connected) {
-				this.disconnectDevice ();
-			}*/
 		},
 		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
 		showConnect : function () {
+			// Register back button call
+			plab.registerBackButton();
+			
 			plab.out.notify.println("showConnect");
 			plab.state = plab.states[1];
 			// Clear scan list
@@ -224,6 +252,9 @@ var plab = {
 		},
 		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
 		showUserSelect : function () {
+			// Register back button call
+			plab.registerBackButton();
+			
 			plab.out.notify.println("showUserSelect");
 			plab.state = plab.states[2];
 			var oldName = window.localStorage.getItem('plab-username');
@@ -244,6 +275,9 @@ var plab = {
 		},
 		// showProcessing er funksjonen som gjoer vi gaar over til processing
 		showProcessing : function () {
+			
+			// Register back button call
+			plab.registerBackButton();
 			
 			plab.out.notify.println("showProcessing");
 			
