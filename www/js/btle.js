@@ -74,6 +74,18 @@ var plabBTMode = {
 }
  *
  */
+
+/*
+ * Reference for discovered items. What is needed for an item to be eligble
+var plabDevice = {
+		id : "id",
+		name : "name",
+		service : true,
+		txDescriptor : true,
+		rxDescriptor : true
+};
+*/
+
 function plabAddBT4_0(debugOut, updateScreen) {
 	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
@@ -107,6 +119,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	};
 	
 	btMode.receiveString = "";
+	
+	
 	
 	btMode.startSubscribe = function () {
 		var params = {
@@ -170,6 +184,237 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		
 	};
 	
+	// After the communication service has been discovered, this is called
+	btMode.discoveredService = function (success, successCallback) {
+		if (success) {
+			debugOut.notify.println("btle: Connection successful");
+			// Do callback
+			successCallback();
+			// Start message subscription
+			btMode.startSubscribe();
+			// We are not ready until subscription is done
+		} else {
+			// Alert that UART failed
+			debugOut.err.println("DiscoverFailure: Failed to discover UART service");
+			btMode.status.failure = true;
+			updateScreen();
+		}
+	};
+	
+	// ---------------- ANDROID -------------
+	// android specific discovery
+	btMode.discoverAndroid = function (id, successCallback) {
+		debugOut.notify.println("btle: discoverAndroid called");
+		bluetoothle.discover (
+				function (obj) {
+					debugOut.notify.println(JSON.stringify(obj));
+					if (obj.status == "discovered") {
+						// The device was discovered. Check if we found the correct connection data
+						var found = {service : false, rx : false, tx : false};
+						// Service, rx and tx uuids
+						var sUuid = btMode.serviceInfo.serviceUUID.toUpperCase();
+						var rxUuid = btMode.serviceInfo.rxUUID.toUpperCase();
+						var txUuid = btMode.serviceInfo.txUUID.toUpperCase();
+						// Find the service
+						obj.services.forEach(function(service) {
+							if (service.serviceUuid.toUpperCase() == sUuid) {
+								found.service = true;
+								// Service found. Find rx and tx characteristics
+								service.characteristics.forEach(function(characteristic){
+									var uuid = characteristic.characteristicUuid.toUpperCase();
+									if (uuid === txUuid) {
+										if (typeof characteristic.properties.writeWithoutResponse !== "undefined" 
+											&& characteristic.properties.writeWithoutResponse) {
+											found.tx = true;
+										}
+									}
+									if (uuid === rxUuid) {
+										if (typeof characteristic.properties.notify !== "undefined" 
+											&& characteristic.properties.notify) {
+											found.rx = true;
+										}
+									}
+								});
+							}
+						});
+						
+						btMode.discoveredService(found.service && found.rx && found.tx, successCallback);
+					} else {
+						debugOut.err.println("DiscoverFailure: Unknown status: " + obj.status);
+						btMode.disconnectDevice ();
+					}
+				},
+				function (obj) {
+					debugOut.err.println("DiscoverFailure: " + obj.error + " - " + obj.message);
+					btMode.disconnectDevice ();
+				},
+				{"address" : id}
+		);
+	};
+	
+	// -------------------- iOS -----------
+	// iOS specific discovery
+	btMode.discoverIOS = function (id, successCallback) {
+		debugOut.notify.println("btle: discoverIOS called");
+		
+		// Service, rx and tx uuids
+		var sUuid = btMode.serviceInfo.serviceUUID.toUpperCase();
+		var rxUuid = btMode.serviceInfo.rxUUID.toUpperCase();
+		var txUuid = btMode.serviceInfo.txUUID.toUpperCase();
+		// rx and tx uuid combined in an array
+		var rntxUuid = rxUuid === txUuid ? [rxUuid] : [rxUuid, txUuid];
+		
+		// The parameters to service discovery
+		var servicesParams = {"address":id , "serviceUuids":[sUuid]};
+		// The parameters to characteristics discovery
+		var characteristicParams = {"address":id , "serviceUuid":sUuid, "characteristicUuids":rntxUuid};
+		
+		// Do service discovery
+		bluetoothle.services(
+				function(obj){
+					if (obj.status == "services" && obj.serviceUuids.length > 0) {
+						// The service has been found. We can now discover characteristics
+						
+						bluetoothle.characteristics(
+								function(obj){
+									if (obj.status == "characteristics") {
+										// Some characteristics have been found. Checking for both tx and rx alrigth
+										var found = {rx : false, tx : false};
+										obj.characteristics.forEach(function(characteristic){
+											var uuid = characteristic.characteristicUuid.toUpperCase();
+											if (uuid === txUuid) {
+												if (typeof characteristic.properties.writeWithoutResponse !== "undefined" 
+													&& characteristic.properties.writeWithoutResponse) {
+													found.tx = true;
+												}
+											}
+											if (uuid === rxUuid) {
+												if (typeof characteristic.properties.notify !== "undefined" 
+													&& characteristic.properties.notify) {
+													found.rx = true;
+												}
+											}
+										});
+										// Assuming we do not need to discover descriptors, we are done
+										btMode.discoveredService(found.rx && found.tx, successCallback);
+									} else {
+										debugOut.err.println("CharacteristicsFailure: Unknown status: " + obj.status);
+										btMode.discoveredService(false, successCallback);
+										btMode.disconnectDevice();
+									}
+								},
+								function(obj){
+									debugOut.err.println("CharacteristicsFailure: " + obj.error + " - " + obj.message);
+									btMode.discoveredService(false, successCallback);
+									btMode.disconnectDevice();
+								},
+								characteristicParams
+						);
+						
+					} else {
+						debugOut.err.println("ServicesFailure: Unknown status: " + obj.status);
+						btMode.discoveredService(false, successCallback);
+						btMode.disconnectDevice ();
+					}
+				},
+				
+				function(obj){
+					debugOut.err.println("ServicesFailure: " + obj.error + " - " + obj.message);
+					btMode.discoveredService(false, successCallback);
+					btMode.disconnectDevice ();
+				},
+				
+				servicesParams
+		);
+		
+		/* Old iOS code. Stands for reference
+		// iOS: Discover only the service we want to connect to
+		bluetoothle.services (
+				function (obj) {
+					// TODO Make more robust
+					// Assuming correct service was discovered
+					if (obj.status == "services") {
+						var params = {
+								"address" : btMode.address,
+								"serviceUuid" : btMode.serviceInfo.serviceUUID,
+								"characteristicUuids" : [ btMode.serviceInfo.txUUID, btMode.serviceInfo.rxUUID ]
+						};
+						bluetoothle.characteristics (
+								function (obj) {
+									// TODO Make more robust
+									// Assuming correct characteristic discovered
+									if (obj.status == "characteristics") {
+										var params1 = {
+												"address" : btMode.address,
+												"serviceUuid" : btMode.serviceInfo.serviceUUID,
+												"characteristicUuid" : btMode.serviceInfo.txUUID
+										};
+										var params2 = {
+												"address" : btMode.address,
+												"serviceUuid" : btMode.serviceInfo.serviceUUID,
+												"characteristicUuid" : btMode.serviceInfo.rxUUID
+										};
+										// Bruteforcer gjennom listen
+										bluetoothle.descriptors (
+												
+												function (obj) {
+													if (obj.status == "descriptors") {
+														bluetoothle.descriptors (
+																
+																function (obj1) {
+																	if (obj1.status == "descriptors") {
+																		btMode.discoveredService(true, successCallback);
+																	} else {
+																		debugOut.err.println("DescriptorsFailure: Unknown status: " + obj1.status);
+																		btMode.disconnectDevice();
+																	}
+																},
+																
+																function (obj1) {
+																	debugOut.err.println("DescriptorsFailure: " + obj1.error + " - " + obj1.message);
+																	btMode.disconnectDevice ();
+																},
+																params2
+														);
+													} else {
+														debugOut.err.println("DescriptorsFailure: Unknown status: " + obj.status);
+														btMode.disconnectDevice ();
+													}
+												},
+												
+												function (obj) {
+													debugOut.err.println("DescriptorsFailure: " + obj.error + " - " + obj.message);
+													btMode.disconnectDevice ();
+												},
+												params1
+										);
+									} else {
+										debugOut.err.println("CharacteristicsFailure: Unknown status: " + obj.status);
+										btMode.disconnectDevice ();
+									}
+								}, 
+								function (obj) {
+									debugOut.err.println("CharacteristicsFailure: " + obj.error + " - " + obj.message);
+									btMode.disconnectDevice ();
+								},
+								params
+						);
+					} else {
+						debugOut.err.println("ServicesFailure: Unknown status: " + obj.status);
+						btMode.disconnectDevice ();
+					}
+				},
+				function (obj) {
+					debugOut.err.println("ServicesFailure: " + obj.error + " - " + obj.message);
+					btMode.disconnectDevice ();
+				},
+				{"address":id , "serviceUuids":[btMode.serviceInfo.serviceUUID]}
+		);
+		*/
+	};
+	
+	// -------------------------------
+	
 	// Replacing the open mode function -> init the mode
 	btMode.openMode = function () {
 		if (!btMode.status.started) {
@@ -197,17 +442,28 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			
 			// ------------------ SCAN ------------------------
 			btMode.listDevices = function (listCallback, scanTime) {
+				// Holding scan results as an object storing the IDs of the found devices.
+				// On some devices the startScan returns the same device multiple times.
+				var scanResults = {};
+				// Anonymous function that scans for devices. A device is only added once
 				var scan = function() {
+					// The btle state must be initialized
 					if (btMode.status.initialized) {
 						debugOut.notify.println("Starting scan");
 						bluetoothle.startScan(
 								function(obj) {
+									// Scan successful function
 									debugOut.notify.println("Scan result: " + JSON.stringify(obj));
+									
 									if (obj.status == "scanResult") {
-										// Create the descriptor
-										var name = obj.name === null ? "? - " + obj.address : obj.name;
-										var desc = plabBT.createDeviceDescriptor(obj.address, name);
-										listCallback(desc);
+										// If we have not identified this device before:
+										if (typeof scanResults[obj.address] === "undefined") {
+											scanResults[obj.address] = true;
+											// Create the descriptor
+											var name = obj.name === null ? "? - " + obj.address : obj.name;
+											var desc = plabBT.createDeviceDescriptor(obj.address, name);
+											listCallback(desc);
+										}
 									} else if (obj.status == "scanStarted") {
 										btMode.timers.scanning = setTimeout(btMode.stopListDevices, scanTime);
 									} else {
@@ -215,6 +471,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 									}
 								},
 								function(obj) {
+									// Scan failure function
 									btMode.status.failure = true;
 									debugOut.err.println("ScanFailure: " + obj.error + " - " + obj.message);
 									updateScreen();
@@ -222,6 +479,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								null
 						);
 					} else {
+						// If the btle status is not initialized, warn and wait for some time before scan
 						debugOut.warn.println("Device not initialized, delaying scan!");
 						setTimeout(scan, 500);
 					}
@@ -280,126 +538,12 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								updateScreen();
 								
 								debugOut.notify.println("btle: Connection initialized");
-								// common function after discovery
-								var common = function (success) {
-									if (success) {
-										debugOut.notify.println("btle: Connection successful");
-										// Do callback
-										successCallback();
-										// Start message subscription
-										btMode.startSubscribe();
-										// We are not ready until subscription is done
-									} else {
-										// Alert that UART failed
-										debugOut.err.println("DiscoverFailure: Failed to discover UART service");
-										btMode.status.failure = true;
-									}
-								};
 								
 								// The path from here is platform dependent
 								if (window.device.platform == btMode.platforms.iOS) {
-									debugOut.notify.println("btle: iOS detected");
-									// iOS: Discover only the service we want to connect to
-									bluetoothle.services (
-											function (obj) {
-												// TODO Make more robust
-												// Assuming correct service was discovered
-												if (obj.status == "services") {
-													var params = {
-															"address" : btMode.address,
-															"serviceUuid" : btMode.serviceInfo.serviceUUID,
-															"characteristicUuids" : [ btMode.serviceInfo.txUUID, btMode.serviceInfo.rxUUID ]
-													};
-													bluetoothle.characteristics (
-															function (obj) {
-																// TODO Make more robust
-																// Assuming correct characteristic discovered
-																if (obj.status == "characteristics") {
-																	var params1 = {
-																			"address" : btMode.address,
-																			"serviceUuid" : btMode.serviceInfo.serviceUUID,
-																			"characteristicUuid" : btMode.serviceInfo.txUUID
-																	};
-																	var params2 = {
-																			"address" : btMode.address,
-																			"serviceUuid" : btMode.serviceInfo.serviceUUID,
-																			"characteristicUuid" : btMode.serviceInfo.rxUUID
-																	};
-																	// Bruteforcer gjennom listen
-																	bluetoothle.descriptors (
-																			
-																			function (obj) {
-																				if (obj.status == "descriptors") {
-																					bluetoothle.descriptors (
-																							
-																							function (obj1) {
-																								if (obj1.status == "descriptors") {
-																									common(true);
-																								} else {
-																									debugOut.err.println("DescriptorsFailure: Unknown status: " + obj1.status);
-																									btMode.disconnectDevice();
-																								}
-																							},
-																							
-																							function (obj1) {
-																								debugOut.err.println("DescriptorsFailure: " + obj1.error + " - " + obj1.message);
-																								btMode.disconnectDevice ();
-																							},
-																							params2
-																					);
-																				} else {
-																					debugOut.err.println("DescriptorsFailure: Unknown status: " + obj.status);
-																					btMode.disconnectDevice ();
-																				}
-																			},
-																			
-																			function (obj) {
-																				debugOut.err.println("DescriptorsFailure: " + obj.error + " - " + obj.message);
-																				btMode.disconnectDevice ();
-																			},
-																			params1
-																	);
-																} else {
-																	debugOut.err.println("CharacteristicsFailure: Unknown status: " + obj.status);
-																	btMode.disconnectDevice ();
-																}
-															}, 
-															function (obj) {
-																debugOut.err.println("CharacteristicsFailure: " + obj.error + " - " + obj.message);
-																btMode.disconnectDevice ();
-															},
-															params
-													);
-												} else {
-													debugOut.err.println("ServicesFailure: Unknown status: " + obj.status);
-													btMode.disconnectDevice ();
-												}
-											},
-											function (obj) {
-												debugOut.err.println("ServicesFailure: " + obj.error + " - " + obj.message);
-												btMode.disconnectDevice ();
-											},
-											{"address":id , "serviceUuids":[btMode.serviceInfo.serviceUUID]}
-									);
+									btMode.discoverIOS(id, successCallback);
 								} else if (window.device.platform == btMode.platforms.android) {
-									debugOut.notify.println("btle: android detected");
-									// android: discover discovers all services and descriptors
-									bluetoothle.discover (
-											function (obj) {
-												if (obj.status == "discovered") {
-													// TODO check if service is available
-													common(true);
-												} else {
-													debugOut.err.println("DiscoverFailure: Unknown status: " + obj.status);
-													btMode.disconnectDevice ();
-												}
-											},
-											function (obj) {
-												debugOut.err.println("DiscoverFailure: " + obj.error + " - " + obj.message);
-												btMode.disconnectDevice ();
-											},
-											{"address" : id}
-									);
+									btMode.discoverAndroid(id, successCallback);
 								} else {
 									// Greit aa si ifra om at dette ikke vil fungere, vi stoetter bare iOS/android
 									alert ("This platform is not supported");
