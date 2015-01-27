@@ -75,17 +75,6 @@ var plabBTMode = {
  *
  */
 
-/*
- * Reference for discovered items. What is needed for an item to be eligble
-var plabDevice = {
-		id : "id",
-		name : "name",
-		service : true,
-		txDescriptor : true,
-		rxDescriptor : true
-};
-*/
-
 function plabAddBT4_0(debugOut, updateScreen) {
 	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
@@ -326,91 +315,6 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				
 				servicesParams
 		);
-		
-		/* Old iOS code. Stands for reference
-		// iOS: Discover only the service we want to connect to
-		bluetoothle.services (
-				function (obj) {
-					// TODO Make more robust
-					// Assuming correct service was discovered
-					if (obj.status == "services") {
-						var params = {
-								"address" : btMode.address,
-								"serviceUuid" : btMode.serviceInfo.serviceUUID,
-								"characteristicUuids" : [ btMode.serviceInfo.txUUID, btMode.serviceInfo.rxUUID ]
-						};
-						bluetoothle.characteristics (
-								function (obj) {
-									// TODO Make more robust
-									// Assuming correct characteristic discovered
-									if (obj.status == "characteristics") {
-										var params1 = {
-												"address" : btMode.address,
-												"serviceUuid" : btMode.serviceInfo.serviceUUID,
-												"characteristicUuid" : btMode.serviceInfo.txUUID
-										};
-										var params2 = {
-												"address" : btMode.address,
-												"serviceUuid" : btMode.serviceInfo.serviceUUID,
-												"characteristicUuid" : btMode.serviceInfo.rxUUID
-										};
-										// Bruteforcer gjennom listen
-										bluetoothle.descriptors (
-												
-												function (obj) {
-													if (obj.status == "descriptors") {
-														bluetoothle.descriptors (
-																
-																function (obj1) {
-																	if (obj1.status == "descriptors") {
-																		btMode.discoveredService(true, successCallback);
-																	} else {
-																		debugOut.err.println("DescriptorsFailure: Unknown status: " + obj1.status);
-																		btMode.disconnectDevice();
-																	}
-																},
-																
-																function (obj1) {
-																	debugOut.err.println("DescriptorsFailure: " + obj1.error + " - " + obj1.message);
-																	btMode.disconnectDevice ();
-																},
-																params2
-														);
-													} else {
-														debugOut.err.println("DescriptorsFailure: Unknown status: " + obj.status);
-														btMode.disconnectDevice ();
-													}
-												},
-												
-												function (obj) {
-													debugOut.err.println("DescriptorsFailure: " + obj.error + " - " + obj.message);
-													btMode.disconnectDevice ();
-												},
-												params1
-										);
-									} else {
-										debugOut.err.println("CharacteristicsFailure: Unknown status: " + obj.status);
-										btMode.disconnectDevice ();
-									}
-								}, 
-								function (obj) {
-									debugOut.err.println("CharacteristicsFailure: " + obj.error + " - " + obj.message);
-									btMode.disconnectDevice ();
-								},
-								params
-						);
-					} else {
-						debugOut.err.println("ServicesFailure: Unknown status: " + obj.status);
-						btMode.disconnectDevice ();
-					}
-				},
-				function (obj) {
-					debugOut.err.println("ServicesFailure: " + obj.error + " - " + obj.message);
-					btMode.disconnectDevice ();
-				},
-				{"address":id , "serviceUuids":[btMode.serviceInfo.serviceUUID]}
-		);
-		*/
 	};
 	
 	// -------------------------------
@@ -639,28 +543,6 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								},
 								params
 						);
-						/*
-						 * This code was in the original app. It may be more safe.
-						 * It is maintained for REFERENCE/HISTORIC VALUE ONLY
-						bluetoothle.isConnected (
-							function (conn) {
-								if (conn.isConnected) {
-									bluetoothle.write (
-											function (obj) {},
-											function (obj) {
-												plab.notifyErrorString ("WriteFailure: " + obj.error + " - " + obj.message);
-											},
-											params
-									);
-								} else {
-									plab.afterReconnect[plab.afterReconnect.length] = function() {
-										plab.write(string);
-									};
-									plab.reconnect ();
-								}
-							}
-						);
-						*/
 						
 					} else {
 						debugOut.warn.println("WriteFailure: Not connected");
@@ -709,57 +591,3 @@ document.addEventListener(
 		}, 
 		false
 );
-
-// The following code was previously held in index.js. It should not be there as it is technology dependent
-// It is held here to show how reconnect was done in the original app. This is no longer valid of course.
-// REFERENCE/HISTORIC VALUE ONLY
-/*
-//RECONNECT
-// reconnect kjoeres hvis en tilkobling feiler og vi proever aa koble til igjen
-reconnect : function () {
-	if (!this.btInfo.reconnecting) {
-		this.btInfo.reconnecting = true;
-		bluetoothle.reconnect (plab.reconnectSuccess, plab.reconnectFailure);
-		plab.timers.reconnect = setTimeout (reconnectTimeout, 5000);
-	}
-},
-reconnectSuccess : function(obj) {
-	if (obj.status == "connected") {
-		plab.clearReconnectTimeout ();
-		for (var i = 0; i < plab.afterReconnect.length; i++) {
-			plab.afterReconnect[i] ();
-		}
-		plab.btInfo.reconnecting = false;
-		plab.afterReconnect.length = 0;
-	} else if (obj.status == "connecting") {
-		// Lar denne staa om vi oppdager noe vi trenger den til.
-	} else {
-		plab.disconnectDevice ();
-		plab.btInfo.reconnecting = false;
-		plab.clearReconnectTimeout ();
-	}
-},
-reconnectFailure : function (obj) {
-	plab.clearReconnectTimeout ();
-	plab.btInfo.connected = false;
-	plab.btInfo.reconnecting = false;
-	plab.btInfo.failed = true;
-	plab.notifyErrorString ("ReconnectFailure: " + obj.error + " - " + obj.message);
-	plab.updateScreen ();
-},
-reconnectTimeout : function () {
-	plab.btInfo.connected = false;
-	plab.btInfo.reconnecting = false;
-	plab.btInfo.failed = true;
-	plab.disconnectDevice ();
-	plab.notifyErrorString ("ReconnectFailure: Timeout");
-	plab.updateScreen ();
-	plab.timers.reconnect = null;
-},
-clearReconnectTimeout : function () {
-	if (this.timers.reconnect != null) {
-		clearTimeout (this.timers.reconnect);
-		this.timers.reconnect = null;
-	}
-},
-*/
