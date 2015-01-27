@@ -46,7 +46,7 @@ var plabPrintStream = {
 var plab = {
 		// ---------------- DEBUG OUTPUT ---------------------------
 		out : {
-			logLevel : -1,
+			logLevel : 2,
 			node : null,
 			notify : null,
 			warn : null,
