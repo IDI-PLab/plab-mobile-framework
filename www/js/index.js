@@ -399,6 +399,9 @@ var plabPjsBridge = {
 	},
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
+	},
+	disconnect : function() {
+		plab.showIntro();
 	}
 };
 
