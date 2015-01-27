@@ -489,7 +489,7 @@ var plabBT = {
 						btn.addEventListener(
 								"click",
 								function() {
-									plabBT.connectDevice(desc.id, desc.name);
+									plabBT.connectDevice(desc.id, desc.name, holderNode);
 								}
 						);
 						// Legge til elementene i lista
@@ -511,13 +511,20 @@ var plabBT = {
 			return { id : theId, name : theName };
 		},
 		// Force the current module to attempt to connect to the device identified by id
-		connectDevice : function (id, name) {
+		connectDevice : function (id, name, holderNode) {
 			plab.out.notify.println("[plabBT]: connectDevice: " + id + " : " + name);
 			plabBT.deviceId = id;
 			plabBT.deviceName = name;
 			if (plabBT.mode === null) {
 				return;
 			}
+			// Disable all device listed buttons
+			var btns = holderNode.getElementsByTagName("button");
+			plab.out.notify.println("Buttons discovered: " + btns.length + ", will be disabled");
+			for (var i = 0; i < btns.length; i++) {
+				btns[i].disabled = true;
+			}
+			// Do the actual connection
 			plabBT.mode.connectDevice(id, plab.showUserSelect);
 		},
 		// Force the current module to disconnect from device

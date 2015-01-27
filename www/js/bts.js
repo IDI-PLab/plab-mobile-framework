@@ -147,6 +147,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				bluetoothSerial.connect(
 						id,
 						function() {
+							debugOut.notify.println("Device connected");
 							btMode.status.connected = true;
 							startSubscription();
 							btMode.status.ready = true;
@@ -154,12 +155,14 @@ function plabAddBTSerial(debugOut, updateScreen) {
 							successCallback();
 						},
 						function() {
+							debugOut.warn.println("Device not connected");
 							btMode.status.connected = true;
 							btMode.status.ready = true;
 							btMode.status.failure = true;
 							updateScreen();
 						}
 				);
+				debugOut.notify.println("Attempted connection");
 			};
 			btMode.disconnectDevice = function () {
 				bluetoothSerial.disconnect(
