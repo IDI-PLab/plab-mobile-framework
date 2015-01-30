@@ -172,3 +172,12 @@ body {
     animation:fade 2000ms infinite;
     -webkit-animation:fade 2000ms infinite;
 }
+
+.plab-powered {
+	font-size: 85%;
+	color: #777777;
+	padding: 1ex;
+}
+.plab-powered ul {
+	list-style-type: none;
+}
