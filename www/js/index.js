@@ -16,8 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
+/*
+ * ----------------------------------------------------------------------------
+ * --------- HELPER OBJECT PROTOTYPES -----------------------------------------
+ * ----------------------------------------------------------------------------
+ */
+/*
+ * plabPrintStream is an object that allow you to write debug information to a
+ * html element. Coloring is done through css with the className attribute.
+ * Each message is wrapped in a span element, and if a println() is called,
+ * the element is followed by an br element. It is used in this project during
+ * development and testing.
+ */
 var plabPrintStream = {
 		// The node that will be written to
 		node : null,
@@ -43,14 +53,32 @@ var plabPrintStream = {
 		}
 }
 
+/*
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * -------------- CORE APP START ----------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ */
+
+/*
+ * plab is the main app object.
+ */
 var plab = {
-		// ---------------- DEBUG OUTPUT ---------------------------
+		// --------------------------------------------------------------------
+		// ---------------- DEBUG OUTPUT --------------------------------------
+		// --------------------------------------------------------------------
 		out : {
+			// Log level indicates which messages are sent to their respective
+			// streams. >= 0 -> error messages, >= 1 -> warnings, >= 2 -> notifications.
 			logLevel : -1,
+			// node : common html element to write to
 			node : null,
+			// The plabPrintStreams associated with each debug type.
 			notify : null,
 			warn : null,
 			err : null,
+			// Clears all content of the html element node we write to
 			clear : function () {
 				if (this.node == null) {
 					return;
@@ -59,6 +87,7 @@ var plab = {
 					this.node.removeChild(this.node.firstChild);
 				}
 			},
+			// init : initialize the complete outstream hierarchy.
 			init : function (outNode) {
 				this.node = outNode;
 				this.err = Object.create (plabPrintStream);
@@ -79,16 +108,19 @@ var plab = {
 			}
 		},
 		
-		// ---------------- OBJECT FIELDS --------------------------
+		// --------------------------------------------------------------------
+		// ---------------- APP OBJECT FIELDS ---------------------------------
+		// --------------------------------------------------------------------
 		
-		// States er alle tilstandene/ skjermene som vises i appen
+		// states : all the states available in the app (can be directly translated to screens)
 		states : ["plab-intro","plab-connect","plab-user-select","plab-redirect"],
-		// state er tilstanden vi er i akkurat naa
+		// state : current state
 		state : null,
-		// Ready er om vi kan kalle cordova funksjonalitet, om enheten er klar.
+		// ready : has cordova functionality been initialized?
 		ready : false,
 		
-		// Timers er brukt for aa holde styr paa tilkoblings timeouts
+		// timers : used for keeping track of different timed events.
+		// Current version only holds a timer for redirect to processing.
 		timers : {
 			processing : null
 		},
@@ -99,54 +131,72 @@ var plab = {
 		unloadProcessing : function() {
 			if (plab.processingInstance !== null) {
 				plab.processingInstance.exit();
-				// Clear canvas?
 				plab.processingInstance = null;
 				// Reshow screen
 				document.body.className = "plab";
 			}
 		},
 		
-		// ----------------------- USER FEEDBACK -----------------------------
+		// --------------------------------------------------------------------
+		// ----------------------- USER ERROR FEEDBACK ------------------------
+		// --------------------------------------------------------------------
 		errorSubscribers : [],
 		
 		notifyErrorString : function (string) {
 			// Send error out to debug output
 			plab.out.err.println(string);
 			
-			// Notify others
+			// Notify subscribers
 			for (var i = 0; i < plab.errorSubscribers.length; i++) {
 				plab.errorSubscribers[i] (string);
 			}
 		},
 		
 		
-		// -------------------------- INITIALIZATION -----------------
-		// Initialize er funksjonen som starter det hele
+		// --------------------------------------------------------------------
+		// -------------------------- INITIALIZATION --------------------------
+		// --------------------------------------------------------------------
+		// initialize : the function called first, even before cordova
+		// functionality has become available.
 		initialize : function() {
 			plab.state = plab.states[0];
 			
+			// Register callback for when cordova functionality is ready
 			document.addEventListener("deviceready", plab.onDeviceReady, false);
+			// Register onPause event listener. This is called when app goes out of memory,
+			// and here will disconnect app and make app ready to exit.
 			document.addEventListener("pause", plab.onPause, false);
 		},
-		// onDeviceReady er metoden som blir kjoert naar det er trygt aa kalle cordova funksjoner
+		// onDeviceReady : the method called when cordova is set up, and its functionality is safe to call.
 		onDeviceReady : function () {
 			// Init debug
 			var n = document.getElementById ("plab-debug");
 			plab.out.init(n);
 			
-			// App is already initialized, do not reload
+			// App is already initialized, do not reload. onResume is normally
+			// called whenever the app is put back in focus. To avoid unnecessary
+			// initializations and still connected when first screen is shown,
+			// we add an empty method as this callback.
 			document.addEventListener("resume", plab.onResume, false);
 			
+			// cordova functionality is safe
 			plab.ready = true;
 
+			// Show the first screen
 			plab.showIntro();
 		},
 		
+		// --------------------------------------------------------------------
+		// ---------- OTHER EVENT CALLBACKS -----------------------------------
+		// --------------------------------------------------------------------
 		onResume : function () {
+			// Does nothing
 		},
 		
 		onPause : function () {
 			plab.out.notify.println("onPause called");
+			// Removes the empty onResume callback. This makes the app reinitialize when it
+			// gets focus again.
 			document.removeEventListener("resume", plab.onResume, false);
 			// If bluetooth has been set up, make sure it disconnects and releases resources
 			if (typeof plabBT !== "undefined") {
@@ -154,20 +204,21 @@ var plab = {
 			}
 		},
 		
-		// onBackButton should only be registered as a callback when we are not in intro 
+		// onBackButton should only be registered as a callback when we are not in intro
+		// Used in Andoroid systems.
 		onBackButton : function () {
 			plab.showIntro();
 		},
 		// A field to make onBackButton register only once
 		onBackRegistered : false,
-		// function that registers onBackButton
+		// method that registers onBackButton
 		registerBackButton : function () {
 			if (!plab.onBackRegistered) {
 				document.addEventListener("backbutton", plab.onBackButton, false);
 				plab.onBackRegistered = true;
 			}
 		},
-		// function that unregisters onBackButton
+		// method that unregisters onBackButton
 		unregisterBackButton : function () {
 			if (plab.onBackRegistered) {
 				document.removeEventListener("backbutton", plab.onBackButton, false);
@@ -175,8 +226,12 @@ var plab = {
 			}
 		},
 		
-		// ------------------------- DISPLAY --------------------------
-		// getStatus viser til hva com skal staa i statuslinja i appen
+		// --------------------------------------------------------------------
+		// ------------------------- DISPLAY OF SCREENS -----------------------
+		// --------------------------------------------------------------------
+		
+		// -------------- STATUS AND UPDATE DRAWING ---------------------------
+		// getStatus : gives the status line class. Only partial name.
 		getStatus : function() {
 			var ret = "";
 			switch (plab.state) {
@@ -196,7 +251,8 @@ var plab = {
 			return ret;
 		},
 		
-		// updateScreen har ansvar for aa tegne valgt skjerm
+		// updateScreen : responsible for redrawing the current shown
+		// screen (as defined by state and getStatus())
 		updateScreen : function () {
 			var cont = document.getElementById("plab-content");
 			if (cont !== null) {
@@ -205,11 +261,13 @@ var plab = {
 		},
 		// updateIntro is responsible for updating the installed bt supports and make them selectable
 		updateIntro : function () {
-			// Updating screen with installed bt support
+			// Get element holding buttons
 			var element = document.getElementById("plab-first-select");
+			// Remove all old child elements
 			while (element.firstChild) {
 				element.removeChild(element.firstChild);
 			}
+			// Insert new buttons for all bt modes installed.
 			for (var i = 0; i < plabBT.modes.length; i++) {
 				var btn = document.createElement("button");
 				var txt = document.createTextNode("Koble til " + plabBT.modes[i].name);
@@ -227,16 +285,19 @@ var plab = {
 			}
 		},
 		
-		// showIntro er funksjonen vi skal kalle naar vi skal vise intro skjermen
+		// --------- SHOW SPECIFIC SCREEN, LOGIC CONTROL ----------------------
+		
+		// showIntro : method to call to show the introduction screen.
 		showIntro : function () {
-			// The unloading of processing should be moved to a better location
+			// TODO The unloading of processing should be moved to a better location
 			plab.unloadProcessing();
 			
-			// De register back button call
+			// De register back button call. This is the final screen, and we should 
+			// not be able to go any further back in-app
 			plab.unregisterBackButton();
 			
 			plab.out.notify.println("showIntro");
-			// Stopper lasting av processing, hvis det er startet.
+			// Stop the loading of processing, if it is currently loading.
 			if (plab.timers.processing != null) {
 				clearTimeout(plab.timers.processing);
 				plab.timers.processing = null;
@@ -245,18 +306,21 @@ var plab = {
 			if (plab.state === plab.states[1]) {
 				plabBT.stopListDevices();
 			}
-			// Oppdaterer tilstand og skjerm
+			// Update the state and screen
 			plab.state = plab.states[0];
 			plab.updateScreen();
-			// Unset mode to make sure everything is closed
+			
+			// Unset bt mode to make sure everything in selected mode is closed
 			plabBT.unsetMode();
 		},
-		// showConnect er funksjonen vi skal vise bluetooth tilkoblindsskjermen 
+		
+		// showConnect : method responsible for showing the bluetooth select screen.
 		showConnect : function () {
-			// Register back button call
+			// Register back button call, it is now natural to have a back call.
 			plab.registerBackButton();
 			
 			plab.out.notify.println("showConnect");
+			// Update state
 			plab.state = plab.states[1];
 			// Clear scan list
 			var li = document.getElementById("plab-devices");
@@ -264,19 +328,23 @@ var plab = {
 				li.removeChild(li.firstChild);
 			}
 			
+			// updateScreen with the now set parameters and start listing devices.
 			plab.updateScreen ();
 			plabBT.listDevices(li, 10000);
-			//this.initBLE ();
 			
+			// TODO Remove this in next release
 			plab.updateScreen ();
 		},
-		// showUserSelect er funksjonen vi skal kalle naar vi skal vise ntnu brukernavn velgeren 
+		
+		// showUserSelect : method responsible for showing user select screen
 		showUserSelect : function () {
-			// Register back button call
+			// Register back button call. May already have been registered, so use the safe call.
 			plab.registerBackButton();
 			
 			plab.out.notify.println("showUserSelect");
+			// update state
 			plab.state = plab.states[2];
+			// Check for stored user name. If found, fill in user select field with the stored name
 			var oldName = window.localStorage.getItem('plab-username');
 			if (oldName != null) {
 				document.getElementById('plab-username').value = oldName;
@@ -291,102 +359,125 @@ var plab = {
 				document.getElementById("plab-device-name").innerHTML = txt;
 			}
 			
+			// Ensure the screen is drawn.
 			plab.updateScreen ();
 		},
-		// showProcessing er funksjonen som gjoer vi gaar over til processing
+		// showProcessing : the method resposible for setting up processing screen.
 		showProcessing : function () {
 			
-			// Register back button call
+			// TODO Check if this may cause multiple instances of a canvas with id "plab-canvas"
+			// TODO Make anonymous loading functions non-anonymous. Maintainability.
+			
+			// Register back button call. May already have been registered, so use the safe call.
 			plab.registerBackButton();
 			
 			plab.out.notify.println("showProcessing");
 			
-			// Setter state til redirect state og oppdaterer skjermen
+			// Set state to redirect state and update the screen
 			plab.state = plab.states[3];
 			plab.updateScreen ();
 			
-			// Hent referanser til elementene som trengs
+			// Get content of user select element.
 			var usrName = document.getElementById("plab-username").value;
+			// Build location url for processing. Remove whitespace characters from username
 			var procLoc = "http://folk.ntnu.no/" + usrName.replace(/\s/g, "") + "/plab/plab.pde";
+			// Create the canvas that will be used by processing
 			var canvas = document.createElement ("canvas");
 			canvas.id = "plab-canvas";
+			// Get reference to connect attempt counter
 			var attemptCounter = document.getElementById ("plab-attempt");
 			
-			// Lagre det innskrevne brukernavnet
+			// Store the user name so it will be set next attempted load.
 			window.localStorage.setItem('plab-username', usrName);
 			
-			// Setter inn canvasen
+			// insert the canvas into the dom.
 			document.body.insertBefore (canvas, document.body.firstChild);
 			
-			// attempt -> hvilket forsoek det er paa aa laste processing sketch
+			// attempt -> which http request attempt to load processing we are at
 			var attempt = 0;
-			// Skal holde load funksjonen
+			// Declare the variable that will hold the actual load of processing functionality
 			var startLoad;
-			// Funksjonalitet for aa sjekke om processing er lastet
+			// i : how many times we have looked for an answer in the current http request for processing.
 			var i = 0;
+			// funk : the method that shows processing and if prudent start a new http request for processing.
 			var funk = function () {
 				
+				// Gets the processing instance. Returned value is null if processing is not loaded.
 				var p = Processing.getInstanceById ("plab-canvas");
 				if (p != null) {
 					// Remember the instance so it may be unloaded
 					plab.processingInstance = p;
-					// Funksjonen skal kun kalles naar timeren har talt ned, husk aa nullstille
+					// Remove reference to processing countdown timer.
 					plab.timers.processing = null;
-					// Gjoer rammeverket usynlig
+					// Make the framework invisible
 					document.body.className = "";
 					try {
-						// Canvas skal fylle skjermen
+						// The canvas should fill the screen
 						var w = plabPjsBridge.getWidth ();
 						var h = plabPjsBridge.getHeight ();
 						canvas.width = w;
 						canvas.height = h;
+						// Attempt to inject object into processing sketch.
 						p.bindPLabBridge (plabPjsBridge);
 					} catch (e) {
 						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
 						plab.out.err.println("BridgeBinding failure: " + e);
 					}
 				} else {
+					// The processing sketch was not loaded. Increment attempt counter
 					i++;
+					// Update visual representation of attempt counter
 					if (attemptCounter != null) {
 						attemptCounter.innerHTML = attempt + " (" + i + ")";
 					}
+					// if we have less than 20 attempts to view the current http request, check again
 					if (i < 20) {
 						plab.timers.processing = setTimeout (funk, 500);
 					} else {
+						// otherwise start a new http request to load processing.
 						startLoad ();
 					}
 				}
 			};
 			
-			// Funksjonen som faktisk starter aa laste processing
+			// The definition of the function that starts the http request to load processing.
 			startLoad = function () {
-				// Nullstill sjekk om processing er lasta timer og inkrementer forsoeksnummer
+				// Reset the number of times we have tried to see if a responce has been received
 				i = 0;
+				// Update counter of http request attempts.
 				attempt++;
-				// Last skissa
+				// Load the sketch to the canvas from the earlier built url, thereby starting a http request
 				Processing.loadSketchFromSources (canvas, [procLoc]);
-				// Sett sjekk paa om skissa er lasta til aa starte
+				// Set the timer that checks if the sketch has been loaded
 				plab.timers.processing = setTimeout (funk, 500);
 			};
 			
-			// Last processing
+			// Start loading of processing
 			startLoad ();
 		}
 };
 
-
+/*
+ * ----------------------------------------------------------------------------
+ * ------ PROCESSING - JAVASCRIPT INJECTION OBJECT ----------------------------
+ * ----------------------------------------------------------------------------
+ */
 
 /*
- * plabPjsBridge, processing - javascript bru. Objektet som injiseres i processing skissen.
- * Bindeleddet mellom denne koden og brukerspesifikk kode.
+ * plabPjsBridge, processing - javascript bridge. The object that is injected
+ * into the processing sketch. The bridge between the user defined code and all
+ * functionality delivered by this app.
  */
 var plabPjsBridge = {
+	// getWidth : gets the width of the visible screen
 	getWidth : function () {
 		return window.innerWidth;
 	},
+	// getHeight : gets the height of the visible screen
 	getHeight : function () {
 		return window.innerHeight;
 	},
+	// write : send a message to the connected bluetooth device
 	write : function (string) {
 		try {
 			plabBT.send(string);
@@ -394,29 +485,34 @@ var plabPjsBridge = {
 			alert (e);
 		}
 	},
+	// subscribeRead : register a object holding a callback that will be called when a message is received
 	subscribeRead : function (obj) {
 		plabBT.receiveCallback(obj.read);
 	},
+	// subscribeError : register a object holding a callback that will be called when an error occurs
+	// TODO This should be removed from the interface in a future version
 	subscribeError : function (obj) {
 		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
 	},
+	// disconnect : disconnects from the current bluetooth device and returns app to intro screen.
 	disconnect : function() {
 		plab.showIntro();
 	}
 };
 
 /*
- * -------------------------------------------------------------
- * -------------------------------------------------------------
- * -----------------------END MAIN APP--------------------------
- * -------------------------------------------------------------
- * -------------------------------------------------------------
- * 
- * -------------------------------------------------------------
- * -------------------------------------------------------------
- * -----------------------BT------------------------------------
- * -------------------------------------------------------------
- * -------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ---------------------- END CORE APP ----------------------------------------
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ */
+/* 
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ---------------------- BT FUNCTIONALITY ------------------------------------
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 
 /*
@@ -604,14 +700,14 @@ var plabBTMode = {
 }
 
 /*
- * -------------------------------------------------------------
- * -------------------------------------------------------------
- * -----------------------END BT--------------------------------
- * -------------------------------------------------------------
- * -------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ---------------------- END BT ----------------------------------------------
+ * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
  */
 
-// -------------------------------------------------------------
-// -------------- Startup --------------------------------------
-// -------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// -------------- START APP ---------------------------------------------------
+// ----------------------------------------------------------------------------
 plab.initialize();
