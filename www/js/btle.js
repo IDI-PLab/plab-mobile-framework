@@ -18,6 +18,16 @@
  */
 
 /*
+ * ----------------------------------------------------------------------------
+ * ---- THIS FILE USES THE com.randdusing.bluetoothle PLUGIN ------------------
+ * ----------------------------------------------------------------------------
+ * ---- It is an implementation of the plabBTMode interface that allows for ---
+ * ---- communication with Bluetooth LE devices on Android and iOS. The -------
+ * ---- service used for communication is identified with ffe0 ----------------
+ * ----------------------------------------------------------------------------
+ */
+
+/*
  * The services available for the bluetooth device we should use are:
  * 1800: Generic Access {2a00,2a01,2a02,2a03,2a04}
  *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml

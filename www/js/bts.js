@@ -17,26 +17,44 @@
  * under the License.
  */
 
+/*
+ * ----------------------------------------------------------------------------
+ * ---- THIS FILE USES THE com.megster.cordova.bluetoothserial PLUGIN ---------
+ * ----------------------------------------------------------------------------
+ * ---- It is an implementation of the plabBTMode interface that allows for ---
+ * ---- communication with regular Bluetooth devices on Android, and for ------
+ * ---- Bluetooth LE devices on iOS exposing a service with identifier --------
+ * ---- 6E400001-B5A3-F393-E0A9-E50E24DCCA9E ----------------------------------
+ * ----------------------------------------------------------------------------
+ */
+
 
 /*
- * Reference: Describes the plabBTMode
- * plabBTMode = {
+ * Reference: Describes the plabBTMode implementation, overview
+ * 
+ * LEGEND:
+ *   '+' added property/method
+ *   '-' unchanged property/method, empty
+ *   ' ' changed property/method according to intended usage
+
+plabBTMode = {
 		id : "",
 		name : "",
 		status : {
++			started : true/false
 			initialized : false,
 			connected : false,
 			ready : false,
 			failure : false
 		},
 		
-		// subscribers : [],
++		subscribers : [],
 		
 		openMode : function () {},
 		closeMode : function () {},
 		
 		listDevices : function (listCallback, scanTime) {},
-		-- stopListDevices : function () {},
+-		stopListDevices : function () {},
 		
 		connectDevice : function (id, successCallback) {},
 		disconnectDevice : function () {},
@@ -46,6 +64,11 @@
 } 
  */
 
+/*
+ * Adds this module to the main app. debugOut is where debug output is sent,
+ * assumed to have three plabPrintStreams (err, warn, notify).
+ * updateScreen should be the function responsible for redrawing the screen.
+ */
 function plabAddBTSerial(debugOut, updateScreen) {
 	debugOut.notify.println("Adding buetoothSerial version");
 	if (typeof bluetoothSerial === "undefined") {
@@ -53,12 +76,12 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	}
 	debugOut.notify.println("bluetoothSerial plugin detected");
 	
-	// Creating the must have fields
+	// Creating the module object, and setting the must have fields
 	var btMode = Object.create(plabBTMode);
 	btMode.id = "BluetoothSerial-com.megster";
 	btMode.name = "Bluetooth";
 	
-	// Adding info since this is init
+	// Adding additional fields since this is init
 	btMode.status.started = false;
 	btMode.subscribers = [];
 	
@@ -69,6 +92,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				function(data){
 					debugOut.notify.println("bluetoothSerial received message: " + data);
 					// Tell all subscribers about the data
+					// TODO Ensure the ending newline is removed.
 					btMode.subscribers.forEach(function(subscriber){subscriber(data);});
 				},
 				function(){
@@ -206,6 +230,13 @@ function plabAddBTSerial(debugOut, updateScreen) {
 	
 }
 
+
+
+/*
+ * ----------------------------------------------------------------------------
+ * -------- ADDING THIS MODULE TO MAIN APP ------------------------------------
+ * ----------------------------------------------------------------------------
+ */
 document.addEventListener(
 		"deviceready",
 		function() {
