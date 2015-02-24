@@ -536,10 +536,12 @@ var plabBT = {
 			
 			plab.out.notify.println("[plabBT]: setting mode: " + id);
 			
+			// Guarantee the previous set module is unloaded
 			if (plabBT.mode !== null) {
 				plabBT.unsetMode ();
 			}
 			
+			// Look through all installed modes, if the id is recognized, set the mode
 			for (var i = 0; i < plabBT.modes.length; i++) {
 				if (id == plabBT.modes[i].id) {
 					plabBT.mode = plabBT.modes[i];
@@ -566,6 +568,7 @@ var plabBT = {
 			}
 			plabBT.modes[plabBT.modes.length] = mode;
 			
+			// A new mode has been installed -> the intro of the app should update.
 			plab.updateIntro();
 		},
 		
@@ -578,7 +581,7 @@ var plabBT = {
 			}
 			plabBT.mode.listDevices(
 					function(desc) {
-						// list element to hold element
+						// li element to hold mode element
 						var el = document.createElement("li");
 						// Connect button
 						var btn = document.createElement("button");
@@ -591,7 +594,7 @@ var plabBT = {
 									plabBT.connectDevice(desc.id, desc.name, holderNode);
 								}
 						);
-						// Legge til elementene i lista
+						// Add the elements to the list
 						el.appendChild(btn);
 						holderNode.appendChild(el);
 					},
@@ -605,11 +608,14 @@ var plabBT = {
 				plabBT.mode.stopListDevices();
 			}
 		},
-		// Create a devuce descriptor. Should be used by the different modules.
+		// Create a device descriptor. Should be used by the different modules.
 		createDeviceDescriptor : function (theId, theName) {
 			return { id : theId, name : theName };
 		},
 		// Force the current module to attempt to connect to the device identified by id
+		// id : the device identificator
+		// name : the device name
+		// holderNode : the holder element node of all connectible devices 
 		connectDevice : function (id, name, holderNode) {
 			plab.out.notify.println("[plabBT]: connectDevice: " + id + " : " + name);
 			plabBT.deviceId = id;
