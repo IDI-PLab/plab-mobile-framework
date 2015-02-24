@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 /*
  * ----------------------------------------------------------------------------
  * --------- HELPER OBJECT PROTOTYPES -----------------------------------------
  * ----------------------------------------------------------------------------
  */
+
 /*
  * plabPrintStream is an object that allow you to write debug information to a
  * html element. Coloring is done through css with the className attribute.
@@ -507,11 +509,19 @@ var plabPjsBridge = {
  * ----------------------------------------------------------------------------
  * ----------------------------------------------------------------------------
  */
+
+
 /* 
  * ----------------------------------------------------------------------------
  * ----------------------------------------------------------------------------
  * ---------------------- BT FUNCTIONALITY ------------------------------------
  * ----------------------------------------------------------------------------
+ * ----------------------------------------------------------------------------
+ */
+
+/*
+ * ----------------------------------------------------------------------------
+ * ----------------- CORE BT --------------------------------------------------
  * ----------------------------------------------------------------------------
  */
 
@@ -550,6 +560,8 @@ var plabBT = {
 				}
 			}
 		},
+		
+		
 		// Tells the current active module to stand down and unsets the current module.
 		unsetMode : function () {
 			plab.out.notify.println("[plabBT]: unsetMode");
@@ -558,6 +570,8 @@ var plabBT = {
 				plabBT.mode = null;
 			}
 		},
+		
+		
 		// Adds a new module, if not already present
 		addMode : function (mode) {
 			plab.out.notify.println("[plabBT]: addMode: " + mode.id);
@@ -571,6 +585,7 @@ var plabBT = {
 			// A new mode has been installed -> the intro of the app should update.
 			plab.updateIntro();
 		},
+		
 		
 		// Lists all devices detected by the module. Results are updated to the holder node provided.
 		// Enforce listing stop after predefined time (scanTime in milliseconds)
@@ -601,6 +616,8 @@ var plabBT = {
 					scanTime
 			);
 		},
+		
+		
 		// Force the current module to stop listing devices
 		stopListDevices : function() {
 			plab.out.notify.println("[plabBT]: stopListDevices");
@@ -608,10 +625,14 @@ var plabBT = {
 				plabBT.mode.stopListDevices();
 			}
 		},
+		
+		
 		// Create a device descriptor. Should be used by the different modules.
 		createDeviceDescriptor : function (theId, theName) {
 			return { id : theId, name : theName };
 		},
+		
+		
 		// Force the current module to attempt to connect to the device identified by id
 		// id : the device identificator
 		// name : the device name
@@ -620,6 +641,7 @@ var plabBT = {
 			plab.out.notify.println("[plabBT]: connectDevice: " + id + " : " + name);
 			plabBT.deviceId = id;
 			plabBT.deviceName = name;
+			// TODO The null check should be done before deviceId & Name are set. 
 			if (plabBT.mode === null) {
 				return;
 			}
@@ -632,6 +654,8 @@ var plabBT = {
 			// Do the actual connection
 			plabBT.mode.connectDevice(id, plab.showUserSelect);
 		},
+		
+		
 		// Force the current module to disconnect from device
 		disconnectDevice : function () {
 			plab.out.notify.println("[plabBT]: disconnectDevice");
@@ -640,6 +664,7 @@ var plabBT = {
 			}
 			plabBT.mode.disconnectDevice();
 		},
+		
 		
 		// If a module is set, this will force it to attempt sending of a string
 		send : function (text) {
@@ -650,6 +675,8 @@ var plabBT = {
 			// Adding newline after sent text. Ease the processing of sent message on the other side
 			plabBT.mode.send(text + "\n");
 		},
+		
+		
 		// Register a callback function for the current module to make it listen for incomming messages.
 		// Will be reset if module is changed
 		receiveCallback : function (callback) {
@@ -662,9 +689,15 @@ var plabBT = {
 }
 
 /*
+ * ----------------------------------------------------------------------------
+ * ------------- MODULE INTERFACE BT ------------------------------------------
+ * ----------------------------------------------------------------------------
+ */
+
+/*
  * plabBTMode is a prototype object for a bt module. It must implement all
- * functions specified here, and must hold identifiers and names as given
- * described here.
+ * functions specified here, and must hold identifiers and names as described
+ * here.
  */
 var plabBTMode = {
 		// Unique identifier for the module
