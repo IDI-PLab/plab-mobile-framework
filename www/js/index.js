@@ -639,12 +639,13 @@ var plabBT = {
 		// holderNode : the holder element node of all connectible devices 
 		connectDevice : function (id, name, holderNode) {
 			plab.out.notify.println("[plabBT]: connectDevice: " + id + " : " + name);
-			plabBT.deviceId = id;
-			plabBT.deviceName = name;
-			// TODO The null check should be done before deviceId & Name are set. 
 			if (plabBT.mode === null) {
+				plab.out.err.println("[plabBT]: connectDeviceFailure: mode was not set");
 				return;
 			}
+			plabBT.deviceId = id;
+			plabBT.deviceName = name;
+			
 			// Disable all device listed buttons
 			var btns = holderNode.getElementsByTagName("button");
 			plab.out.notify.println("Buttons discovered: " + btns.length + ", will be disabled");
