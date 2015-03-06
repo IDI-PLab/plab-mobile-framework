@@ -1,7 +1,7 @@
 PLab Mobile Framework
 =====================
 
-This is a tool app for the programming lab courses at NTNU.
+This is a tool app for the programming lab courses at [NTNU][7].
 
 It allows the students to connect to a Bluetooth or Bluetooth LE device with
 their cell phone.
@@ -61,3 +61,4 @@ This project is powered by
 [4]: https://github.com/randdusing/BluetoothLE	"Randdusing BluetoothLE"
 [5]: http://plugins.cordova.io/#/package/org.cordova.device	"device"
 [6]: http://plugins.cordova.io/#/package/com.megster.cordova.bluetoothserial "Bluetooth serial"
+[7]: http://www.ntnu.edu	"Norwegian University of Science and Technology - NTNU"
