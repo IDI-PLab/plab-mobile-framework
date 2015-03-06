@@ -9,8 +9,13 @@
     </author>
     <content src="index.html" />
     <access origin="http://folk.ntnu.no/*" />
+    
+    <!-- ORIENTATION -->
+    <preference name="Orientation" value="portrait" />
+    
     <!-- ICONS -->
     <icon src="res/icon/icon-512.png" />
+    
     <platform name="android">
               <icon src="res/icon/icon-36-ldpi.png" density="ldpi" />
               <icon src="res/icon/icon-48-mdpi.png" density="mdpi" />
