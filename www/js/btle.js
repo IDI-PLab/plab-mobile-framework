@@ -538,6 +538,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								updateScreen();
 							}
 						},
+						
 						function(obj) {
 							// Connection failed
 							btMode.status.connected = false;
@@ -551,6 +552,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							}
 							updateScreen ();
 						},
+						
 						{"address":id}
 				);
 				plab.timers.connect = setTimeout(btMode.stopListDevices, 5000);
