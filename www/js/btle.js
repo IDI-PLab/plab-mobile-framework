@@ -105,6 +105,7 @@ var plabBTMode = {
  * If necessary plugin is not installed, function will not add module.
  */
 // TODO updateScreen is misleading. Should be something in the likes of "stateChangedCallback"
+// TODO Notifications to debug should be prefixed with where they are from
 function plabAddBT4_0(debugOut, updateScreen) {
 	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
@@ -410,7 +411,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				}
 			};
 			
-			// ------------------ SCAN ------------------------
+			// ------------------ SCAN ----------------------------------------
+			
+			// listDevices: scans and return callbacks for found devices.
 			btMode.listDevices = function (listCallback, scanTime) {
 				// Holding scan results as an object storing the IDs of the found devices.
 				// On some devices the startScan returns the same device multiple times.
@@ -418,8 +421,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				// Anonymous function that scans for devices. A device is only added once
 				var scan = function() {
 					// The btle state must be initialized
+					
 					if (btMode.status.initialized) {
 						debugOut.notify.println("Starting scan");
+						
+						// Starting the actual scan for devices
 						bluetoothle.startScan(
 								function(obj) {
 									// Scan successful function
@@ -456,7 +462,10 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				};
 				scan();
 			};
+			
+			// stopListDevices: stops the scan in progress, if scan is in progress
 			btMode.stopListDevices = function () {
+				// TODO status.scanning property is not used.
 				bluetoothle.stopScan (
 					function (obj) {
 						if (obj.status !== "scanStopped") {
@@ -479,6 +488,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			
 			
 			// ------------------ CONNECT ------------------
+			// connectDevice: connecting to device with id
 			btMode.connectDevice = function (id, successCallback) {
 				debugOut.notify.println("btle: connect to: " + id);
 				// Remember address
@@ -509,24 +519,27 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								
 								debugOut.notify.println("btle: Connection initialized");
 								
+								// -------- PLATFORM DEPENDENT CALLS ----------
 								// The path from here is platform dependent
 								if (window.device.platform == btMode.platforms.iOS) {
 									btMode.discoverIOS(id, successCallback);
 								} else if (window.device.platform == btMode.platforms.android) {
 									btMode.discoverAndroid(id, successCallback);
 								} else {
-									// Greit aa si ifra om at dette ikke vil fungere, vi stoetter bare iOS/android
+									// In case someone is building for non-iOS/non-Android, we can tell them that it won't work
 									alert ("This platform is not supported");
 								}
+								//---------------------------------------------
 								
 							} else if (obj.status != "connecting") {
-								// Holder paa med tilkobling enda, ikke gjoer noe spesielt
+								// Still connecting. Do nothing special.
 								btMode.status.connected = false;
 								btMode.status.ready = false;
 								updateScreen();
 							}
 						},
 						function(obj) {
+							// Connection failed
 							btMode.status.connected = false;
 							btMode.status.ready = false;
 							btMode.status.failure = true;
@@ -545,8 +558,12 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			// ------------------ END CONNECT ------------------
 			
 			
-			// ------------------ DICCONNECT ------------------
+			// ------------------ DISCONNECT ------------------
+			// disconnectDevice: Disconnects from connected device (if connected)
 			btMode.disconnectDevice = function () {
+				// closeDev: Anonymous function that is called after disconnect of device.
+				// TODO Is anonymity the right way to go?
+				// Will close the device, removing all traces of connection.
 				var closeDev = function() {
 					btMode.status.connected = false;
 					btMode.status.ready = false;
@@ -564,10 +581,13 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							{"address":btMode.address}
 					);
 				};
+				
+				// Do disconnect
 				if (btMode.status.connected || btMode.address !== null) {
 					bluetoothle.disconnect(
 						function (obj) {
 							if (obj.status == "disconnected") {
+								// Do close
 								closeDev();
 							} else if (obj.status == "disconnecting") {
 								// Allowed to stand if needed later
@@ -576,7 +596,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							}
 						},
 						function (obj) {
-							// Ensure the connection is closed
+							// Failure: Ensure the connection is closed
 							debugOut.err.println("DisconnectFailure: " + obj.error + " - " + obj.message);
 							closeDev();
 						},
@@ -589,12 +609,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			
 			
 			
-			
-			
-			
 			// -------------- SEND / RECEIVE ------------
 			btMode.send = function (text) {
+					// Must be connected to send data
 					if (btMode.status.connected) {
+						// Build the info object that holds receiver and data
 						var params = {
 								"address" : btMode.address,
 								"value" : bluetoothle.bytesToEncodedString(bluetoothle.stringToBytes(text)),
@@ -602,6 +621,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								"characteristicUuid" : btMode.serviceInfo.txUUID,
 								"type" : "noResponse"
 						};
+						// Write to the service characteristic
 						bluetoothle.write (
 								function (obj) {},
 								function (obj) {
@@ -614,6 +634,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						debugOut.warn.println("WriteFailure: Not connected");
 					}
 			};
+			
+			// receiveCallback: add a function to be called when device sends us data
 			btMode.receiveCallback = function (callback) {
 				btMode.subscriptions[btMode.subscriptions.length] = callback;
 			};
@@ -634,6 +656,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					},
 					
 					function(obj) {
+						// Failure to initialize
 						btMode.status.failure = true;
 						debugOut.err.println("InitializeFailure: " + obj.error + " - " + obj.message);
 						updateScreen();
@@ -645,6 +668,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		// -------------- END INIT -------------------
 		
 	};
+	
+	// Add mode to parent app
 	debugOut.notify.println("[" + btMode.id + "]: Mode created");
 	plabBT.addMode(btMode);
 }
