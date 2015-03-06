@@ -32,13 +32,16 @@ In console, type:
 
 Build
 ---
+
 ### Adding Platforms
 Add the platform you wish to build to (iOS or Android).
 * `cordova platform add android`
 * `cordova platform add ios`
+
 ### Build
 Build to one or more platforms
 * `cordova build`
+
 ### Run on Android Device
 * `cordova run android`
 
