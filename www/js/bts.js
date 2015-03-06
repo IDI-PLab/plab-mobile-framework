@@ -69,6 +69,7 @@ plabBTMode = {
  * assumed to have three plabPrintStreams (err, warn, notify).
  * updateScreen should be the function responsible for redrawing the screen.
  */
+// TODO updateScreen is misleading. Should be something in the likes of "stateChangedCallback"
 function plabAddBTSerial(debugOut, updateScreen) {
 	debugOut.notify.println("Adding buetoothSerial version");
 	if (typeof bluetoothSerial === "undefined") {
@@ -122,9 +123,10 @@ function plabAddBTSerial(debugOut, updateScreen) {
 		
 		// Is this first run?
 		if (!btMode.status.started) {
-			
+			// If so, we need to define all functions and fields that are not defined.
 			btMode.status.started = true;
 			
+			// closeMode: Stop everything
 			btMode.closeMode = function () {
 				if (btMode.status.connected){
 					if (btMode.status.ready) {
@@ -150,6 +152,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				}
 			};
 			
+			// listDevices: List all devices that are paired / connectable
 			btMode.listDevices = function (listCallback, scanTime) {
 				bluetoothSerial.list(
 						function(list) {
@@ -165,8 +168,10 @@ function plabAddBTSerial(debugOut, updateScreen) {
 						}
 				);
 			};
-			// btMode.stopListDevices = function () {}; -  N/A
 			
+			// btMode.stopListDevices = function () {}; -  N/A: no plugin support
+			
+			// connectDevice: Connect to a device with id and call successCallback on success
 			btMode.connectDevice = function (id, successCallback) {
 				bluetoothSerial.connect(
 						id,
@@ -188,6 +193,8 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				);
 				debugOut.notify.println("Attempted connection");
 			};
+			
+			// disconnectDevice: disconnect from the device we are currently connected to
 			btMode.disconnectDevice = function () {
 				bluetoothSerial.disconnect(
 						function(){
@@ -207,6 +214,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 				);
 			};
 			
+			// send: send a text string to connected device
 			btMode.send = function (text) {
 				bluetoothSerial.write(
 						text,
@@ -225,6 +233,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 		
 	};
 
+	// Add the mode to parent app.
 	plabBT.addMode(btMode);
 	debugOut.notify.println("buetoothSerial added");
 	
