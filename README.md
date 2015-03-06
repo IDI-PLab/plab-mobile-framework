@@ -1,4 +1,4 @@
-plab-mobile-framework
+PLab Mobile Framework
 =====================
 
 This is a tool app for the programming lab courses at NTNU.
@@ -18,9 +18,11 @@ To build one must have [Apache Cordova][1] installed. How to use the
 
 Dependent Plugins
 ---
+
 ### Bluetooth LE
 Depends on plugins [org.apache.cordova.device][5] and
 [com.randdusing.bluetoothle][4].
+
 ### Bluetooth
 Depends on plugin [com.megster.cordova.bluetoothserial][6]
 
@@ -48,7 +50,6 @@ Build to one or more platforms
 This project is powered by
 ===
 * [Apache Cordova][1]
-* [Processing][2]
 * [Processing.js][3]
 
 [1]: http://cordova.apache.org			"Cordova"
