@@ -13,32 +13,35 @@ sketch is done through [Processing.js][3].
 
 Prerequisites
 ---
-To build one must have [Apache Cordova][1] installed. How to use the
+To build one must have [Apache Cordova][1] installed. Check out how to use the
 [command-line interface](http://cordova.apache.org/docs/en/4.0.0/guide_cli_index.mt.html)
 
 Dependent Plugins
 ---
 
-### Bluetooth LE
+### Bluetooth LE Support
 Depends on plugins [org.apache.cordova.device][5] and
 [com.randdusing.bluetoothle][4].
 
-### Bluetooth
+### Bluetooth Support
 Depends on plugin [com.megster.cordova.bluetoothserial][6]
 
-### Installation of Plugins in Console
+### Installation of Plugins With Command-Line Interface
 In console, type:
 * `cordova plugin add org.apache.cordova.device`
 * `cordova plugin add https://github.com/randdusing/BluetoothLE`
 * `cordova plugin add com.megster.cordova.bluetoothserial`
 
-Build
+Installation and Build
 ---
 
 ### Adding Platforms
 Add the platform you wish to build to (iOS or Android).
 * `cordova platform add android`
 * `cordova platform add ios`
+
+### Adding Plugins
+See section Dependent Plugins
 
 ### Build
 Build to one or more platforms
