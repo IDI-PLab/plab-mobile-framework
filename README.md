@@ -23,7 +23,7 @@ Dependent Plugins
 Depends on plugins [org.apache.cordova.device][5] and
 [com.randdusing.bluetoothle][4].
 
-### Bluetooth Support
+### Bluetooth Support (Android only)
 Depends on plugin [com.megster.cordova.bluetoothserial][6]
 
 ### Installation of Plugins With Command-Line Interface
