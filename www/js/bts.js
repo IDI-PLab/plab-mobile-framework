@@ -68,6 +68,8 @@ plabBTMode = {
  * Adds this module to the main app. debugOut is where debug output is sent,
  * assumed to have three plabPrintStreams (err, warn, notify).
  * updateScreen should be the function responsible for redrawing the screen.
+ * 
+ * If necessary plugin is not installed, function will not add module.
  */
 // TODO updateScreen is misleading. Should be something in the likes of "stateChangedCallback"
 function plabAddBTSerial(debugOut, updateScreen) {

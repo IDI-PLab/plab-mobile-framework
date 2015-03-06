@@ -28,47 +28,60 @@
  */
 
 /*
- * The services available for the bluetooth device we should use are:
+ * The services available from the bluetooth device are:
  * 1800: Generic Access {2a00,2a01,2a02,2a03,2a04}
  *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml
  * 1801: Generic Attribute {2a05}
  *         This tells if service has changed
  * ffe0: Default service currently used to communicate with bt device.
  */
+// TODO Add support for a more general services for serial communication.
 
 /*
- * Reference, describes the object. comments within the comment imply added fields.
+ * Reference: Describes the plabBTMode implementation, overview
+ * 
+ * LEGEND:
+ *   '+' added property/method
+ *   '-' unchanged property/method, empty
+ *   ' ' changed property/method according to intended usage
+
 var plabBTMode = {
 		id : "",
 		name : "",
 		status : {
++			started : true/false,
++			scanning : true/false,
 			initialized : false,
 			connected : false,
 			ready : false,
 			failure : false
 		},
 		
-		// serviceInfo : {
-		//	serviceUUID : "FFE0", // for the Service
-		//	txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
-		//	rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
-		//},
++		serviceInfo : {
++			serviceUUID : "FFE0",		// unique identifier for the Service used for communication
++			txUUID :  "FFE1", 			// unique identifier for the TX Characteristic (Property = Notify)
++			rxUUID : "FFE1" 			// unique identifier for the RX Characteristic (Property = Write without response)
++		},
 		
-		// timers : {
-		//	scanning : null,
-		//	connecting : null
-		// }
-		// address : null
++		timers : {
++			scanning : null,
++			connecting : null
++		}
++		address : null
 		
-		// subscriptions : []
-		// startSubscribe : function() {},
++		subscriptions : [],				// List of subscribers for messages from this mode
++		startSubscribe : function() {},	// Starts subscription to serial communication on device
 		
-		//platforms : {
-			iOS : "iOS",
-			android : "Android"
-		//},
++		platforms : {					// Code differs based on platform
++			iOS : "iOS",
++			android : "Android"
++		},
 		
-		//receiveString : "",
++		receiveString : "",				// Concatenate strings until newline is met.
+
++		discoveredService = function (success, successCallback) {},	// Called after services are discovered. Start serial communication.
++		discoverAndroid = function (id, successCallback) {},		// Android specific discovery
++		discoverIOS = function (id, successCallback) {},			// iOS specific discovery
 		
 		openMode : function () {},
 		closeMode : function () {},
@@ -82,9 +95,16 @@ var plabBTMode = {
 		send : function (text) {},
 		receiveCallback : function (callback) {}
 }
- *
  */
 
+/*
+ * Adds this module to the main app. debugOut is where debug output is sent,
+ * assumed to have three plabPrintStreams (err, warn, notify).
+ * updateScreen should be the function responsible for redrawing the screen.
+ * 
+ * If necessary plugin is not installed, function will not add module.
+ */
+// TODO updateScreen is misleading. Should be something in the likes of "stateChangedCallback"
 function plabAddBT4_0(debugOut, updateScreen) {
 	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: Attempting to create btle support");
@@ -92,6 +112,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	if (typeof bluetoothle === "undefined") {
 		return;
 	}
+	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: creating mode");
 	// Creating a prototype object
 	var btMode = Object.create(plabBTMode);
@@ -107,21 +128,29 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	};
 	btMode.address = null;
 	btMode.serviceInfo = {
-		serviceUUID : "FFE0", // for the Service
-		txUUID :  "FFE1", // for the TX Characteristic (Property = Notify)
-		rxUUID : "FFE1" // for the RX Characteristic (Property = Write without response)
+		serviceUUID : "FFE0", 	// unique identifier for the Service used for communication
+		txUUID :  "FFE1", 		// unique identifier for the TX Characteristic (Property = Notify)
+		rxUUID : "FFE1" 		// unique identifier for the RX Characteristic (Property = Write without response)
 	};
+	// List of message subscribers
 	btMode.subscriptions = [];
+	// Platforms: identify the supported platforms. Code differs based on platform
 	btMode.platforms = {
 		iOS : "iOS",
 		android : "Android"
 	};
-	
+	// When receiving string, it is divided based on newline character.
+	// receiveString used to concatenate temporary received string. 
 	btMode.receiveString = "";
 	
 	
-	
+	/*
+	 * startSubscribe: after connection is completed, we need to start
+	 * listening to incoming messages. This function can be called to
+	 * start subscription to the service providing the serial communication.
+	 */
 	btMode.startSubscribe = function () {
+		// The info object for the subscription
 		var params = {
 				"address":btMode.address,
 				"serviceUuid":btMode.serviceInfo.serviceUUID,
@@ -136,7 +165,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					try {
 						if (obj.status == "subscribedResult") {
 							// Debug output
-							debugOut.notify.print("Mottok data: ");
+							debugOut.notify.print("Received data: ");
 							debugOut.notify.println(JSON.stringify(obj));
 							
 							// Translate received message to real string
@@ -168,6 +197,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 							btMode.status.ready = true;
 							updateScreen();
 						} else {
+							// This should not occur. If it does, the plugin has changed behaviour
 							debugOut.err.println("UnknownSubscribeStatus");
 						}
 						
@@ -183,7 +213,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		
 	};
 	
-	// After the communication service has been discovered, this is called
+	// discoveredService: called after service has been totally discovered. Starts serial communication.
 	btMode.discoveredService = function (success, successCallback) {
 		if (success) {
 			debugOut.notify.println("btle: Connection successful");
@@ -193,15 +223,19 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			btMode.startSubscribe();
 			// We are not ready until subscription is done
 		} else {
-			// Alert that UART failed
+			// Alert that service discovery has failed
 			debugOut.err.println("DiscoverFailure: Failed to discover UART service");
 			btMode.status.failure = true;
 			updateScreen();
 		}
 	};
 	
-	// ---------------- ANDROID -------------
-	// android specific discovery
+	// ------------------------------------------------------------------------
+	// ---- START PLATFORM SPECIFIC DISCOVERY ---------------------------------
+	// ------------------------------------------------------------------------
+	
+	// ---------------- START ANDROID -----------------------------------------
+	// discoverAndroid: Android specific discovery
 	btMode.discoverAndroid = function (id, successCallback) {
 		debugOut.notify.println("btle: discoverAndroid called");
 		bluetoothle.discover (
@@ -210,49 +244,60 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					if (obj.status == "discovered") {
 						// The device was discovered. Check if we found the correct connection data
 						var found = {service : false, rx : false, tx : false};
-						// Service, rx and tx uuids
+						
+						// Service, rx and tx uuids. Used for discovered confirmation.
 						var sUuid = btMode.serviceInfo.serviceUUID.toUpperCase();
 						var rxUuid = btMode.serviceInfo.rxUUID.toUpperCase();
 						var txUuid = btMode.serviceInfo.txUUID.toUpperCase();
-						// Find the service
+						
+						// Find the service, and set found properties properly
+						// --- START services
 						obj.services.forEach(function(service) {
 							if (service.serviceUuid.toUpperCase() == sUuid) {
 								found.service = true;
 								// Service found. Find rx and tx characteristics
+								
+								// --- START characteristics
 								service.characteristics.forEach(function(characteristic){
 									var uuid = characteristic.characteristicUuid.toUpperCase();
+									
 									if (uuid === txUuid) {
 										if (typeof characteristic.properties.writeWithoutResponse !== "undefined" 
 											&& characteristic.properties.writeWithoutResponse) {
 											found.tx = true;
 										}
 									}
+									
 									if (uuid === rxUuid) {
 										if (typeof characteristic.properties.notify !== "undefined" 
 											&& characteristic.properties.notify) {
 											found.rx = true;
 										}
 									}
-								});
+								});	// --- END characteristics
 							}
-						});
+						});	// --- END services
 						
+						// Call post platform specific discovery functionality
 						btMode.discoveredService(found.service && found.rx && found.tx, successCallback);
 					} else {
+						// TODO Something has failed. Tell post platform specific discovery.
 						debugOut.err.println("DiscoverFailure: Unknown status: " + obj.status);
 						btMode.disconnectDevice ();
 					}
 				},
 				function (obj) {
+					// TODO Something has failed. Tell post platform specific discovery.
 					debugOut.err.println("DiscoverFailure: " + obj.error + " - " + obj.message);
 					btMode.disconnectDevice ();
 				},
 				{"address" : id}
 		);
 	};
+	// ---------------- END ANDROID -------------------------------------------
 	
-	// -------------------- iOS -----------
-	// iOS specific discovery
+	// ---------------- START iOS ---------------------------------------------
+	// discoverIOS: iOS specific discovery
 	btMode.discoverIOS = function (id, successCallback) {
 		debugOut.notify.println("btle: discoverIOS called");
 		
@@ -277,32 +322,38 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						bluetoothle.characteristics(
 								function(obj){
 									if (obj.status == "characteristics") {
-										// Some characteristics have been found. Checking for both tx and rx alrigth
+										// Some characteristics have been found. Checking for both tx and rx correctness
 										var found = {rx : false, tx : false};
+										// --- START characteristics loop
 										obj.characteristics.forEach(function(characteristic){
 											var uuid = characteristic.characteristicUuid.toUpperCase();
+											
 											if (uuid === txUuid) {
 												if (typeof characteristic.properties.writeWithoutResponse !== "undefined" 
 													&& characteristic.properties.writeWithoutResponse) {
 													found.tx = true;
 												}
 											}
+											
 											if (uuid === rxUuid) {
 												if (typeof characteristic.properties.notify !== "undefined" 
 													&& characteristic.properties.notify) {
 													found.rx = true;
 												}
 											}
-										});
+										});	// --- END characteristics loop
+										
 										// Assuming we do not need to discover descriptors, we are done
 										btMode.discoveredService(found.rx && found.tx, successCallback);
 									} else {
+										// Something has failed. Tell post platform specific discovery.
 										debugOut.err.println("CharacteristicsFailure: Unknown status: " + obj.status);
 										btMode.discoveredService(false, successCallback);
 										btMode.disconnectDevice();
 									}
 								},
 								function(obj){
+									// Something has failed. Tell post platform specific discovery.
 									debugOut.err.println("CharacteristicsFailure: " + obj.error + " - " + obj.message);
 									btMode.discoveredService(false, successCallback);
 									btMode.disconnectDevice();
@@ -311,6 +362,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						);
 						
 					} else {
+						// Something has failed. Tell post platform specific discovery.
 						debugOut.err.println("ServicesFailure: Unknown status: " + obj.status);
 						btMode.discoveredService(false, successCallback);
 						btMode.disconnectDevice ();
@@ -318,6 +370,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				},
 				
 				function(obj){
+					// Something has failed. Tell post platform specific discovery.
 					debugOut.err.println("ServicesFailure: " + obj.error + " - " + obj.message);
 					btMode.discoveredService(false, successCallback);
 					btMode.disconnectDevice ();
@@ -326,8 +379,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				servicesParams
 		);
 	};
+	// ---------------- END iOS -----------------------------------------------
 	
-	// -------------------------------
+	// ------------------------------------------------------------------------
+	// ---- END PLATFORM SPECIFIC DISCOVERY -----------------------------------
+	// ------------------------------------------------------------------------
 	
 	// Replacing the open mode function -> init the mode
 	btMode.openMode = function () {
