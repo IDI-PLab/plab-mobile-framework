@@ -68,6 +68,8 @@ var plabBTMode = {
 +			connecting : null
 +		}
 +		address : null
+
++		postScanCallback : null/function(),	// Callback triggered after scan has completed
 		
 +		subscriptions : [],				// List of subscribers for messages from this mode
 +		startSubscribe : function() {},	// Starts subscription to serial communication on device
@@ -86,7 +88,7 @@ var plabBTMode = {
 		openMode : function () {},
 		closeMode : function () {},
 		
-		listDevices : function (listCallback, scanTime) {},
+		listDevices : function (listCallback, scanTime, scanStoppedCallback) {},
 		stopListDevices : function () {},
 		
 		connectDevice : function (id) {},
@@ -128,6 +130,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			connecting : null
 	};
 	btMode.address = null;
+	btMode.postScanCallback = null;
 	btMode.serviceInfo = {
 		serviceUUID : "FFE0", 	// unique identifier for the Service used for communication
 		txUUID :  "FFE1", 		// unique identifier for the TX Characteristic (Property = Notify)
@@ -414,7 +417,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			// ------------------ SCAN ----------------------------------------
 			
 			// listDevices: scans and return callbacks for found devices.
-			btMode.listDevices = function (listCallback, scanTime) {
+			btMode.listDevices = function (listCallback, scanTime, scanStoppedCallback) {
+				// Remember the callback that will be called after scan has stopped
+				btMode.postScanCallback = scanStoppedCallback;
 				// Holding scan results as an object storing the IDs of the found devices.
 				// On some devices the startScan returns the same device multiple times.
 				var scanResults = {};
@@ -468,12 +473,24 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				// TODO status.scanning property is not used.
 				bluetoothle.stopScan (
 					function (obj) {
+						// If a postScan callback exists, it should be called independent of status
+						if (btMode.postScanCallback != null) {
+							btMode.postScanCallback();
+							btMode.postScanCallback = null; // Remove so it won't be called multiple times
+						}
+						// If an unknown status exists, tell debug
 						if (obj.status !== "scanStopped") {
 							debugOut.warn.println("StopScanFailure: Unknown status: " + obj.status);
 						}
 					},
 					function(obj){
 						if (obj.message === "Not scanning") {
+							// If a postScan callback exists, it should be called
+							if (btMode.postScanCallback != null) {
+								btMode.postScanCallback(); // Remove so it won't be called multiple times
+								btMode.postScanCallback = null;
+							}
+							// Tell debug
 							debugOut.warn.println("StopScanFailure: " + obj.error + " - " + obj.message);
 						} else {
 							debugOut.err.println("StopScanFailure: " + obj.error + " - " + obj.message);

@@ -53,7 +53,7 @@ plabBTMode = {
 		openMode : function () {},
 		closeMode : function () {},
 		
-		listDevices : function (listCallback, scanTime) {},
+		listDevices : function (listCallback, scanTime, scanStoppedCallback) {},
 -		stopListDevices : function () {},
 		
 		connectDevice : function (id, successCallback) {},
@@ -155,7 +155,7 @@ function plabAddBTSerial(debugOut, updateScreen) {
 			};
 			
 			// listDevices: List all devices that are paired / connectable
-			btMode.listDevices = function (listCallback, scanTime) {
+			btMode.listDevices = function (listCallback, scanTime, scanStoppedCallback) {
 				bluetoothSerial.list(
 						function(list) {
 							debugOut.notify.println("bluetoothSerial received list of devices");
@@ -169,6 +169,8 @@ function plabAddBTSerial(debugOut, updateScreen) {
 							debugOut.err.println("bluetoothSerial could not list devices");
 						}
 				);
+				// Call the completed callback after a short delay
+				setTimeout(scanStoppedCallback, 100);
 			};
 			
 			// btMode.stopListDevices = function () {}; -  N/A: no plugin support

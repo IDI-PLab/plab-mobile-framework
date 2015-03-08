@@ -228,6 +228,24 @@ var plab = {
 			}
 		},
 		
+		// ---------- BLUETOOTH SCAN EVENT CALLBACKS --------------------------
+		startScan : function() {
+			// Set update button to disabled
+			document.getElementById("plab-update-btn").disabled = true;
+			
+			// Clear scan result list
+			var li = document.getElementById("plab-devices");
+			while (li.firstChild) {
+				li.removeChild(li.firstChild);
+			}
+			
+			// Start listing devices. Add callback to call after scan is complete
+			plabBT.listDevices(li, 10000, plab.stoppedScan);
+		},
+		stoppedScan : function() {
+			document.getElementById("plab-update-btn").disabled = false;
+		},
+		
 		// --------------------------------------------------------------------
 		// ------------------------- DISPLAY OF SCREENS -----------------------
 		// --------------------------------------------------------------------
@@ -324,17 +342,9 @@ var plab = {
 			plab.out.notify.println("showConnect");
 			// Update state
 			plab.state = plab.states[1];
-			// Clear scan list
-			var li = document.getElementById("plab-devices");
-			while (li.firstChild) {
-				li.removeChild(li.firstChild);
-			}
 			
-			// updateScreen with the now set parameters and start listing devices.
-			plab.updateScreen ();
-			plabBT.listDevices(li, 10000);
-			
-			// TODO Remove this in next release
+			// Start the scan after devices and update screen
+			plab.startScan();
 			plab.updateScreen ();
 		},
 		
@@ -589,7 +599,7 @@ var plabBT = {
 		
 		// Lists all devices detected by the module. Results are updated to the holder node provided.
 		// Enforce listing stop after predefined time (scanTime in milliseconds)
-		listDevices : function (holderNode, scanTime) {
+		listDevices : function (holderNode, scanTime, scanStoppedCallback) {
 			plab.out.notify.println("[plabBT]: Listing devices");
 			if (plabBT.mode === null) {
 				return;
@@ -613,7 +623,8 @@ var plabBT = {
 						el.appendChild(btn);
 						holderNode.appendChild(el);
 					},
-					scanTime
+					scanTime,
+					scanStoppedCallback
 			);
 		},
 		
@@ -652,6 +663,8 @@ var plabBT = {
 			for (var i = 0; i < btns.length; i++) {
 				btns[i].disabled = true;
 			}
+			// Disable possibility to update scan while connecting
+			document.getElementById("plab-update-btn").disabled = true;
 			// Do the actual connection
 			plabBT.mode.connectDevice(id, plab.showUserSelect);
 		},
@@ -724,7 +737,8 @@ var plabBTMode = {
 		
 		// List the devices ready for connection. scanTime describes max time this function should run.
 		// listCallback should be called with a descriptor created by plabBT.createDeviceDescriptor
-		listDevices : function (listCallback, scanTime) {},
+		// scanStoppedCallback should be called after listing of devices have completed
+		listDevices : function (listCallback, scanTime, scanStoppedCallback) {},
 		// Force the device to stop looking for other devices
 		stopListDevices : function () {},
 		
