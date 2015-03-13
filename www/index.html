@@ -38,58 +38,57 @@
     			<div class="plab-failed" data-text-key="status-bt-failed">Kan ikke koble til</div>
     		</div>
     		<div class="plab-user-select">
-    			<div class="plab-init" data-text-key="status-redir-unconn">Klar, ikke tilkoblet BT</div>
-    			<div class="plab-ready"><span data-text-key="status-redir-conn">Klar, tilkoblet BT</span><span id="plab-device-name"></span></div>
+    			<div class="plab-init" data-text-key="status-userselect-unconn">Klar, ikke tilkoblet BT</div>
+    			<div class="plab-ready"><span data-text-key="status-userselect-conn">Klar, tilkoblet BT</span><span id="plab-device-name"></span></div>
     		</div>
     		<div class="plab-redirect">
-    			<div class="plab-init">Viderekobler, fors&oslash;k <span id="plab-attempt">0</span></div>
-    			<div class="plab-ready">Klar</div>
-    			<div class="plab-failed">Viderekobling feilet</div>
+    			<div class="plab-init"><span data-text-key="status-redir-connect">Viderekobler, fors&oslash;k </span><span id="plab-attempt">0</span></div>
+    			<div class="plab-ready" data-text-key="status-redir-ready">Klar</div>
+    			<div class="plab-failed" data-text-key="status-redir-failed">Viderekobling feilet</div>
     		</div>
     	</section>
     	<section id="plab-main">
-    		<div class="plab-intro">
+    		<div class="plab-intro" data-text-key="greeting">
     			Dette er rammeverket for tilkobling av Bluetooth. Velg "Koble til BT"
     			for &aring; koble til, eller "Bruk uten bluetooth" for &aring; hoppe over.
     		</div>
     		<div class="plab-connect">
-    			Tilgjengelige enheter:
+    			<span data-text-key="available-unit-list">Tilgjengelige enheter:</span>
     			<div class="plab-list">
     				<ul id="plab-devices" class="plab-device-list"></ul>
     				<div id="plab-scan-status"></div>
-    				<button id="plab-update-btn" onclick="plab.startScan()">Oppdater</button>
+    				<button id="plab-update-btn" onclick="plab.startScan()" data-text-key="update-button">Oppdater</button>
     			</div>
     		</div>
     		<div class="plab-user-select">
     			<div class="plab-list">
-    				<div>Skriv inn NTNU bruker</div>
+    				<div data-text-key="user-input-desc">Skriv inn NTNU bruker</div>
     				<input id="plab-username" type="text" />
     			</div>
     		</div>
     		<div class="plab-redirect">
-    			<p>Viderekobler...</p>
-    			<p>Husk du m&aring; ha lagt "<code>plab.pde</code>" filen din i "<code>web_mappen_din/plab</code>" p&aring; NTNU sitt brukeromr&aring;de.</p>
-    			<p>Det vil si du skal se den om du g&aring;r til <code>folk.ntnu.no/[BRUKER]/plab/plab.pde</code></p>
+    			<p data-text-key="redir-tell-state">Viderekobler...</p>
+    			<p data-text-key="redir-reminder">Husk du m&aring; ha lagt "plab.pde" filen din i "web_mappen_din/plab" p&aring; NTNU sitt brukeromr&aring;de.</p>
+    			<p><span data-text-key="redir-loc-desc">Det vil si du skal se den om du g&aring;r til </span><code data-text-key="redir-location">folk.ntnu.no/[BRUKER]/plab/plab.pde</code></p>
     		</div>
     	</section>
     	<footer id="plab-footer">
     		<div class="plab-intro plab-ready">
     			<div id="plab-first-select"></div>
-    			<!-- <button onclick="plab.showConnect()">Koble til BT</button> -->
-    			<button onclick="plab.showUserSelect()">Bruk uten bluetooth</button>
+    			<button onclick="plab.showUserSelect()" data-text-key="without-bluetooth">Bruk uten bluetooth</button>
     		</div>
     		<div class="plab-connect">
-    			<button onclick="plab.showIntro()" class="plab-panic">Tilbake</button>
+    			<button onclick="plab.showIntro()" class="plab-panic" data-text-key="back">Tilbake</button>
     		</div>
     		<div class="plab-user-select">
-    			<button onclick="plab.showProcessing()">Last Processing!</button>
-    			<button onclick="plab.showIntro()" class="plab-panic">Tilbake til start</button>
+    			<button onclick="plab.showProcessing()" data-text-key="load-processing">Last Processing!</button>
+    			<button onclick="plab.showIntro()" class="plab-panic" data-text-key="back-to-start">Tilbake til start</button>
     		</div>
     		<div class="plab-redirect">
-    			<button onclick="plab.showIntro()" class="plab-panic">Avbryt</button>
+    			<button onclick="plab.showIntro()" class="plab-panic" data-text-key="cancel">Avbryt</button>
     		</div>
     		<div class="plab-powered">
-    			Powered by:
+    			<span data-text-key="powered-by">Powered by:</span>
     			<ul>
     				<li>Apache Cordova</li><li>Processing.js</li>
     			</ul>
