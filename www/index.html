@@ -8,13 +8,17 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
         <!-- <link rel="stylesheet" type="text/css" href="css/index.css" /> -->
         <link rel="stylesheet" type="text/css" href="css/plab.css" />
-        <title>PLab Framework</title>
+        
+        <title data-text-key="title">PLab Framework</title>
         
         
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="js/btle.js"></script>
         <script type="text/javascript" src="js/bts.js"></script>
         <script type="text/javascript" src="js/processing.js/processing-1.4.1.min.js"></script>
+        
+        <!-- Language support -->
+        <script type="text/javascript" src="js/language.js"></script>
         <!-- <script type="text/javascript">
         
         </script> -->
@@ -22,20 +26,20 @@
     </head>
     <body class="plab">
     <article id="plab-content" class="plab-intro-select plab-init-select">
-    	<header id="plab-header">PLab rammeverk</header>
+    	<header id="plab-header" data-text-key="title">PLab rammeverk</header>
     	<section id="plab-status">
     		<div class="plab-intro">
-    			<div class="plab-init">Velkommen. Vennligst vent</div>
-    			<div class="plab-ready">Velkommen. Enhet klar</div>
+    			<div class="plab-init" data-text-key="status-first-init">Velkommen. Vennligst vent</div>
+    			<div class="plab-ready" data-text-key="status-device-ready">Velkommen. Enhet klar</div>
     		</div>
     		<div class="plab-connect">
-    			<div class="plab-init">Initialiserer BT</div>
-    			<div class="plab-ready">Koble til BT</div>
-    			<div class="plab-failed">Kan ikke koble til</div>
+    			<div class="plab-init" data-text-key="status-bt-init">Initialiserer BT</div>
+    			<div class="plab-ready" data-text-key="status-bt-connect">Koble til BT</div>
+    			<div class="plab-failed" data-text-key="status-bt-failed">Kan ikke koble til</div>
     		</div>
     		<div class="plab-user-select">
-    			<div class="plab-init">Klar, ikke tilkoblet BT</div>
-    			<div class="plab-ready">Klar, tilkoblet BT <span id="plab-device-name"></span></div>
+    			<div class="plab-init" data-text-key="status-redir-unconn">Klar, ikke tilkoblet BT</div>
+    			<div class="plab-ready"><span data-text-key="status-redir-conn">Klar, tilkoblet BT</span><span id="plab-device-name"></span></div>
     		</div>
     		<div class="plab-redirect">
     			<div class="plab-init">Viderekobler, fors&oslash;k <span id="plab-attempt">0</span></div>
