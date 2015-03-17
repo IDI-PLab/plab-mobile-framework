@@ -35,9 +35,21 @@ var plabLang = {
 		// to (must have translation for all keys, which language is currently
 		// showing
 		"meta" : {
-			"supported-lang" : ["en-gb", "no-nb"],
+			"supported-lang" : [
+                {
+                	"text-key" : "en-gb",
+                	"icon" : "img/gb.png",
+                	"value" : "en-gb"
+                },
+                {
+                	"text-key" : "no-nb",
+                	"icon" : "img/nor.png",
+                	"value" : "no-nb"
+                }
+            ],
 			"default-lang" : "en-gb",
-			"current-lang" : "en-gb"
+			"current-lang" : "en-gb",
+			"storage-key" : "plab-language"
 		},
 		
 		// Unknown key: The text shown if an attempt to look up an illegal key
@@ -185,16 +197,23 @@ var plabLangSupport = {
 		// languages, the current language is set to this language and all
 		// translatable text is updated. Which language is set is also stored.
 		setLanguage : function(lang) {
-			if (plabLang.meta["supported-lang"].indexOf(lang) < 0)
+			// Cancel if language is unknown
+			for (var i = 0; i < plabLang.meta["supported-lang"].length; i++) {
+				if (plabLang.meta["supported-lang"].value === lang)
+					return;
+			}
+			// Cancel if the selected language is equal to set language
+			if (plabLang.meta["current-lang"] === lang)
 				return;
 			plabLang.meta["current-lang"] = lang;
-			// TODO Store current language
+			// Store set language
+			window.localStorage.setItem(plabLang.meta["storage-key"], lang);
 			plabLangSupport.updateAll();
 		},
 		// loadLanguage() : loads the previous stored language and updates all
 		// translatable text
 		loadLanguage : function() {
-			// TODO Load the language
+			plabLang.meta["current-lang"] = window.localStorage.getItem(plabLang.meta["storage-key"]);
 			plabLangSupport.updateAll();
 		},
 		// updateAll() : updates all translatable text to the current set
