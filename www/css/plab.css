@@ -45,13 +45,17 @@ body {
 }
 /* ----------------------- END MAIN ELEMENT DEFINITIONS ----------------------- */
 /* ----------------------- MENU DEFINITIONS ----------------------- */
-#plab-menu ul {
+#plab-menu {
 	text-align: right;
+}
+#plab-menu ul {
+	text-align: center;
 	list-style-type: none;
 	margin: 0.5ex 0;
+	border-style: solid;
+	border-width: medium;
 	border-color: #666666;
-	border: medium;
-	display: block;
+	display: inline-block;
 }
 #plab-menu li {
 	width: auto;
