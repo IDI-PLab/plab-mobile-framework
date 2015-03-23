@@ -25,6 +25,18 @@
         <script type="text/javascript" src="cordova.js"></script>
     </head>
     <body class="plab">
+    <nav id="plab-menu">
+    	<!-- Two sections: Internal navigation (settings/home) and different settings (language) -->
+    	<ul id="plab-menu-nav"></ul>
+    	<ul id="plab-menu-setting">
+    		<li>
+    			<img src="img/gb.png" alt="English" onClick="plabLangSupport.setLanguage('en-gb')" />
+    		</li>
+    		<li>
+    			<img src="img/nor.png" alt="English" onClick="plabLangSupport.setLanguage('no-nb')" />
+    		</li>
+    	</ul>
+    </nav>
     <article id="plab-content" class="plab-intro-select plab-init-select">
     	<header id="plab-header" data-text-key="title">PLab rammeverk</header>
     	<section id="plab-status">

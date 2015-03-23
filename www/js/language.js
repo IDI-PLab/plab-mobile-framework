@@ -169,6 +169,11 @@ var plabLang = {
 		"powered-by" : {
 			"en-gb" : "Powered by:",
 			"no-nb" : "Drives av:"
+		},
+		// ----------- Dynamic language definitions ...........................
+		"connect-to" : {
+			"en-gb" : "Connect to ",
+			"no-nb" : "Koble til "
 		}
 }
 
@@ -213,7 +218,9 @@ var plabLangSupport = {
 		// loadLanguage() : loads the previous stored language and updates all
 		// translatable text
 		loadLanguage : function() {
-			plabLang.meta["current-lang"] = window.localStorage.getItem(plabLang.meta["storage-key"]);
+			var newLang = window.localStorage.getItem(plabLang.meta["storage-key"]);
+			if (newLang !== null)
+				plabLang.meta["current-lang"] = newLang;
 			plabLangSupport.updateAll();
 		},
 		// updateAll() : updates all translatable text to the current set
@@ -251,14 +258,9 @@ var plabLangSupport = {
 		}
 }
 
-// TODO REMOVE : this should only be used while developing
-function test() {
-	plabLangSupport.updateAll();
-}
-//test();
 // Unforetunately, we must wait until device is ready to do dom changes.
 document.addEventListener(
 		"deviceready",
-		test, 
+		plabLangSupport.loadLanguage, 
 		false
 );

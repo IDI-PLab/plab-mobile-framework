@@ -24,7 +24,7 @@ body {
 		font-size: 480%;
 	}
 }
-
+/* ----------------------- MAIN ELEMENT DEFINITIONS ----------------------- */
 body {
     -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
     -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
@@ -43,7 +43,26 @@ body {
     text-align: center;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
-
+/* ----------------------- END MAIN ELEMENT DEFINITIONS ----------------------- */
+/* ----------------------- MENU DEFINITIONS ----------------------- */
+#plab-menu ul {
+	text-align: right;
+	list-style-type: none;
+	margin: 0.5ex 0;
+	border-color: #666666;
+	border: medium;
+	display: block;
+}
+#plab-menu li {
+	width: auto;
+	height: auto;
+	display: inline-block;
+}
+#plab-menu img {
+	padding: 0;
+	margin: 0;
+}
+/* ----------------------- END MENU DEFINITIONS ----------------------- */
 .plab-list ul {
 	list-style-type: none;
 	margin: 0.5ex 0;

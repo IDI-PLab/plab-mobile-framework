@@ -290,7 +290,14 @@ var plab = {
 			// Insert new buttons for all bt modes installed.
 			for (var i = 0; i < plabBT.modes.length; i++) {
 				var btn = document.createElement("button");
-				var txt = document.createTextNode("Koble til " + plabBT.modes[i].name);
+				var spn = document.createElement("span");
+				var att = document.createAttribute("data-text-key");
+				att.value = "connect-to";
+				spn.setAttributeNode(att);
+				var txt = document.createTextNode(plabLangSupport.getText("connect-to"));
+				spn.appendChild(txt);
+				btn.appendChild(spn);
+				txt = document.createTextNode(plabBT.modes[i].name);
 				btn.modeId = plabBT.modes[i].id;
 				btn.appendChild(txt);
 				btn.addEventListener(
