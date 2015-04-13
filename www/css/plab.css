@@ -43,6 +43,12 @@ body {
     text-align: center;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
+
+/* -------- Default right align images ------------ */
+.plab img {
+	float: right;
+}
+
 /* ----------------------- END MAIN ELEMENT DEFINITIONS ----------------------- */
 /* ----------------------- MENU DEFINITIONS ----------------------- */
 #plab-menu {
@@ -63,8 +69,10 @@ body {
 	display: inline-block;
 }
 #plab-menu img {
+	float: none;
 	padding: 0;
 	margin: 0;
+	border-radius: 10px;
 }
 /* ----------------------- END MENU DEFINITIONS ----------------------- */
 .plab-list ul {

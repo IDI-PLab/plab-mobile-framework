@@ -35,11 +35,15 @@
     			<img src="img/nor.png" alt="Norsk" onClick="plabLangSupport.setLanguage('no-nb')" />
     		</li>
     	</ul>
-    	<ul id="plab-menu-nav">
-    		<li>
-    			<img src="img/settings.png" alt="Settings" onClick="alert('show settings')" />
-    		</li>
-    	</ul>
+    	<img src="img/settings.png" alt="Settings" onClick="alert('show settings')" />
+    	<!-- <dl id="plab-menu-nav">
+    		<dt data-text-key="domain-setting-definition">Processing URL lokasjon</dt>
+    		<dd><span data-text-key="domain-setting-base"></span><input id="plab-setting-url-base" type="url" value="http://folk.ntnu.no"/></dd>
+    		<dd><span data-text-key="domain-setting-postfix"></span><input id="plab-setting-url-postfix" type="text" value="/plab/plab.pde" /></dd>
+    		
+    		<dt data-text-key="setting-accept">Lagre</dt>
+    		<dd><button type="button"></button></dd>
+    	</dl> -->
     </nav>
     <article id="plab-content" class="plab-intro-select plab-init-select">
     	<header id="plab-header" data-text-key="title">PLab rammeverk</header>
@@ -73,7 +77,7 @@
     			<div class="plab-list">
     				<ul id="plab-devices" class="plab-device-list"></ul>
     				<div id="plab-scan-status"></div>
-    				<button id="plab-update-btn" onclick="plab.startScan()" data-text-key="update-button">Oppdater</button>
+    				<button id="plab-update-btn" onclick="plab.startScan()"><span data-text-key="update-button">Oppdater</span><img src="img/update.png" alt="Update" /></button>
     			</div>
     		</div>
     		<div class="plab-user-select">
@@ -91,17 +95,17 @@
     	<footer id="plab-footer">
     		<div class="plab-intro plab-ready">
     			<div id="plab-first-select"></div>
-    			<button onclick="plab.showUserSelect()" data-text-key="without-bluetooth">Bruk uten bluetooth</button>
+    			<button onclick="plab.showUserSelect()"><span data-text-key="without-bluetooth">Bruk uten bluetooth</span><img src="img/next.png" alt="Without BT" /></button>
     		</div>
     		<div class="plab-connect">
-    			<button onclick="plab.showIntro()" class="plab-panic" data-text-key="back">Tilbake</button>
+    			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="back">Tilbake</span><img src="img/back.png" alt="Back" /></button>
     		</div>
     		<div class="plab-user-select">
-    			<button onclick="plab.showProcessing()" data-text-key="load-processing">Last Processing!</button>
-    			<button onclick="plab.showIntro()" class="plab-panic" data-text-key="back-to-start">Tilbake til start</button>
+    			<button onclick="plab.showProcessing()"><span data-text-key="load-processing">Last Processing!</span><img src="img/next.png" alt="Next" /></button>
+    			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="back-to-start">Tilbake til start</span><img src="img/back.png" alt="Back" /></button>
     		</div>
     		<div class="plab-redirect">
-    			<button onclick="plab.showIntro()" class="plab-panic" data-text-key="cancel">Avbryt</button>
+    			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="cancel">Avbryt</span><img src="img/back.png" alt="Back" /></button>
     		</div>
     		<div class="plab-powered">
     			<span data-text-key="powered-by">Powered by:</span>

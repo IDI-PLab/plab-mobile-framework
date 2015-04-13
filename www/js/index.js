@@ -297,9 +297,21 @@ var plab = {
 				var txt = document.createTextNode(plabLangSupport.getText("connect-to"));
 				spn.appendChild(txt);
 				btn.appendChild(spn);
+				// Name of mode is assumed to be language independent
 				txt = document.createTextNode(plabBT.modes[i].name);
 				btn.modeId = plabBT.modes[i].id;
 				btn.appendChild(txt);
+				
+				// The button needs an image that shows that it is a "next" button
+				var im = document.createElement("img");
+				var imsrc = document.createAttribute("src");
+				imsrc.value = "img/next.png";
+				im.setAttributeNode(imsrc);
+				var imalt = document.createAttribute("alt");
+				imalt.value = "Next";
+				im.setAttributeNode(imalt);
+				btn.appendChild(im);
+				
 				btn.addEventListener(
 						"click", 
 						function(evt) {
@@ -617,8 +629,20 @@ var plabBT = {
 						var el = document.createElement("li");
 						// Connect button
 						var btn = document.createElement("button");
+						// Text of connect button is language independent. It is name of device
 						var btnVal = document.createTextNode(desc.name);
 						btn.appendChild(btnVal);
+						
+						// The button needs an image that shows that it is a "next" button
+						var im = document.createElement("img");
+						var imsrc = document.createAttribute("src");
+						imsrc.value = "img/next.png";
+						im.setAttributeNode(imsrc);
+						var imalt = document.createAttribute("alt");
+						imalt.value = "Next";
+						im.setAttributeNode(imalt);
+						btn.appendChild(im);
+						
 						// Add the click event listener
 						btn.addEventListener(
 								"click",

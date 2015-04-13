@@ -170,6 +170,15 @@ var plabLang = {
 			"en-gb" : "Powered by:",
 			"no-nb" : "Drives av:"
 		},
+		// ----------- Settings -----------------------------------------------
+		"domain-setting-definition" : {
+			"en-gb" : "Processing source URL:",
+			"no-nb" : "Processing kildefillokasjon:"
+		},
+		"setting-accept" : {
+			"en-gb" : "Accept and save changes",
+			"no-nb" : "Godta og lagre endringer"
+		},
 		// ----------- Dynamic language definitions ...........................
 		"connect-to" : {
 			"en-gb" : "Connect to ",
