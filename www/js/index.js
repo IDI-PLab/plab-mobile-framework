@@ -138,6 +138,16 @@ var plab = {
 				document.body.className = "plab";
 			}
 		},
+		// processingInfo will be filled to hold processing redirect info during show
+		processingInfo : {
+			"url-keys" : {
+				"base" : "plab-base-url",
+				"postfix" : "plab-postfix-url"
+			},
+			"address-base" : "",
+			"address-postfix" : ""
+			
+		},
 		
 		// --------------------------------------------------------------------
 		// ----------------------- USER ERROR FEEDBACK ------------------------
@@ -180,6 +190,27 @@ var plab = {
 			// initializations and still connected when first screen is shown,
 			// we add an empty method as this callback.
 			document.addEventListener("resume", plab.onResume, false);
+			
+			// Time to add some fundamental settings
+			plab.settingsController.addSettingItem(
+					{
+						"id" : "plab-domain-group",
+						"text-key" : "domain-setting-definition",
+						"type" : "group",
+						"options" : [{
+									"id" : plab.processingInfo["url-keys"].base,
+									"type" : "text",
+									"options" : [{"text-key" : "domain-setting-base"}],
+									"default-value" : "http://folk.ntnu.no/"
+								},
+								{
+									"id" : plab.processingInfo["url-keys"].postfix,
+									"type" : "text",
+									"options" : [{"text-key" : "domain-setting-postfix"}],
+									"default-value" : "/plab/plab.pde"
+								}],
+						"description-text-key" : "domain-setting-description"
+					});
 			
 			// cordova functionality is safe
 			plab.ready = true;
@@ -407,17 +438,24 @@ var plab = {
 			// Set state to redirect state and update the screen
 			plab.state = plab.states[3];
 			plab.updateScreen ();
-			
+			try {
 			// Get content of user select element.
 			var usrName = document.getElementById("plab-username").value;
-			// Build location url for processing. Remove whitespace characters from username
-			var procLoc = "http://folk.ntnu.no/" + usrName.replace(/\s/g, "") + "/plab/plab.pde";
+			// Build location url for processing. Remove whitespace characters from username and addresses
+			plab.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].base).replace(/\s/g, "");
+			plab.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].postfix).replace(/\s/g, "");
+			var procLoc = plab.processingInfo["address-base"] + usrName.replace(/\s/g, "") + plab.processingInfo["address-postfix"];
 			// Create the canvas that will be used by processing
 			var canvas = document.createElement ("canvas");
 			canvas.id = "plab-canvas";
 			// Get reference to connect attempt counter
 			var attemptCounter = document.getElementById ("plab-attempt");
 			
+			// Update the location so the app reflects which address it is requesting
+			document.getElementById("plab-redir-location").innerHTML = procLoc;
+			} catch (e) {
+				alert(e);
+			}
 			// Store the user name so it will be set next attempted load.
 			window.localStorage.setItem('plab-username', usrName);
 			

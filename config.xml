@@ -8,7 +8,7 @@
         Inge Edward Halsaunet
     </author>
     <content src="index.html" />
-    <access origin="http://folk.ntnu.no/*" />
+    <access origin="*" />
     
     <!-- ORIENTATION -->
     <preference name="Orientation" value="portrait" />

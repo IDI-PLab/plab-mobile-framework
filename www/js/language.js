@@ -132,19 +132,14 @@ var plabLang = {
 			"no-nb" : "Viderekobler ..."
 		},
 		"redir-reminder" : {
-			"en-gb" : "Remember, the \"plab.pde\" file must be located " +
-					"at \"your_web_folder/plab/\" at the NTNU user area.",
-			"no-nb" : "Husk du m\u00E5 ha lagt \"plab.pde\" filen din i" +
-					" \"web_mappen_din/plab/\" p\u00E5 NTNU sitt " +
-					"brukeromr\u00E5de."
+			"en-gb" : "Remember, the .pde file must be located at the " +
+					"correct address.",
+			"no-nb" : "Husk du m\u00E5 ha lagt .pde filen din p\u00E5" +
+					" riktig adresse."
 		},
 		"redir-loc-desc" : {
 			"en-gb" : "That is, you should see it by visiting ",
 			"no-nb" : "Det vil si du skal se den om du g\u00E5r til "
-		},
-		"redir-location" : {
-			"en-gb" : "folk.ntnu.no/[USERNAME]/plab/plab.pde",
-			"no-nb" : "folk.ntnu.no/[BRUKER]/plab/plab.pde"
 		},
 		"without-bluetooth" : {
 			"en-gb" : "Use without Bluetooth",
@@ -171,14 +166,32 @@ var plabLang = {
 			"no-nb" : "Drives av:"
 		},
 		// ----------- Settings -----------------------------------------------
+		"hide-settings" : {
+			"en-gb" : "Hide settings",
+			"no-nb" : "Skjul innstillinger"
+		},
 		"domain-setting-definition" : {
 			"en-gb" : "Processing source URL:",
 			"no-nb" : "Processing kildefillokasjon:"
 		},
-		"setting-accept" : {
-			"en-gb" : "Accept and save changes",
-			"no-nb" : "Godta og lagre endringer"
+		"domain-setting-base" : {
+			"en-gb" : "Input URL address base",
+			"no-nb" : "Skriv inn adressestart"
 		},
+		"domain-setting-postfix" : {
+			"en-gb" : "Input URL address end",
+			"no-nb" : "Skriv inn adresseslutt"
+		},
+		"domain-setting-description" : {
+			"en-gb" : "The final address for your sketch will be URL-base[USER_INPUT]URL-end",
+			"no-nb" : "Den komplette addressen skissen er addressestart[BRUKER_INPUT]addresseslutt"
+		},
+		/*
+		"" : {
+			"en-gb" : "",
+			"no-nb" : ""
+		},
+		*/
 		// ----------- Dynamic language definitions ...........................
 		"connect-to" : {
 			"en-gb" : "Connect to ",

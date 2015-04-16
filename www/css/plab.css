@@ -44,37 +44,14 @@ body {
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
 
-/* -------- Default right align images ------------ */
+/* -------- Default right align and round images ------------ */
 .plab img {
+	border-radius: 10px;
 	float: right;
 }
 
 /* ----------------------- END MAIN ELEMENT DEFINITIONS ----------------------- */
-/* ----------------------- MENU DEFINITIONS ----------------------- */
-#plab-menu {
-	text-align: right;
-}
-#plab-menu ul {
-	text-align: center;
-	list-style-type: none;
-	margin: 0.5ex 0;
-	border-style: solid;
-	border-width: medium;
-	border-color: #666666;
-	display: inline-block;
-}
-#plab-menu li {
-	width: auto;
-	height: auto;
-	display: inline-block;
-}
-#plab-menu img {
-	float: none;
-	padding: 0;
-	margin: 0;
-	border-radius: 10px;
-}
-/* ----------------------- END MENU DEFINITIONS ----------------------- */
+
 .plab-list ul {
 	list-style-type: none;
 	margin: 0.5ex 0;
@@ -212,3 +189,52 @@ body {
 .plab-powered ul {
 	list-style-type: none;
 }
+
+/* ----------------------- MENU DEFINITIONS ----------------------- */
+#plab-menu {
+	text-align: right;
+}
+#plab-menu ul {
+	text-align: center;
+	list-style-type: none;
+	margin: 0.5ex 0;
+	border-style: solid;
+	border-width: medium;
+	border-color: #666666;
+	display: inline-block;
+}
+#plab-menu li {
+	width: auto;
+	height: auto;
+	display: inline-block;
+}
+#plab-menu-setting img {
+	float: none;
+	padding: 0;
+	margin: 0;
+}
+/* Default hide setting screen */
+.plab-settings-menu {
+	display: none;
+}
+/* Show menu and hide rest */
+.plab-show-menu .plab-settings-menu {
+	display: block;
+}
+.plab-show-menu #plab-content {
+	display: none;
+}
+
+.plab-setting {
+	border-style: solid;
+	border-width: medium;
+	border-color: #666666;
+	padding: 0.5ex;
+	/* TODO */
+}
+
+.plab-setting-description {
+	font-size: 80%;
+	font-style: italic;
+}
+/* ----------------------- END MENU DEFINITIONS ----------------------- */

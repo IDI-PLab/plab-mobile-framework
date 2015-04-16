@@ -11,14 +11,16 @@
         
         <title data-text-key="title">PLab Framework</title>
         
-        
         <script type="text/javascript" src="js/index.js"></script>
+        <!-- Language support -->
+        <script type="text/javascript" src="js/language.js"></script>
+        <!-- Settings support -->
+        <script type="text/javascript" src="js/settings.js"></script>
         <script type="text/javascript" src="js/btle.js"></script>
         <script type="text/javascript" src="js/bts.js"></script>
         <script type="text/javascript" src="js/processing.js/processing-1.4.1.min.js"></script>
         
-        <!-- Language support -->
-        <script type="text/javascript" src="js/language.js"></script>
+        
         <!-- <script type="text/javascript">
         
         </script> -->
@@ -28,22 +30,23 @@
     <nav id="plab-menu">
     	<!-- Two sections: Internal navigation (settings/home) and different settings (language) -->
     	<ul id="plab-menu-setting">
-    		<li>
-    			<img src="img/gb.png" alt="English" onClick="plabLangSupport.setLanguage('en-gb')" />
+    		<li onClick="plabLangSupport.setLanguage('en-gb')">
+    			<img src="img/gb.png" alt="English" />
+    			English
     		</li>
-    		<li>
-    			<img src="img/nor.png" alt="Norsk" onClick="plabLangSupport.setLanguage('no-nb')" />
+    		<li onClick="plabLangSupport.setLanguage('no-nb')">
+    			<img src="img/nor.png" alt="Norsk" />
+    			Norsk
+    		</li>
+    		<li onClick="plab.settingsController.toggleSettings()">
+    			<img src="img/settings.png" alt="Settings" />
     		</li>
     	</ul>
-    	<img src="img/settings.png" alt="Settings" onClick="alert('show settings')" />
-    	<!-- <dl id="plab-menu-nav">
-    		<dt data-text-key="domain-setting-definition">Processing URL lokasjon</dt>
-    		<dd><span data-text-key="domain-setting-base"></span><input id="plab-setting-url-base" type="url" value="http://folk.ntnu.no"/></dd>
-    		<dd><span data-text-key="domain-setting-postfix"></span><input id="plab-setting-url-postfix" type="text" value="/plab/plab.pde" /></dd>
-    		
-    		<dt data-text-key="setting-accept">Lagre</dt>
-    		<dd><button type="button"></button></dd>
-    	</dl> -->
+    	
+    	<div class="plab-settings-menu">
+    		<div id="plab-settings-menu"></div>
+    		<button onclick="plab.settingsController.hideSettings()"><span data-text-key="hide-settings">Skjul</span><img src="img/next.png" alt="Next" /></button>
+    	</div>
     </nav>
     <article id="plab-content" class="plab-intro-select plab-init-select">
     	<header id="plab-header" data-text-key="title">PLab rammeverk</header>
@@ -88,8 +91,11 @@
     		</div>
     		<div class="plab-redirect">
     			<p data-text-key="redir-tell-state">Viderekobler...</p>
-    			<p data-text-key="redir-reminder">Husk du m&aring; ha lagt "plab.pde" filen din i "web_mappen_din/plab" p&aring; NTNU sitt brukeromr&aring;de.</p>
-    			<p><span data-text-key="redir-loc-desc">Det vil si du skal se den om du g&aring;r til </span><code data-text-key="redir-location">folk.ntnu.no/[BRUKER]/plab/plab.pde</code></p>
+    			<p data-text-key="redir-reminder">Husk du m&aring; ha lagt .pde filen din p&aring; riktig plass</p>
+    			<p>
+    				<span data-text-key="redir-loc-desc">Det vil si du skal se den om du g&aring;r til </span>
+    				<code id="plab-redir-location">folk.ntnu.no/[BRUKER]/plab/plab.pde</code>
+    			</p>
     		</div>
     	</section>
     	<footer id="plab-footer">
