@@ -65,16 +65,17 @@ body {
 	display: block;
 }
 
-.plab #plab-canvas {
-	display: none;
-}
-
 #plab-canvas {
 	display: block;
 	margin: 0;
 	padding: 0;
 	border: none;
 }
+
+.plab #plab-canvas {
+	display: none;
+}
+
 
 #plab-header {
 	min-height: 19%;
@@ -238,3 +239,15 @@ body {
 	font-style: italic;
 }
 /* ----------------------- END MENU DEFINITIONS ----------------------- */
+/* ---------------- HIDE / SHOW BACK BUTTON --------------------------- */
+.plab-back {
+	display: block;
+	position: fixed;
+    z-index: 100; 
+    bottom: 0; 
+    left: 0;
+}
+
+.plab .plab-back, .plab-hidden {
+	display: none;
+}

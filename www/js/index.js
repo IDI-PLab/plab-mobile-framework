@@ -523,6 +523,13 @@ var plab = {
 			
 			// Start loading of processing
 			startLoad ();
+		},
+		// ----------- HIDE / SHOW SPECIFIC ITEMS -----------------------------
+		hideBackButton : function() {
+			document.getElementById("plab-back-button").classList.add("plab-hidden");
+		},
+		showBackButton : function() {
+			document.getElementById("plab-back-button").classList.remove("plab-hidden");
 		}
 };
 
@@ -544,6 +551,7 @@ var plabPjsBridge = {
 	},
 	// getHeight : gets the height of the visible screen
 	getHeight : function () {
+		// TODO Check on height now that we have a back button
 		return window.innerHeight;
 	},
 	// write : send a message to the connected bluetooth device
@@ -566,6 +574,14 @@ var plabPjsBridge = {
 	// disconnect : disconnects from the current bluetooth device and returns app to intro screen.
 	disconnect : function() {
 		plab.showIntro();
+	},
+	// hideBackButton : Hides the back button
+	hideBackButton : function() {
+		plab.hideBackButton();
+	},
+	// showBackButton : shows the back button
+	showBackButton : function() {
+		plab.showBackButton();
 	}
 };
 
