@@ -124,7 +124,7 @@ var plabLang = {
 			"no-nb" : "Oppdater"
 		},
 		"user-input-desc" : {
-			"en-gb" : "Input sketch id. This can be the sketch name, user name or other dependent on what is set in settings. Default is NTNU user name.",
+			"en-gb" : "Input sketch id. This can be the sketch name, user name or other dependent on what is set in settings. Default is NTNU user.",
 			"no-nb" : "Skriv inn skisse id. Dette kan v\u00E6re skisse navn, brukernavn eller annet avhengig av hva du har satt i instillinger. Standard er NTNU bruker."
 		},
 		"redir-tell-state" : {
