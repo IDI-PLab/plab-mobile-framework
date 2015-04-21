@@ -186,6 +186,22 @@ var plabLang = {
 			"en-gb" : "The final address for your sketch will be URL-base[USER_INPUT]URL-end",
 			"no-nb" : "Den komplette addressen skissen er addressestart[BRUKER_INPUT]addresseslutt"
 		},
+		"btle-servive-select" : {
+			"en-gb" : "Select BTLE service",
+			"no-nb" : "Velg BTLE tjeneste"
+		},
+		"btle-default" : {
+			"en-gb" : "Default service (FFE0)",
+			"no-nb" : "Standardtjeneste (FFE0)"
+		},
+		"btle-nordic" : {
+			"en-gb" : "Nordic Semiconductor service",
+			"no-nb" : "Nordic Semiconductor tjeneste"
+		},
+		"btle-service-select-desc" : {
+			"en-gb" : "Different devices use different services to connect.",
+			"no-nb" : "Ulike enheter bruker ulike tjenester for tilkobling."
+		},
 		/*
 		"" : {
 			"en-gb" : "",

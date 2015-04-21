@@ -28,7 +28,7 @@
  */
 
 /*
- * The services available from the bluetooth device are:
+ * The services available from the bluetooth device are (non standard nordic semiconductor):
  * 1800: Generic Access {2a00,2a01,2a02,2a03,2a04}
  *         All characteristics are read only. @see https://developer.bluetooth.org/gatt/services/Pages/ServiceViewer.aspx?u=org.bluetooth.service.generic_access.xml
  * 1801: Generic Attribute {2a05}
@@ -57,6 +57,18 @@ var plabBTMode = {
 			failure : false
 		},
 		
++		supportedServices : {
++			"default" : {
++				serviceUUID : "FFE0",
++				txUUID :  "FFE1",
++				rxUUID : "FFE1"
++			},
++			"nordic" : {
++				serviceUUID : "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
++				txUUID :  "6E400002-B5A3-F393-E0A9-E50E24DCCA9E",
++				rxUUID : "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
++			}
++		},
 +		serviceInfo : {
 +			serviceUUID : "FFE0",		// unique identifier for the Service used for communication
 +			txUUID :  "FFE1", 			// unique identifier for the TX Characteristic (Property = Notify)
@@ -116,6 +128,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		return;
 	}
 	
+	
 	debugOut.notify.println("[BlueTooth_4.0_randdusing]: creating mode");
 	// Creating a prototype object
 	var btMode = Object.create(plabBTMode);
@@ -131,6 +144,18 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	};
 	btMode.address = null;
 	btMode.postScanCallback = null;
+	btMode.supportedServices = {
+		"default" : {
+			serviceUUID : "FFE0",
+			txUUID :  "FFE1",
+			rxUUID : "FFE1"
+		},
+		"nordic" : {
+			serviceUUID : "6E400001-B5A3-F393-E0A9-E50E24DCCA9E",
+			txUUID :  "6E400002-B5A3-F393-E0A9-E50E24DCCA9E",
+			rxUUID : "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+		}
+	};
 	btMode.serviceInfo = {
 		serviceUUID : "FFE0", 	// unique identifier for the Service used for communication
 		txUUID :  "FFE1", 		// unique identifier for the TX Characteristic (Property = Notify)
@@ -691,6 +716,30 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	// Add mode to parent app
 	debugOut.notify.println("[" + btMode.id + "]: Mode created");
 	plabBT.addMode(btMode);
+	// Add service change setting
+	plab.settingsController.addSettingItem({
+				"id" : "plab-btle-service",
+				"text-key" : "btle-servive-select",
+				
+				"type" : "single-select",
+				"options" : [{
+				            	 "text-key" : "btle-default",
+				            	 "value" : "default"
+				            },
+				            {
+				            	 "text-key" : "btle-nordic",
+				            	 "value" : "nordic"
+				            }],
+				"default-value" : "default",
+				"description-text-key" : "btle-service-select-desc",
+				"onValueChange" : function(string){
+					btMode.serviceInfo = btMode.supportedServices[string];
+				}
+		});
+	var serviceSet = plab.settingsController.getSettingValue("plab-btle-service");
+	if (serviceSet !== null) {
+		btMode.serviceInfo = btMode.supportedServices[serviceSet];
+	}
 }
 
 // Adding the btle module must be done after device is ready.
