@@ -407,9 +407,9 @@ var plab = {
 			// update state
 			plab.state = plab.states[2];
 			// Check for stored user name. If found, fill in user select field with the stored name
-			var oldName = window.localStorage.getItem('plab-username');
+			var oldName = window.localStorage.getItem('plab-user-input');
 			if (oldName != null) {
-				document.getElementById('plab-username').value = oldName;
+				document.getElementById('plab-user-input').value = oldName;
 			}
 			
 			// If we are connected to a device, show the name of the device
@@ -440,11 +440,11 @@ var plab = {
 			plab.updateScreen ();
 			try {
 			// Get content of user select element.
-			var usrName = document.getElementById("plab-username").value;
-			// Build location url for processing. Remove whitespace characters from username and addresses
+			var usrInput = document.getElementById("plab-user-input").value;
+			// Build location url for processing. Remove whitespace characters from user input and addresses
 			plab.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].base).replace(/\s/g, "");
 			plab.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].postfix).replace(/\s/g, "");
-			var procLoc = plab.processingInfo["address-base"] + usrName.replace(/\s/g, "") + plab.processingInfo["address-postfix"];
+			var procLoc = plab.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingInfo["address-postfix"];
 			// Create the canvas that will be used by processing
 			var canvas = document.createElement ("canvas");
 			canvas.id = "plab-canvas";
@@ -457,7 +457,7 @@ var plab = {
 				alert(e);
 			}
 			// Store the user name so it will be set next attempted load.
-			window.localStorage.setItem('plab-username', usrName);
+			window.localStorage.setItem('plab-user-input', usrInput);
 			
 			// insert the canvas into the dom.
 			document.body.insertBefore (canvas, document.body.firstChild);
