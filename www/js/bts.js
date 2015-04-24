@@ -74,7 +74,8 @@ plabBTMode = {
 // TODO updateScreen is misleading. Should be something in the likes of "stateChangedCallback"
 function plabAddBTSerial(debugOut, updateScreen) {
 	debugOut.notify.println("Adding buetoothSerial version");
-	if (typeof bluetoothSerial === "undefined") {
+	// If plugin is not installed, or we are on iOS, do not add this functionality
+	if (typeof bluetoothSerial === "undefined" || window.device.platform == "iOS") {
 		return;
 	}
 	debugOut.notify.println("bluetoothSerial plugin detected");
