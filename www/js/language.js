@@ -165,6 +165,11 @@ var plabLang = {
 			"en-gb" : "Powered by:",
 			"no-nb" : "Drives av:"
 		},
+		// ----------- Processing functionality failure -----------------------
+		"processing-func-failure" : {
+			"en-gb" : "Could not bind bridge.\nExtra functionality unavailable.",
+			"no-nb" : "Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig."
+		},
 		// ----------- Settings -----------------------------------------------
 		"hide-settings" : {
 			"en-gb" : "Hide settings",

@@ -438,21 +438,23 @@ var plab = {
 			// Set state to redirect state and update the screen
 			plab.state = plab.states[3];
 			plab.updateScreen ();
-			try {
-			// Get content of user select element.
-			var usrInput = document.getElementById("plab-user-input").value;
-			// Build location url for processing. Remove whitespace characters from user input and addresses
-			plab.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].base).replace(/\s/g, "");
-			plab.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].postfix).replace(/\s/g, "");
-			var procLoc = plab.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingInfo["address-postfix"];
-			// Create the canvas that will be used by processing
-			var canvas = document.createElement ("canvas");
-			canvas.id = "plab-canvas";
-			// Get reference to connect attempt counter
-			var attemptCounter = document.getElementById ("plab-attempt");
 			
-			// Update the location so the app reflects which address it is requesting
-			document.getElementById("plab-redir-location").innerHTML = procLoc;
+			try {
+				// Get content of user select element.
+				var usrInput = document.getElementById("plab-user-input").value;
+				// Build location url for processing. Remove whitespace characters from user input and addresses
+				plab.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].base).replace(/\s/g, "");
+				plab.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].postfix).replace(/\s/g, "");
+				var procLoc = plab.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingInfo["address-postfix"];
+				// Create the canvas that will be used by processing
+				// TODO UNSAFE!!!
+				var canvas = document.createElement ("canvas");
+				canvas.id = "plab-canvas";
+				// Get reference to connect attempt counter
+				var attemptCounter = document.getElementById ("plab-attempt");
+				
+				// Update the location so the app reflects which address it is requesting
+				document.getElementById("plab-redir-location").innerHTML = procLoc;
 			} catch (e) {
 				alert(e);
 			}
@@ -489,7 +491,7 @@ var plab = {
 						// Attempt to inject object into processing sketch.
 						p.bindPLabBridge (plabPjsBridge);
 					} catch (e) {
-						alert ("Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig.");
+						alert (plabLangSupport.getText("processing-func-failure"));
 						plab.out.err.println("BridgeBinding failure: " + e);
 					}
 				} else {
