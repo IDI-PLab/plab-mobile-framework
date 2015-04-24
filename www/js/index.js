@@ -127,26 +127,93 @@ var plab = {
 			processing : null
 		},
 		
-		// processingInstance is the instance of processing that is currently running, if any
-		processingInstance : null,
-		// To unload the processing instance, we use a simple function
-		unloadProcessing : function() {
-			if (plab.processingInstance !== null) {
-				plab.processingInstance.exit();
-				plab.processingInstance = null;
-				// Reshow screen
-				document.body.className = "plab";
-			}
-		},
-		// processingInfo will be filled to hold processing redirect info during show
-		processingInfo : {
-			"url-keys" : {
-				"base" : "plab-base-url",
-				"postfix" : "plab-postfix-url"
+		// ---------- PROCESSING FUNCTIONALITY --------------------------------
+		// processingFunc : Deals with the actual loading of processing.
+		processingFunc : {
+			// processingInstance is the instance of processing that is currently running, if any
+			processingInstance : null,
+			checkCount : 0,
+			attempt : 0,
+			// processingInfo will be filled to hold processing redirect info during show
+			processingInfo : {
+				"url-keys" : {
+					"base" : "plab-base-url",
+					"postfix" : "plab-postfix-url"
+				},
+				"address-base" : "",
+				"address-postfix" : "",
+				"complete-address" : ""
 			},
-			"address-base" : "",
-			"address-postfix" : ""
-			
+			// To unload the processing instance, we use a simple function
+			unloadProcessing : function() {
+				if (plab.processingFunc.processingInstance !== null) {
+					plab.processingFunc.processingInstance.exit();
+					plab.processingFunc.processingInstance = null;
+					// Clear canvas
+					var canvas = document.getElementById("plab-canvas");
+					var context = canvas.getContext("2d");
+					context.setTransform(1, 0, 0, 1, 0, 0);
+					context.clearRect(0, 0, canvas.width, canvas.height);
+					// Reshow screen
+					document.body.classList.add("plab");
+				}
+			},
+			// The definition of the function that starts the http request to load processing.
+			startLoad : function() {
+				// Reset the number of times we have tried to see if a responce has been received
+				plab.processingFunc.checkCount = 0;
+				// Update counter of http request attempts.
+				plab.processingFunc.attempt++;
+				// Get the canvas that should be used
+				var canvas = document.getElementById("plab-canvas");
+				// Load the sketch to the canvas from the earlier built url, thereby starting a http request
+				Processing.loadSketchFromSources (canvas, [plab.processingFunc.processingInfo["complete-address"]]);
+				// Set the timer that checks if the sketch has been loaded
+				plab.timers.processing = setTimeout (plab.processingFunc.showOrLoad, 500);
+			},
+			// the method that shows processing and if prudent start a new http request for processing.
+			showOrLoad : function() {
+				// Gets the processing instance. Returned value is null if processing is not loaded.
+				var p = Processing.getInstanceById ("plab-canvas");
+				if (p != null) {
+					// Get the canvas that will be used by processing
+					var canvas = document.getElementById("plab-canvas");
+					// Remember the instance so it may be unloaded
+					plab.processingFunc.processingInstance = p;
+					// Remove reference to processing countdown timer.
+					plab.timers.processing = null;
+					// Make the framework invisible
+					document.body.classList.remove("plab");
+					try {
+						// The canvas should fill the screen
+						var w = plabPjsBridge.getWidth ();
+						var h = plabPjsBridge.getHeight ();
+						canvas.width = w;
+						canvas.height = h;
+						// Attempt to inject object into processing sketch.
+						p.bindPLabBridge (plabPjsBridge);
+					} catch (e) {
+						alert (plabLangSupport.getText("processing-func-failure"));
+						plab.out.err.println("BridgeBinding failure: " + e);
+					}
+				} else {
+					// Get reference to connect attempt counter
+					var attemptCounter = document.getElementById ("plab-attempt");
+					// The processing sketch was not loaded. Increment attempt counter
+					plab.processingFunc.checkCount++;
+					// Update visual representation of attempt counter
+					if (attemptCounter != null) {
+						attemptCounter.innerHTML = plab.processingFunc.attempt + " (" + plab.processingFunc.checkCount + ")";
+					}
+					// if we have less than 20 attempts to view the current http request, check again
+					if (plab.processingFunc.checkCount < 20) {
+						plab.timers.processing = setTimeout (plab.processingFunc.showOrLoad, 500);
+					} else {
+						// otherwise start a new http request to load processing.
+						plab.processingFunc.startLoad ();
+					}
+				}
+			}
 		},
 		
 		// --------------------------------------------------------------------
@@ -198,13 +265,13 @@ var plab = {
 						"text-key" : "domain-setting-definition",
 						"type" : "group",
 						"options" : [{
-									"id" : plab.processingInfo["url-keys"].base,
+									"id" : plab.processingFunc.processingInfo["url-keys"].base,
 									"type" : "text",
 									"options" : [{"text-key" : "domain-setting-base"}],
 									"default-value" : "http://folk.ntnu.no/"
 								},
 								{
-									"id" : plab.processingInfo["url-keys"].postfix,
+									"id" : plab.processingFunc.processingInfo["url-keys"].postfix,
 									"type" : "text",
 									"options" : [{"text-key" : "domain-setting-postfix"}],
 									"default-value" : "/plab/plab.pde"
@@ -360,7 +427,7 @@ var plab = {
 		// showIntro : method to call to show the introduction screen.
 		showIntro : function () {
 			// TODO The unloading of processing should be moved to a better location
-			plab.unloadProcessing();
+			plab.processingFunc.unloadProcessing();
 			
 			// De register back button call. This is the final screen, and we should 
 			// not be able to go any further back in-app
@@ -426,10 +493,6 @@ var plab = {
 		},
 		// showProcessing : the method resposible for setting up processing screen.
 		showProcessing : function () {
-			
-			// TODO Check if this may cause multiple instances of a canvas with id "plab-canvas"
-			// TODO Make anonymous loading functions non-anonymous. Maintainability.
-			
 			// Register back button call. May already have been registered, so use the safe call.
 			plab.registerBackButton();
 			
@@ -439,92 +502,23 @@ var plab = {
 			plab.state = plab.states[3];
 			plab.updateScreen ();
 			
-			try {
-				// Get content of user select element.
-				var usrInput = document.getElementById("plab-user-input").value;
-				// Build location url for processing. Remove whitespace characters from user input and addresses
-				plab.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].base).replace(/\s/g, "");
-				plab.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingInfo["url-keys"].postfix).replace(/\s/g, "");
-				var procLoc = plab.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingInfo["address-postfix"];
-				// Create the canvas that will be used by processing
-				// TODO UNSAFE!!!
-				var canvas = document.createElement ("canvas");
-				canvas.id = "plab-canvas";
-				// Get reference to connect attempt counter
-				var attemptCounter = document.getElementById ("plab-attempt");
-				
-				// Update the location so the app reflects which address it is requesting
-				document.getElementById("plab-redir-location").innerHTML = procLoc;
-			} catch (e) {
-				alert(e);
-			}
+			// Get content of user select element.
+			var usrInput = document.getElementById("plab-user-input").value;
+			// Build location url for processing. Remove whitespace characters from user input and addresses
+			plab.processingFunc.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base).replace(/\s/g, "");
+			plab.processingFunc.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix).replace(/\s/g, "");
+			plab.processingFunc.processingInfo["complete-address"] = plab.processingFunc.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingFunc.processingInfo["address-postfix"];
+			
+			// Update the location so the app reflects which address it is requesting
+			document.getElementById("plab-redir-location").innerHTML = plab.processingFunc.processingInfo["complete-address"];
 			// Store the user name so it will be set next attempted load.
 			window.localStorage.setItem('plab-user-input', usrInput);
 			
-			// insert the canvas into the dom.
-			document.body.insertBefore (canvas, document.body.firstChild);
-			
-			// attempt -> which http request attempt to load processing we are at
-			var attempt = 0;
-			// Declare the variable that will hold the actual load of processing functionality
-			var startLoad;
-			// i : how many times we have looked for an answer in the current http request for processing.
-			var i = 0;
-			// funk : the method that shows processing and if prudent start a new http request for processing.
-			var funk = function () {
-				
-				// Gets the processing instance. Returned value is null if processing is not loaded.
-				var p = Processing.getInstanceById ("plab-canvas");
-				if (p != null) {
-					// Remember the instance so it may be unloaded
-					plab.processingInstance = p;
-					// Remove reference to processing countdown timer.
-					plab.timers.processing = null;
-					// Make the framework invisible
-					document.body.className = "";
-					try {
-						// The canvas should fill the screen
-						var w = plabPjsBridge.getWidth ();
-						var h = plabPjsBridge.getHeight ();
-						canvas.width = w;
-						canvas.height = h;
-						// Attempt to inject object into processing sketch.
-						p.bindPLabBridge (plabPjsBridge);
-					} catch (e) {
-						alert (plabLangSupport.getText("processing-func-failure"));
-						plab.out.err.println("BridgeBinding failure: " + e);
-					}
-				} else {
-					// The processing sketch was not loaded. Increment attempt counter
-					i++;
-					// Update visual representation of attempt counter
-					if (attemptCounter != null) {
-						attemptCounter.innerHTML = attempt + " (" + i + ")";
-					}
-					// if we have less than 20 attempts to view the current http request, check again
-					if (i < 20) {
-						plab.timers.processing = setTimeout (funk, 500);
-					} else {
-						// otherwise start a new http request to load processing.
-						startLoad ();
-					}
-				}
-			};
-			
-			// The definition of the function that starts the http request to load processing.
-			startLoad = function () {
-				// Reset the number of times we have tried to see if a responce has been received
-				i = 0;
-				// Update counter of http request attempts.
-				attempt++;
-				// Load the sketch to the canvas from the earlier built url, thereby starting a http request
-				Processing.loadSketchFromSources (canvas, [procLoc]);
-				// Set the timer that checks if the sketch has been loaded
-				plab.timers.processing = setTimeout (funk, 500);
-			};
+			// Reset attempt counter
+			plab.processingFunc.attempt = 0;
 			
 			// Start loading of processing
-			startLoad ();
+			plab.processingFunc.startLoad ();
 		},
 		// ----------- HIDE / SHOW SPECIFIC ITEMS -----------------------------
 		hideBackButton : function() {
