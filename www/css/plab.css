@@ -57,11 +57,11 @@ body {
 	margin: 0.5ex 0;
 }
 
-#plab-content {
+#plab-content, #plab-menu {
 	display: none;
 }
 
-.plab #plab-content {
+.plab #plab-content, .plab #plab-menu {
 	display: block;
 }
 
