@@ -73,7 +73,7 @@ var plab = {
 		out : {
 			// Log level indicates which messages are sent to their respective
 			// streams. >= 0 -> error messages, >= 1 -> warnings, >= 2 -> notifications.
-			logLevel : -1,
+			logLevel : 1,
 			// node : common html element to write to
 			node : null,
 			// The plabPrintStreams associated with each debug type.
@@ -503,7 +503,9 @@ var plab = {
 			
 			// Check for stored library include. If found, fill in include checkbox with the stored name
 			var oldInc = window.localStorage.getItem('plab-include-library');
+			plab.out.warn.println("Old include: " + oldInc);
 			if (oldInc != null) {
+				oldInc = oldInc == "true";	// Just gotta love javascript..
 				document.getElementById('plab-include-library').checked = oldInc;
 			}
 			
