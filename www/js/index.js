@@ -134,12 +134,17 @@ var plab = {
 			processingInstance : null,
 			checkCount : 0,
 			attempt : 0,
-			// processingInfo will be filled to hold processing redirect info during show
+			// processingInfo will be filled to hold processing redirect info during show and setting keys
 			processingInfo : {
 				"url-keys" : {
 					"base" : "plab-base-url",
 					"postfix" : "plab-postfix-url"
 				},
+				"library-key" : "plab-lib-loc",
+				
+				"include-library" : false,
+				"include-library-loc" : "",
+				
 				"address-base" : "",
 				"address-postfix" : "",
 				"complete-address" : ""
@@ -166,8 +171,14 @@ var plab = {
 				plab.processingFunc.attempt++;
 				// Get the canvas that should be used
 				var canvas = document.getElementById("plab-canvas");
+				// Get the URL(s) that should be loaded
+				var loadUrls = [];
+				if (plab.processingFunc.processingInfo["include-library"]) {
+					loadUrls[0] = plab.processingFunc.processingInfo["include-library-loc"];
+				}
+				loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["complete-address"];
 				// Load the sketch to the canvas from the earlier built url, thereby starting a http request
-				Processing.loadSketchFromSources (canvas, [plab.processingFunc.processingInfo["complete-address"]]);
+				Processing.loadSketchFromSources (canvas, loadUrls);
 				// Set the timer that checks if the sketch has been loaded
 				plab.timers.processing = setTimeout (plab.processingFunc.showOrLoad, 500);
 			},
@@ -259,6 +270,7 @@ var plab = {
 			document.addEventListener("resume", plab.onResume, false);
 			
 			// Time to add some fundamental settings
+			// Root domain/ default sketch
 			plab.settingsController.addSettingItem(
 					{
 						"id" : "plab-domain-group",
@@ -277,7 +289,17 @@ var plab = {
 									"default-value" : "/plab/plab.pde"
 								}],
 						"description-text-key" : "domain-setting-description"
-					});
+					}
+			);
+			// Library file location
+			plab.settingsController.addSettingItem(
+					{
+						"id" : plab.processingFunc.processingInfo["library-key"],
+						"type" : "text",
+						"options" : [{"text-key" : "library-setting"}],
+						"default-value" : "http://"
+					}
+			);
 			
 			// cordova functionality is safe
 			plab.ready = true;
@@ -479,6 +501,12 @@ var plab = {
 				document.getElementById('plab-user-input').value = oldName;
 			}
 			
+			// Check for stored library include. If found, fill in include checkbox with the stored name
+			var oldInc = window.localStorage.getItem('plab-include-library');
+			if (oldInc != null) {
+				document.getElementById('plab-include-library').checked = oldInc;
+			}
+			
 			// If we are connected to a device, show the name of the device
 			if (plabBT.mode !== null) {
 				var txt = "";
@@ -502,17 +530,23 @@ var plab = {
 			plab.state = plab.states[3];
 			plab.updateScreen ();
 			
-			// Get content of user select element.
+			// Get content of user select element and include library element.
 			var usrInput = document.getElementById("plab-user-input").value;
+			var includeLib = document.getElementById("plab-include-library").checked;
 			// Build location url for processing. Remove whitespace characters from user input and addresses
 			plab.processingFunc.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base).replace(/\s/g, "");
 			plab.processingFunc.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix).replace(/\s/g, "");
 			plab.processingFunc.processingInfo["complete-address"] = plab.processingFunc.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingFunc.processingInfo["address-postfix"];
 			
+			plab.processingFunc.processingInfo["include-library"] = includeLib;
+			plab.processingFunc.processingInfo["include-library-loc"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["library-key"]).replace(/\s/g, "");
+			
 			// Update the location so the app reflects which address it is requesting
 			document.getElementById("plab-redir-location").innerHTML = plab.processingFunc.processingInfo["complete-address"];
 			// Store the user name so it will be set next attempted load.
 			window.localStorage.setItem('plab-user-input', usrInput);
+			// Store include lib, so it will be set next attempted load
+			window.localStorage.setItem('plab-include-library', includeLib);
 			
 			// Reset attempt counter
 			plab.processingFunc.attempt = 0;

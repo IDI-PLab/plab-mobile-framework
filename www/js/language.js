@@ -127,6 +127,10 @@ var plabLang = {
 			"en-gb" : "Input sketch id. This can be the sketch name, user name or other dependent on what is set in settings. Default is NTNU user.",
 			"no-nb" : "Skriv inn skisse id. Dette kan v\u00E6re skisse navn, brukernavn eller annet avhengig av hva du har satt i instillinger. Standard er NTNU bruker."
 		},
+		"user-input-include-lib" : {
+			"en-gb" : "Include library file (defined in settings).",
+			"no-nb" : "Inkluder biblioteksfil (definert i instillinger)."
+		},
 		"redir-tell-state" : {
 			"en-gb" : "Redirecting ...",
 			"no-nb" : "Viderekobler ..."
@@ -182,6 +186,10 @@ var plabLang = {
 		"domain-setting-base" : {
 			"en-gb" : "Input URL address base",
 			"no-nb" : "Skriv inn adressestart"
+		},
+		"library-setting" : {
+			"en-gb" : "Processing library location",
+			"no-nb" : "Processing biblioteklokasjon"
 		},
 		"domain-setting-postfix" : {
 			"en-gb" : "Input URL address end",
