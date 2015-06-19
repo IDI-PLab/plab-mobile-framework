@@ -145,6 +145,8 @@ var plab = {
 				"include-library" : false,
 				"include-library-loc" : "",
 				
+				"include-additional-files" : [],
+				
 				"address-base" : "",
 				"address-postfix" : "",
 				"complete-address" : ""
@@ -177,6 +179,10 @@ var plab = {
 					loadUrls[0] = plab.processingFunc.processingInfo["include-library-loc"];
 				}
 				loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["complete-address"];
+				for (var i = 0; i < plab.processingFunc.processingInfo["include-additional-files"].length; i++) {
+					loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-additional-files"][i];
+				}
+				plab.out.notify.println("Loading files" + JSON.stringify(loadUrls));
 				// Load the sketch to the canvas from the earlier built url, thereby starting a http request
 				Processing.loadSketchFromSources (canvas, loadUrls);
 				// Set the timer that checks if the sketch has been loaded
@@ -278,13 +284,13 @@ var plab = {
 						"type" : "group",
 						"options" : [{
 									"id" : plab.processingFunc.processingInfo["url-keys"].base,
-									"type" : "text",
+									"type" : "url",
 									"options" : [{"text-key" : "domain-setting-base"}],
 									"default-value" : "http://folk.ntnu.no/"
 								},
 								{
 									"id" : plab.processingFunc.processingInfo["url-keys"].postfix,
-									"type" : "text",
+									"type" : "url",
 									"options" : [{"text-key" : "domain-setting-postfix"}],
 									"default-value" : "/plab/plab.pde"
 								}],
@@ -295,7 +301,7 @@ var plab = {
 			plab.settingsController.addSettingItem(
 					{
 						"id" : plab.processingFunc.processingInfo["library-key"],
-						"type" : "text",
+						"type" : "url",
 						"options" : [{"text-key" : "library-setting"}],
 						"default-value" : "http://"
 					}
@@ -509,6 +515,14 @@ var plab = {
 				document.getElementById('plab-include-library').checked = oldInc;
 			}
 			
+			// Force select file to be empty and ready to add
+			plab.processingFunc.processingInfo["include-additional-files"] = [];
+			var selList = document.getElementById("plab-addfile-list");
+			while (selList.firstChild) {
+				selList.removeChild(selList.firstChild);
+			}
+			document.getElementById("plab-addfile").className = "plab-addfile";
+			
 			// If we are connected to a device, show the name of the device
 			if (plabBT.mode !== null) {
 				var txt = "";
@@ -557,6 +571,30 @@ var plab = {
 			plab.processingFunc.startLoad ();
 		},
 		// ----------- HIDE / SHOW SPECIFIC ITEMS -----------------------------
+		showAddFile : function() {
+			// Update file locations
+			document.getElementById("plab-addfile-prefix").innerHTML = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base).replace(/\s/g, "");
+			document.getElementById("plab-addfile-postfix").innerHTML = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix).replace(/\s/g, "");
+			// Show select inputs
+			document.getElementById("plab-addfile").className = "plab-addfile-select";
+		},
+		acceptAddFile : function() {
+			// Build file location
+			var addr = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base).replace(/\s/g, "");
+			addr += document.getElementById("plab-user-input-addfile").value.replace(/\s/g, "");
+			addr += plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix).replace(/\s/g, "");
+			// Add it to load list, and show it to user
+			var pos = plab.processingFunc.processingInfo["include-additional-files"].length;
+			plab.processingFunc.processingInfo["include-additional-files"][pos] = addr;
+			var li = document.createElement("li");
+			var code = document.createElement("code");
+			var txt = document.createTextNode(addr);
+			code.appendChild(txt);
+			li.appendChild(code);
+			document.getElementById("plab-addfile-list").appendChild(li);
+			// hide select inputs
+			document.getElementById("plab-addfile").className = "plab-addfile";
+		},
 		hideBackButton : function() {
 			document.getElementById("plab-back-button").classList.add("plab-hidden");
 		},

@@ -80,7 +80,8 @@ plab.settingsController = {
 				sett = this.createSingleSelectNode(item);
 				break;
 			case "text":
-				sett = this.createTextNode(item);
+			case "url":
+				sett = this.createTextOrUrlNode(item);
 				break;
 			case "group":
 				var div = document.createElement("div");
@@ -143,7 +144,7 @@ plab.settingsController = {
 			div.appendChild(sel);
 			return div;
 		},
-		createTextNode : function(item) {
+		createTextOrUrlNode : function(item) {
 			var div = document.createElement("div");
 			this.createSettingHead(item,div);
 			
@@ -154,7 +155,7 @@ plab.settingsController = {
 				div.appendChild(this.createImageNode(item.options[0]["icon"]));
 			}
 			var inp = document.createElement("input");
-			this.createSetAttributeNode("type", "text", inp);
+			this.createSetAttributeNode("type", item.type, inp);
 			this.createSetAttributeNode("id", item.id, inp);
 			
 			var val = this.getSettingValue(item.id);

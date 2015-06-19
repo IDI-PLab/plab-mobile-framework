@@ -131,6 +131,10 @@ var plabLang = {
 			"en-gb" : "Include library file (defined in settings).",
 			"no-nb" : "Inkluder biblioteksfil (definert i instillinger)."
 		},
+		"add-pde-file" : {
+			"en-gb" : "Add a .pde file",
+			"no-nb" : "Legg til en .pde fil"
+		},
 		"redir-tell-state" : {
 			"en-gb" : "Redirecting ...",
 			"no-nb" : "Viderekobler ..."
@@ -214,6 +218,11 @@ var plabLang = {
 		"btle-service-select-desc" : {
 			"en-gb" : "Different devices use different services to connect.",
 			"no-nb" : "Ulike enheter bruker ulike tjenester for tilkobling."
+		},
+		// ------------ Ok -----------------------------------
+		"ok" : {
+			"en-gb" : "Ok",
+			"no-nb" : "Ok"
 		},
 		/*
 		"" : {

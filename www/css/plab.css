@@ -88,6 +88,7 @@ body {
 }
 
 #plab-main {
+	margin-bottom: 1ex;
 	min-height: 49%;
 }
 
@@ -161,6 +162,12 @@ body {
 	width: 95%;
 	margin: 0.5ex 0;
 	padding: 0.7ex;
+}
+
+.plab input[type=checkbox] {
+	transform: scale(2.5);
+	-webkit-transform: scale(2.5);
+	margin: 0.4ex;
 }
 
 @keyframes fade {
@@ -239,6 +246,11 @@ body {
 	font-style: italic;
 }
 /* ----------------------- END MENU DEFINITIONS ----------------------- */
+/* ---------------- ADD PDE FILE HIDE / SHOW -------------------------- */
+.plab-addfile-select #plab-addfile-button, .plab-addfile #plab-addfile-select{
+	display: none;
+}
+/* ---------------- END ADD PDE FILE HIDE / SHOW ---------------------- */
 /* ---------------- HIDE / SHOW BACK BUTTON --------------------------- */
 .plab-back {
 	display: block;

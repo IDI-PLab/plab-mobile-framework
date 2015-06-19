@@ -88,9 +88,23 @@
     			<div class="plab-list">
     				<div data-text-key="user-input-desc">Skriv inn NTNU bruker</div>
     				<input id="plab-user-input" type="text" />
-    				<br>
-    				<input id="plab-include-library" type="checkbox" />
-    				<label for="plab-include-library" data-text-key="user-input-include-lib"></label>
+    				<!-- Options -->
+    				<div>
+    					<!-- Include library -->
+    					<input id="plab-include-library" type="checkbox" />
+    					<label for="plab-include-library" data-text-key="user-input-include-lib"></label>
+    					<!-- Additional pde files -->
+    					<div id="plab-addfile" class="plab-addfile">
+    						<ul id="plab-addfile-list"></ul>
+    						<button id="plab-addfile-button" onclick="plab.showAddFile()"><span data-text-key="add-pde-file"></span><img src="img/plus.png" alt="Add file" /></button>
+    						<span id="plab-addfile-select">
+    							<code id="plab-addfile-prefix"></code>
+    							<input id="plab-user-input-addfile" type="url" />
+    							<code id="plab-addfile-postfix"></code>
+    							<button id="plab-addfile-select-button" onclick="plab.acceptAddFile()"><span data-text-key="ok"></span></button>
+    						</span>
+    					</div>
+    				</div>
     			</div>
     		</div>
     		<div class="plab-redirect">
