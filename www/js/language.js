@@ -224,6 +224,23 @@ var plabLang = {
 			"en-gb" : "Ok",
 			"no-nb" : "Ok"
 		},
+		// ------------ Processing loading -----------------------
+		"proc-err-xhr-status" : {
+			"en-gb" : "Invalid XHR status:",
+			"no-nb" : "Ugyldig XHR status:"
+		},
+		"proc-err-xhr-origin" : {
+			"en-gb" : "XHR failed, possibly same origin policy problem",
+			"no-nb" : "XHR feilet, muligens samme opprinnelse problem"
+		},
+		"proc-err-empty-file" : {
+			"en-gb" : "File was empty",
+			"no-nb" : "Filen var tom"
+		},
+		"proc-err-local-element" : {
+			"en-gb" : "Can not select local elements",
+			"no-nb" : "Kan ikke velge lokale elementer"
+		},
 		/*
 		"" : {
 			"en-gb" : "",

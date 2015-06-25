@@ -43,6 +43,7 @@ var plabPrintStream = {
 			var o = document.createElement("span");
 			o.className = this.className;
 			o.appendChild (document.createTextNode(text));
+			console.log(text);
 			this.node.appendChild (o);
 		},
 		// print the text and add a br node. See print
@@ -73,7 +74,7 @@ var plab = {
 		out : {
 			// Log level indicates which messages are sent to their respective
 			// streams. >= 0 -> error messages, >= 1 -> warnings, >= 2 -> notifications.
-			logLevel : -1,
+			logLevel : 1,
 			// node : common html element to write to
 			node : null,
 			// The plabPrintStreams associated with each debug type.
@@ -128,110 +129,8 @@ var plab = {
 		},
 		
 		// ---------- PROCESSING FUNCTIONALITY --------------------------------
-		// processingFunc : Deals with the actual loading of processing.
-		processingFunc : {
-			// processingInstance is the instance of processing that is currently running, if any
-			processingInstance : null,
-			checkCount : 0,
-			attempt : 0,
-			// processingInfo will be filled to hold processing redirect info during show and setting keys
-			processingInfo : {
-				"url-keys" : {
-					"base" : "plab-base-url",
-					"postfix" : "plab-postfix-url"
-				},
-				"library-key" : "plab-lib-loc",
-				
-				"include-library" : false,
-				"include-library-loc" : "",
-				
-				"include-additional-files" : [],
-				
-				"address-base" : "",
-				"address-postfix" : "",
-				"complete-address" : ""
-			},
-			// To unload the processing instance, we use a simple function
-			unloadProcessing : function() {
-				if (plab.processingFunc.processingInstance !== null) {
-					plab.processingFunc.processingInstance.exit();
-					plab.processingFunc.processingInstance = null;
-					// Clear canvas
-					var canvas = document.getElementById("plab-canvas");
-					var context = canvas.getContext("2d");
-					context.setTransform(1, 0, 0, 1, 0, 0);
-					context.clearRect(0, 0, canvas.width, canvas.height);
-					// Reshow screen
-					document.body.classList.add("plab");
-				}
-			},
-			// The definition of the function that starts the http request to load processing.
-			startLoad : function() {
-				// Reset the number of times we have tried to see if a responce has been received
-				plab.processingFunc.checkCount = 0;
-				// Update counter of http request attempts.
-				plab.processingFunc.attempt++;
-				// Get the canvas that should be used
-				var canvas = document.getElementById("plab-canvas");
-				// Get the URL(s) that should be loaded
-				var loadUrls = [];
-				if (plab.processingFunc.processingInfo["include-library"]) {
-					loadUrls[0] = plab.processingFunc.processingInfo["include-library-loc"];
-				}
-				loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["complete-address"];
-				for (var i = 0; i < plab.processingFunc.processingInfo["include-additional-files"].length; i++) {
-					loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-additional-files"][i];
-				}
-				plab.out.notify.println("Loading files" + JSON.stringify(loadUrls));
-				// Load the sketch to the canvas from the earlier built url, thereby starting a http request
-				Processing.loadSketchFromSources (canvas, loadUrls);
-				// Set the timer that checks if the sketch has been loaded
-				plab.timers.processing = setTimeout (plab.processingFunc.showOrLoad, 500);
-			},
-			// the method that shows processing and if prudent start a new http request for processing.
-			showOrLoad : function() {
-				// Gets the processing instance. Returned value is null if processing is not loaded.
-				var p = Processing.getInstanceById ("plab-canvas");
-				if (p != null) {
-					// Get the canvas that will be used by processing
-					var canvas = document.getElementById("plab-canvas");
-					// Remember the instance so it may be unloaded
-					plab.processingFunc.processingInstance = p;
-					// Remove reference to processing countdown timer.
-					plab.timers.processing = null;
-					// Make the framework invisible
-					document.body.classList.remove("plab");
-					try {
-						// The canvas should fill the screen
-						var w = plabPjsBridge.getWidth ();
-						var h = plabPjsBridge.getHeight ();
-						canvas.width = w;
-						canvas.height = h;
-						// Attempt to inject object into processing sketch.
-						p.bindPLabBridge (plabPjsBridge);
-					} catch (e) {
-						alert (plabLangSupport.getText("processing-func-failure"));
-						plab.out.err.println("BridgeBinding failure: " + e);
-					}
-				} else {
-					// Get reference to connect attempt counter
-					var attemptCounter = document.getElementById ("plab-attempt");
-					// The processing sketch was not loaded. Increment attempt counter
-					plab.processingFunc.checkCount++;
-					// Update visual representation of attempt counter
-					if (attemptCounter != null) {
-						attemptCounter.innerHTML = plab.processingFunc.attempt + " (" + plab.processingFunc.checkCount + ")";
-					}
-					// if we have less than 20 attempts to view the current http request, check again
-					if (plab.processingFunc.checkCount < 20) {
-						plab.timers.processing = setTimeout (plab.processingFunc.showOrLoad, 500);
-					} else {
-						// otherwise start a new http request to load processing.
-						plab.processingFunc.startLoad ();
-					}
-				}
-			}
-		},
+		// --- Located in processingfunc.js
+		
 		
 		// --------------------------------------------------------------------
 		// ----------------------- USER ERROR FEEDBACK ------------------------

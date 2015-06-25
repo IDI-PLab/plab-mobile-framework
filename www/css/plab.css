@@ -141,11 +141,11 @@ body {
 	display: none;
 }
 
-.plab-init, .plab-warn {
+.plab-init, .plab-warn, .plab-wait {
 	background-color: #eedd55;
 }
 
-.plab-ready, .plab-notify {
+.plab-ready, .plab-notify, .plab-ok {
 	background-color: #66ff77;
 }
 
@@ -182,11 +182,16 @@ body {
     to { opacity: 1.0; }
 }
  
-#plab-status {
+#plab-status, #plab-sketch-locations {
 	color: #000000;
 	background-color: #ffffff;
     animation:fade 2000ms infinite;
     -webkit-animation:fade 2000ms infinite;
+}
+
+#plab-sketch-locations code {
+	display: block;
+	margin-top: 0.1ex;
 }
 
 .plab-powered {
