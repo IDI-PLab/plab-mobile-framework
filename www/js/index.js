@@ -213,6 +213,9 @@ var plab = {
 			
 			// cordova functionality is safe
 			plab.ready = true;
+			
+			// Register back button
+			plab.registerBackButton();
 
 			// Show the first screen
 			plab.showIntro();
@@ -239,7 +242,19 @@ var plab = {
 		// onBackButton should only be registered as a callback when we are not in intro
 		// Used in Andoroid systems.
 		onBackButton : function () {
-			plab.showIntro();
+			if (plab.settingsController.visible) {
+				// If we are viewing settings, they should hide.
+				plab.settingsController.hideSettings();
+			} else if (plab.state === plab.states[0]) {
+				// if we are showing intro screen we should exit (if we can)
+				if (typeof navigator.app.exitApp === "function") {
+					plab.unregisterBackButton();
+					navigator.app.exitApp();
+				}
+			} else {
+				// Otherwise we should go to intro.
+				plab.showIntro();
+			}
 		},
 		// A field to make onBackButton register only once
 		onBackRegistered : false,
@@ -360,10 +375,6 @@ var plab = {
 		showIntro : function () {
 			// TODO The unloading of processing should be moved to a better location
 			plab.processingFunc.unloadProcessing();
-			
-			// De register back button call. This is the final screen, and we should 
-			// not be able to go any further back in-app
-			plab.unregisterBackButton();
 			
 			plab.out.notify.println("showIntro");
 			// Stop the loading of processing, if it is currently loading.
