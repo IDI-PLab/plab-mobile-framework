@@ -24,7 +24,7 @@ Internet connectivity checks are dependent on plugin
 [cordova-plugin-network-information][8].
 
 ### Bluetooth LE Support
-Depends on plugins [org.apache.cordova.device][5] and
+Depends on plugins [cordova-plugin-device][5] and
 [com.randdusing.bluetoothle][4].
 
 ### Bluetooth Support (Android only)
@@ -66,7 +66,7 @@ This project is powered by
 [2]: https://processing.org			"Processing"
 [3]: http://processingjs.org			"Processing.js"
 [4]: https://github.com/randdusing/BluetoothLE	"Randdusing BluetoothLE"
-[5]: http://npmjs.com/package/cordova-plugin-device	"device"
+[5]: http://npmjs.com/package/cordova-plugin-device	"Cordova Device Plugin"
 [6]: http://plugins.cordova.io/#/package/com.megster.cordova.bluetoothserial "Bluetooth serial"
 [7]: http://www.ntnu.edu	"Norwegian University of Science and Technology - NTNU" 
 [8]: http://www.npmjs.com/package/cordova-plugin-network-information	"Cordova Network Information Plugin"
