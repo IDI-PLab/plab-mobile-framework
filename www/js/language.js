@@ -241,6 +241,11 @@ var plabLang = {
 			"en-gb" : "Can not select local elements",
 			"no-nb" : "Kan ikke velge lokale elementer"
 		},
+		// ---------- Open source repo location
+		"opensource-location" : {
+			"en-gb" : "Project is Open Source, see:",
+			"no-nb" : "Prosjektet har \u00E5pen kildekode, se:"
+		},
 		/*
 		"" : {
 			"en-gb" : "",
