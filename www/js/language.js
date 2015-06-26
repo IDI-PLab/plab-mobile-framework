@@ -145,10 +145,6 @@ var plabLang = {
 			"no-nb" : "Husk du m\u00E5 ha lagt .pde filen din p\u00E5" +
 					" riktig adresse."
 		},
-		"redir-loc-desc" : {
-			"en-gb" : "That is, you should see it by visiting ",
-			"no-nb" : "Det vil si du skal se den om du g\u00E5r til "
-		},
 		"without-bluetooth" : {
 			"en-gb" : "Use without Bluetooth",
 			"no-nb" : "Bruk uten Bluetooth"

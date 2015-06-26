@@ -191,9 +191,10 @@ body {
 
 #plab-sketch-locations code {
 	display: block;
-	margin-top: 0.1ex;
 }
-
+#plab-sketch-locations div {
+	margin: 0.1ex;
+}
 .plab-powered {
 	font-size: 85%;
 	color: #777777;

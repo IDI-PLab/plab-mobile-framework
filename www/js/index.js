@@ -455,9 +455,9 @@ var plab = {
 			
 			plab.processingFunc.processingInfo["include-library"] = includeLib;
 			plab.processingFunc.processingInfo["include-library-loc"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["library-key"]).replace(/\s/g, "");
-			
+			/*
 			// Update the location so the app reflects which address it is requesting
-			document.getElementById("plab-redir-location").innerHTML = plab.processingFunc.processingInfo["complete-address"];
+			document.getElementById("plab-redir-location").innerHTML = plab.processingFunc.processingInfo["complete-address"];*/
 			// Store the user name so it will be set next attempted load.
 			window.localStorage.setItem('plab-user-input', usrInput);
 			// Store include lib, so it will be set next attempted load
