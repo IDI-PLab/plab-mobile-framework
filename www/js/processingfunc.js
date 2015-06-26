@@ -31,7 +31,7 @@ plab.processingFunc = {
 			"postfix" : "plab-postfix-url"
 		},
 		"library-key" : "plab-lib-loc",
-		
+
 		"cache-key" : "plab-processing-cache",
 
 		"include-library" : false,
@@ -45,17 +45,21 @@ plab.processingFunc = {
 	},
 	cache : {
 		clear : function() {
-			window.localStorage.removeItem(plab.processingFunc.processingInfo["cache-key"]);
+			window.localStorage
+					.removeItem(plab.processingFunc.processingInfo["cache-key"]);
 		},
 		hasContent : function() {
-			return window.localStorage.getItem(plab.processingFunc.processingInfo["cache-key"]) !== null;
+			return window.localStorage
+					.getItem(plab.processingFunc.processingInfo["cache-key"]) !== null;
 		},
 		loadSketchFromCache : function(canvas) {
+			// Make sure we have content in the cache before continuing
 			if (!plab.processingFunc.cache.hasContent()) {
 				return;
 			}
 			// Load from cache
-			var allCode = window.localStorage.getItem(plab.processingFunc.processingInfo["cache-key"]);
+			var allCode = window.localStorage
+					.getItem(plab.processingFunc.processingInfo["cache-key"]);
 			// And run
 			return new Processing(canvas, allCode);
 		},
@@ -75,7 +79,8 @@ plab.processingFunc = {
 							error = "proc-err-xhr-status";
 							status = xhr.status;
 						} else if (xhr.responseText === "") {
-							// Give a hint when loading fails due to same-origin issues
+							// Give a hint when loading fails due to same-origin
+							// issues
 							if (("withCredentials" in new XMLHttpRequest())
 									&& (new XMLHttpRequest()).withCredentials === false
 									&& window.location.protocol === "file:") {
@@ -109,29 +114,38 @@ plab.processingFunc = {
 						var att = document.createAttribute("data-text-key");
 						att.value = error;
 						spn.setAttributeNode(att);
-						spn.appendChild(document.createTextNode(plabLangSupport.getText(error)));
+						spn.appendChild(document.createTextNode(plabLangSupport
+								.getText(error)));
 						outElements[index].appendChild(spn);
 						if (status) {
-							outElements[index].appendChild(document.createTextNode(status));
+							outElements[index].appendChild(document
+									.createTextNode(status));
 						}
 					} else {
 						outElements[index].className = "plab-ok";
 					}
 					if (loaded === sourcesCount) {
 						if (errors.length === 0) {
-							// This used to throw, but it was constantly getting in the
+							// This used to throw, but it was constantly getting
+							// in the
 							// way of debugging where things go wrong!
 							var allCode = code.join("\n");
 							// CACHE THE RESULTING CODE
 							try {
-								window.localStorage.setItem(plab.processingFunc.processingInfo["cache-key"], allCode);
+								window.localStorage
+										.setItem(
+												plab.processingFunc.processingInfo["cache-key"],
+												allCode);
 							} catch (e) {
-								plab.out.err.println("Could not cache processing code");
+								plab.out.err
+										.println("Could not cache processing code");
 							}
 							// And load processing
 							return new Processing(canvas, allCode);
 						} else {
-							plab.out.err.println("Unable to load pjs sketch files: " + errors.join("\n"));
+							plab.out.err
+									.println("Unable to load pjs sketch files: "
+											+ errors.join("\n"));
 						}
 					}
 				}
@@ -149,7 +163,7 @@ plab.processingFunc = {
 			while (userOutput.firstChild) {
 				userOutput.removeChild(userOutput.firstChild);
 			}
-			
+
 			// Go through all source files, and load them
 			for ( var i = 0; i < sourcesCount; ++i) {
 				// Create div element to hold feedback
@@ -182,7 +196,7 @@ plab.processingFunc = {
 	},
 	// The definition of the function that starts the http request to load
 	// processing.
-	startLoad : function() {
+	startLoadURLs : function() {
 		// Reset the number of times we have tried to see if a responce has been
 		// received
 		plab.processingFunc.checkCount = 0;
@@ -206,33 +220,45 @@ plab.processingFunc = {
 		// Set the timer that checks if the sketch has been loaded
 		plab.timers.processing = setTimeout(plab.processingFunc.showOrLoad, 500);
 	},
+	// The definition of the function that starts loading Processing sketch from
+	// cache
+	startLoadCached : function() {
+		var canvas = document.getElementById("plab-canvas")
+		var pInstance = plab.processingFunc.cache.loadSketchFromCache(canvas);
+		if (pInstance) {
+			plab.processingFunc.show(pInstance);
+		}
+	},
+	show : function(pInstance) {
+		// Get the canvas that will be used by processing
+		var canvas = document.getElementById("plab-canvas");
+		// Remember the instance so it may be unloaded
+		plab.processingFunc.processingInstance = pInstance;
+		// Remove reference to processing countdown timer.
+		plab.timers.processing = null;
+		// Make the framework invisible
+		document.body.classList.remove("plab");
+		try {
+			// The canvas should fill the screen
+			var w = plabPjsBridge.getWidth();
+			var h = plabPjsBridge.getHeight();
+			canvas.width = w;
+			canvas.height = h;
+			// Attempt to inject object into processing sketch.
+			pInstance.bindPLabBridge(plabPjsBridge);
+		} catch (e) {
+			alert(plabLangSupport.getText("processing-func-failure"));
+			plab.out.err.println("BridgeBinding failure: " + e);
+		}
+	},
 	// the method that shows processing and if prudent start a new http request
 	// for processing.
 	showOrLoad : function() {
 		// Gets the processing instance. Returned value is null if processing is
 		// not loaded.
-		var p = Processing.getInstanceById("plab-canvas");
-		if (p != null) {
-			// Get the canvas that will be used by processing
-			var canvas = document.getElementById("plab-canvas");
-			// Remember the instance so it may be unloaded
-			plab.processingFunc.processingInstance = p;
-			// Remove reference to processing countdown timer.
-			plab.timers.processing = null;
-			// Make the framework invisible
-			document.body.classList.remove("plab");
-			try {
-				// The canvas should fill the screen
-				var w = plabPjsBridge.getWidth();
-				var h = plabPjsBridge.getHeight();
-				canvas.width = w;
-				canvas.height = h;
-				// Attempt to inject object into processing sketch.
-				p.bindPLabBridge(plabPjsBridge);
-			} catch (e) {
-				alert(plabLangSupport.getText("processing-func-failure"));
-				plab.out.err.println("BridgeBinding failure: " + e);
-			}
+		var pInstance = Processing.getInstanceById("plab-canvas");
+		if (pInstance != null) {
+			plab.processingFunc.show(pInstance);
 		} else {
 			// Get reference to connect attempt counter
 			var attemptCounter = document.getElementById("plab-attempt");
@@ -255,82 +281,3 @@ plab.processingFunc = {
 		}
 	}
 };
-/*
-plab.clearProcessingCache = function() {};
-plab.loadSketchFromCache = function(canvas) {};
-plab.loadAndCacheSketchFromSources = function(canvas, sources) {
-	plab.clearProcessingCache();
-};
-var loadSketchFromSources = Processing.loadSketchFromSources = function(canvas,
-		sources) {
-	var code = [], errors = [], sourcesCount = sources.length, loaded = 0;
-
-	function ajaxAsync(url, callback) {
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState === 4) {
-				var error;
-				if (xhr.status !== 200 && xhr.status !== 0) {
-					error = "Invalid XHR status " + xhr.status;
-				} else if (xhr.responseText === "") {
-					// Give a hint when loading fails due to same-origin issues
-					// on file:/// urls
-					if (("withCredentials" in new XMLHttpRequest())
-							&& (new XMLHttpRequest()).withCredentials === false
-							&& window.location.protocol === "file:") {
-						error = "XMLHttpRequest failure, possibly due to a same-origin policy violation. You can try loading this page in another browser, or load it from http://localhost using a local webserver. See the Processing.js README for a more detailed explanation of this problem and solutions.";
-					} else {
-						error = "File is empty.";
-					}
-				}
-
-				callback(xhr.responseText, error);
-			}
-		};
-		xhr.open("GET", url, true);
-		if (xhr.overrideMimeType) {
-			xhr.overrideMimeType("application/json");
-		}
-		xhr.setRequestHeader("If-Modified-Since",
-				"Fri, 01 Jan 1960 00:00:00 GMT"); // no cache
-		xhr.send(null);
-	}
-
-	function loadBlock(index, filename) {
-		function callback(block, error) {
-			code[index] = block;
-			++loaded;
-			if (error) {
-				errors.push(filename + " ==> " + error);
-			}
-			if (loaded === sourcesCount) {
-				if (errors.length === 0) {
-					// This used to throw, but it was constantly getting in the
-					// way of debugging where things go wrong!
-					return new Processing(canvas, code.join("\n"));
-				} else {
-					throw "Processing.js: Unable to load pjs sketch files: "
-							+ errors.join("\n");
-				}
-			}
-		}
-		if (filename.charAt(0) === '#') {
-			// trying to get script from the element
-			var scriptElement = document.getElementById(filename.substring(1));
-			if (scriptElement) {
-				callback(scriptElement.text || scriptElement.textContent);
-			} else {
-				callback("", "Unable to load pjs sketch: element with id \'"
-						+ filename.substring(1) + "\' was not found");
-			}
-			return;
-		}
-
-		ajaxAsync(filename, callback);
-	}
-
-	for ( var i = 0; i < sourcesCount; ++i) {
-		loadBlock(i, sources[i]);
-	}
-};
-*/

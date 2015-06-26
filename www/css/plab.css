@@ -261,6 +261,9 @@ body {
 }
 /* ---------------- END ADD PDE FILE HIDE / SHOW ---------------------- */
 /* ---------------- RERUN FORMATTING ---------------------------------- */
+.plab-no-cache .plab-rerun {
+	display: none;
+}
 .plab-rerun {
 	padding-top: 0.9ex;
 	padding-bottom: 0.5ex;

@@ -12,14 +12,18 @@
         <title data-text-key="title">PLab Framework</title>
         
         <script type="text/javascript" src="js/index.js"></script>
+        <!-- Bluetooth plugin support -->
+        <script type="text/javascript" src="js/bluetooth.js"></script>
         <!-- Processing support -->
         <script type="text/javascript" src="js/processingfunc.js"></script>
         <!-- Language support -->
         <script type="text/javascript" src="js/language.js"></script>
         <!-- Settings support -->
         <script type="text/javascript" src="js/settings.js"></script>
-        <script type="text/javascript" src="js/btle.js"></script>
-        <script type="text/javascript" src="js/bts.js"></script>
+        <!-- Bluetooth plugins -->
+        <script type="text/javascript" src="js/bt-plugins/btle.js"></script>
+        <script type="text/javascript" src="js/bt-plugins/bts.js"></script>
+        <!-- Processing -->
         <script type="text/javascript" src="js/processing.js/processing-1.4.1.min.js"></script>
         
         
@@ -88,7 +92,7 @@
     		</div>
     		<div class="plab-user-select">
     			<div class="plab-rerun">
-    				<button id="plab-rerun-button" onclick="plab.acceptAddFile()"><span data-text-key="rerun-last"></span><img src="img/next.png" alt="Rerun last" /></button>
+    				<button id="plab-rerun-button" onclick="plab.showProcessing(true)"><span data-text-key="rerun-last"></span><img src="img/next.png" alt="Rerun last" /></button>
     			</div>
     			<div class="plab-list">
     				<div data-text-key="user-input-desc">Skriv inn NTNU bruker</div>
@@ -127,7 +131,7 @@
     			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="back">Tilbake</span><img src="img/back.png" alt="Back" /></button>
     		</div>
     		<div class="plab-user-select">
-    			<button onclick="plab.showProcessing()"><span data-text-key="load-processing">Last Processing!</span><img src="img/next.png" alt="Next" /></button>
+    			<button onclick="plab.showProcessing(false)"><span data-text-key="load-processing">Last Processing!</span><img src="img/next.png" alt="Next" /></button>
     			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="back-to-start">Tilbake til start</span><img src="img/back.png" alt="Back" /></button>
     		</div>
     		<div class="plab-redirect">
