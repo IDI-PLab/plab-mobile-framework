@@ -246,6 +246,39 @@ var plabLang = {
 			"en-gb" : "Project is Open Source, see:",
 			"no-nb" : "Prosjektet har \u00E5pen kildekode, se:"
 		},
+		// ---------- Connection status messages
+		"connection-unknown" : {
+			"en-gb" : "Unknown Internet connection",
+			"no-nb" : "Ukjent Internet tilknyttning"
+		},
+		"connection-ethernet" : {
+			"en-gb" : "Ethernet connection",
+			"no-nb" : "Ethernet tilknyttning"
+		},
+		"connection-wifi" : {
+			"en-gb" : "WiFi connection",
+			"no-nb" : "WiFi tilknyttning"
+		},
+		"connection-2g" : {
+			"en-gb" : "2G connection",
+			"no-nb" : "2G tilknyttning"
+		},
+		"connection-3g" : {
+			"en-gb" : "3G connection",
+			"no-nb" : "3G tilknyttning"
+		},
+		"connection-4g" : {
+			"en-gb" : "4G connection",
+			"no-nb" : "4G tilknyttning"
+		},
+		"connection-cell" : {
+			"en-gb" : "Generic cell connection",
+			"no-nb" : "Generisk mobiltilknyttning"
+		},
+		"connection-none" : {
+			"en-gb" : "No Internet connection",
+			"no-nb" : "Ingen Internet tilgang"
+		},
 		/*
 		"" : {
 			"en-gb" : "",

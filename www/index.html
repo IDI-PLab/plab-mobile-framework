@@ -14,6 +14,8 @@
         <script type="text/javascript" src="js/index.js"></script>
         <!-- Bluetooth plugin support -->
         <script type="text/javascript" src="js/bluetooth.js"></script>
+        <!-- Internet connectivity support -->
+        <script type="text/javascript" src="js/internet.js"></script>
         <!-- Processing support -->
         <script type="text/javascript" src="js/processingfunc.js"></script>
         <!-- Language support -->
@@ -76,6 +78,8 @@
     			<div class="plab-ready" data-text-key="status-redir-ready">Klar</div>
     			<div class="plab-failed" data-text-key="status-redir-failed">Viderekobling feilet</div>
     		</div>
+    		<!-- A surrounding div to make language pack not do too much work -->
+    		<div><div id="plab-connection-state" data-text-key="connection-none" class="plab-err"></div></div>
     	</section>
     	<section id="plab-main">
     		<div class="plab-intro" data-text-key="greeting">
@@ -94,7 +98,7 @@
     			<div class="plab-rerun">
     				<button id="plab-rerun-button" onclick="plab.showProcessing(true)"><span data-text-key="rerun-last"></span><img src="img/next.png" alt="Rerun last" /></button>
     			</div>
-    			<div class="plab-list">
+    			<div class="plab-list plab-need-internet">
     				<div data-text-key="user-input-desc">Skriv inn NTNU bruker</div>
     				<input id="plab-user-input" type="text" />
     				<!-- Options -->
@@ -129,10 +133,10 @@
     		</div>
     		<div class="plab-connect">
     			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="back">Tilbake</span><img src="img/back.png" alt="Back" /></button>
-    		</div>
-    		<div class="plab-user-select">
-    			<button onclick="plab.showProcessing(false)"><span data-text-key="load-processing">Last Processing!</span><img src="img/next.png" alt="Next" /></button>
-    			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="back-to-start">Tilbake til start</span><img src="img/back.png" alt="Back" /></button>
+    		</div
+    		<div>
+    			<button onclick="plab.showProcessing(false)" class="plab-user-select plab-need-internet"><span data-text-key="load-processing">Last Processing!</span><img src="img/next.png" alt="Next" /></button>
+    			<button onclick="plab.showIntro()" class="plab-user-select plab-panic"><span data-text-key="back-to-start">Tilbake til start</span><img src="img/back.png" alt="Back" /></button>
     		</div>
     		<div class="plab-redirect">
     			<button onclick="plab.showIntro()" class="plab-panic"><span data-text-key="cancel">Avbryt</span><img src="img/back.png" alt="Back" /></button>

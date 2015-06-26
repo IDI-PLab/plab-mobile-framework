@@ -131,6 +131,8 @@ var plab = {
 		// ---------- PROCESSING FUNCTIONALITY --------------------------------
 		// --- Located in processingfunc.js
 		
+		// ---------- INTERNET CONNECTIVITY -----------------------------------
+		// --- Located in internet.js
 		
 		// --------------------------------------------------------------------
 		// ----------------------- USER ERROR FEEDBACK ------------------------
@@ -205,6 +207,9 @@ var plab = {
 						"default-value" : "http://"
 					}
 			);
+			
+			// Initialize Internet checks
+			plab.internet.init();
 			
 			// cordova functionality is safe
 			plab.ready = true;

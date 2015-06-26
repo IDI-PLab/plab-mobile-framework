@@ -260,6 +260,11 @@ body {
 	display: none;
 }
 /* ---------------- END ADD PDE FILE HIDE / SHOW ---------------------- */
+/* ---------------- HIDE PROCESSING THROUGH WEB WHEN OFFLINE ---------- */
+.plab-offline .plab-need-internet {
+	display: none;
+}
+/* ---------------- END HIDE PROCESSING THROUGH WEB WHEN OFFLINE ------ */
 /* ---------------- RERUN FORMATTING ---------------------------------- */
 .plab-no-cache .plab-rerun {
 	display: none;
