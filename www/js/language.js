@@ -68,12 +68,12 @@ var plabLang = {
 			"no-nb" : "PLab rammeverk"
 		},
 		"status-first-init" : {
-			"en-gb" : "Welcome. Please wait.",
-			"no-nb" : "Velkommen. Vennligst vent."
+			"en-gb" : "Welcome. Please wait",
+			"no-nb" : "Velkommen. Vennligst vent"
 		},
 		"status-device-ready" : {
-			"en-gb" : "Welcome. Device is ready.",
-			"no-nb" : "Velkommen. Enhet er klar."
+			"en-gb" : "Welcome. Device is ready",
+			"no-nb" : "Velkommen. Enhet er klar"
 		},
 		"status-bt-init" : {
 			"en-gb" : "Initialising BT",
@@ -110,10 +110,10 @@ var plabLang = {
 		"greeting" : {
 			"en-gb" : "This is a framework for conecting to Bluetooth. " +
 					"Choose \"Connect\" to connect, or \"Use without " +
-					"Bluetooth\" to skip connection.",
-			"no-nb" : "Dette er rammeverket for tilkobling av Bluetooth." +
+					"Bluetooth\" to skip connection",
+			"no-nb" : "Dette er rammeverket for tilkobling av Bluetooth" +
 					" Velg \"Koble til BT\" for \u00E5 koble til, eller " +
-					"\"Bruk uten bluetooth\" for \u00E5 hoppe over."
+					"\"Bruk uten bluetooth\" for \u00E5 hoppe over"
 		},
 		"available-unit-list" : {
 			"en-gb" : "Available units:",
@@ -124,26 +124,26 @@ var plabLang = {
 			"no-nb" : "Oppdater"
 		},
 		"user-input-desc" : {
-			"en-gb" : "Input sketch id. This can be the sketch name, user name or other dependent on what is set in settings. Default is NTNU user.",
-			"no-nb" : "Skriv inn skisse id. Dette kan v\u00E6re skisse navn, brukernavn eller annet avhengig av hva du har satt i instillinger. Standard er NTNU bruker."
+			"en-gb" : "Input sketch id. Meaning of this can be changed in settings. Default is NTNU user",
+			"no-nb" : "Oppgi skisse id. Betydningen kan endres i innstillinger. Standard er NTNU bruker"
 		},
 		"user-input-include-lib" : {
-			"en-gb" : "Include library file (defined in settings).",
-			"no-nb" : "Inkluder biblioteksfil (definert i instillinger)."
+			"en-gb" : "Include library file (defined in settings)",
+			"no-nb" : "Inkluder biblioteksfil (definert i instillinger)"
 		},
 		"add-pde-file" : {
 			"en-gb" : "Add a .pde file",
 			"no-nb" : "Legg til en .pde fil"
 		},
 		"redir-tell-state" : {
-			"en-gb" : "Redirecting ...",
-			"no-nb" : "Viderekobler ..."
+			"en-gb" : "Redirecting ..",
+			"no-nb" : "Viderekobler .."
 		},
 		"redir-reminder" : {
-			"en-gb" : "Remember, the .pde file must be located at the " +
-					"correct address.",
-			"no-nb" : "Husk du m\u00E5 ha lagt .pde filen din p\u00E5" +
-					" riktig adresse."
+			"en-gb" : "Remember, the .pde file(s) must be located at the " +
+					"correct address",
+			"no-nb" : "Husk du m\u00E5 ha lagt .pde filen(e) din(e) p\u00E5" +
+					" riktig adresse"
 		},
 		"without-bluetooth" : {
 			"en-gb" : "Use without Bluetooth",
@@ -152,6 +152,10 @@ var plabLang = {
 		"back" : {
 			"en-gb" : "Back",
 			"no-nb" : "Tilbake"
+		},
+		"rerun-last" : {
+		"en-gb" : "Rerun last sketch",
+		"no-nb" : "Kj\u00F8r forrige skisse"
 		},
 		"load-processing" : {
 			"en-gb" : "Load Processing!",
@@ -171,8 +175,8 @@ var plabLang = {
 		},
 		// ----------- Processing functionality failure -----------------------
 		"processing-func-failure" : {
-			"en-gb" : "Could not bind bridge.\nExtra functionality unavailable.",
-			"no-nb" : "Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig."
+			"en-gb" : "Could not bind bridge.\nExtra functionality unavailable",
+			"no-nb" : "Kunne ikke binde overgang.\nEkstra funksjonalitet er utilgjengelig"
 		},
 		// ----------- Settings -----------------------------------------------
 		"hide-settings" : {
@@ -212,8 +216,8 @@ var plabLang = {
 			"no-nb" : "Nordic Semiconductor tjeneste"
 		},
 		"btle-service-select-desc" : {
-			"en-gb" : "Different devices use different services to connect.",
-			"no-nb" : "Ulike enheter bruker ulike tjenester for tilkobling."
+			"en-gb" : "Different devices use different services to connect",
+			"no-nb" : "Ulike enheter bruker ulike tjenester for tilkobling"
 		},
 		// ------------ Ok -----------------------------------
 		"ok" : {

@@ -158,10 +158,13 @@ body {
 }
 
 .plab button, .plab input {
-	font-size: inherit;
 	width: 95%;
 	margin: 0.5ex 0;
 	padding: 0.7ex;
+}
+
+.plab button {
+	font-size: 120%;
 }
 
 .plab input[type=checkbox] {
@@ -257,6 +260,12 @@ body {
 	display: none;
 }
 /* ---------------- END ADD PDE FILE HIDE / SHOW ---------------------- */
+/* ---------------- RERUN FORMATTING ---------------------------------- */
+.plab-rerun {
+	padding-top: 0.9ex;
+	padding-bottom: 0.5ex;
+}
+/* ---------------- END RERUN FORMATTING ------------------------------ */
 /* ---------------- HIDE / SHOW BACK BUTTON --------------------------- */
 .plab-back {
 	display: block;
