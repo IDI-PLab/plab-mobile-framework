@@ -19,6 +19,10 @@ To build one must have [Apache Cordova][1] installed. Check out how to use the
 Dependent Plugins
 ---
 
+### Network Information
+Internet connectivity checks are dependent on plugin
+[cordova-plugin-network-information][8].
+
 ### Bluetooth LE Support
 Depends on plugins [org.apache.cordova.device][5] and
 [com.randdusing.bluetoothle][4].
@@ -26,11 +30,12 @@ Depends on plugins [org.apache.cordova.device][5] and
 ### Bluetooth Support (Android only)
 Depends on plugin [com.megster.cordova.bluetoothserial][6].
 As of version 2.0.0 this plugin will depend on plugin
-[org.apache.cordova.device][5] to filter out iOS devices.
+[cordova-plugin-device][5] to filter out iOS devices.
 
 ### Installation of Plugins With Command-Line Interface
 In console, type:
-* `cordova plugin add org.apache.cordova.device`
+* `cordova plugin add cordova-plugin-device`
+* `cordova plugin add cordova-plugin-network-information`
 * `cordova plugin add https://github.com/randdusing/BluetoothLE`
 * `cordova plugin add com.megster.cordova.bluetoothserial`
 
@@ -61,6 +66,7 @@ This project is powered by
 [2]: https://processing.org			"Processing"
 [3]: http://processingjs.org			"Processing.js"
 [4]: https://github.com/randdusing/BluetoothLE	"Randdusing BluetoothLE"
-[5]: http://plugins.cordova.io/#/package/org.cordova.device	"device"
+[5]: http://npmjs.com/package/cordova-plugin-device	"device"
 [6]: http://plugins.cordova.io/#/package/com.megster.cordova.bluetoothserial "Bluetooth serial"
-[7]: http://www.ntnu.edu	"Norwegian University of Science and Technology - NTNU"
+[7]: http://www.ntnu.edu	"Norwegian University of Science and Technology - NTNU" 
+[8]: http://www.npmjs.com/package/cordova-plugin-network-information	"Cordova Network Information Plugin"
