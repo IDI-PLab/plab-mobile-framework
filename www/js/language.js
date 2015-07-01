@@ -88,7 +88,7 @@ var plabLang = {
 			"no-nb" : "Kan ikke koble til"
 		},
 		"status-userselect-unconn" : {
-			"en-gb" : "Ready, not BT not connected",
+			"en-gb" : "Ready, BT not connected",
 			"no-nb" : "Klar, ikke tilkoblet BT"
 		},
 		"status-userselect-conn" : {

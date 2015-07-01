@@ -74,7 +74,7 @@ var plab = {
 		out : {
 			// Log level indicates which messages are sent to their respective
 			// streams. >= 0 -> error messages, >= 1 -> warnings, >= 2 -> notifications.
-			logLevel : 1,
+			logLevel : -1,
 			// node : common html element to write to
 			node : null,
 			// The plabPrintStreams associated with each debug type.
