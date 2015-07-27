@@ -137,16 +137,10 @@ var plab = {
 		// --------------------------------------------------------------------
 		// ----------------------- USER ERROR FEEDBACK ------------------------
 		// --------------------------------------------------------------------
-		errorSubscribers : [],
 		
 		notifyErrorString : function (string) {
 			// Send error out to debug output
 			plab.out.err.println(string);
-			
-			// Notify subscribers
-			for (var i = 0; i < plab.errorSubscribers.length; i++) {
-				plab.errorSubscribers[i] (string);
-			}
 		},
 		
 		
@@ -552,21 +546,16 @@ var plabPjsBridge = {
 		return window.innerHeight;
 	},
 	// write : send a message to the connected bluetooth device
-	write : function (string) {
+	send : function (string) {
 		try {
 			plabBT.send(string);
 		} catch (e) {
 			alert (e);
 		}
 	},
-	// subscribeRead : register a object holding a callback that will be called when a message is received
-	subscribeRead : function (obj) {
-		plabBT.receiveCallback(obj.read);
-	},
-	// subscribeError : register a object holding a callback that will be called when an error occurs
-	// TODO This should be removed from the interface in a future version
-	subscribeError : function (obj) {
-		plab.errorSubscribers[plab.errorSubscribers.length] = obj.read;
+	// subscribeMessages : register a object holding a callback that will be called when a message is received
+	subscribeMessages : function (obj) {
+		plabBT.receiveCallback(obj.receive);
 	},
 	// disconnect : disconnects from the current bluetooth device and returns app to intro screen.
 	disconnect : function() {
