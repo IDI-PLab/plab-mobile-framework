@@ -205,9 +205,9 @@ plab.processingFunc = {
 		// Get the canvas that should be used
 		var canvas = document.getElementById("plab-canvas");
 		// Get the URL(s) that should be loaded
-		var loadUrls = [];
+		var loadUrls = ["lib/InterfacesInc.pde"];
 		if (plab.processingFunc.processingInfo["include-library"]) {
-			loadUrls[0] = plab.processingFunc.processingInfo["include-library-loc"];
+			loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-library-loc"];
 		}
 		loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["complete-address"];
 		for ( var i = 0; i < plab.processingFunc.processingInfo["include-additional-files"].length; i++) {

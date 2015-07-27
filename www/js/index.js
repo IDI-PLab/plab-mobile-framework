@@ -568,6 +568,33 @@ var plabPjsBridge = {
 	// showBackButton : shows the back button
 	showBackButton : function() {
 		plab.showBackButton();
+	},
+	
+	// --- V 2.0 interface additions ---
+	// vibrate : vibrates the device for given time (milliseconds)
+	vibrate : function(time) {
+		if (typeof navigator.vibrate == "function") {
+			navigator.vibrate(time);
+		}
+	},
+	addDeviceOrientationListener : function(listener) {
+		if (window.DeviceOrientationEvent) {
+			window.addEventListener("deviceorientation", listener.deviceOrientation);
+		}
+	},
+	removeDeviceOrientationListener : function(listener) {
+		if (window.DeviceOrientationEvent) {
+			window.removeEventListener("deviceorientation", listener.deviceOrientation);
+		}
+	},
+	addDeviceAccelerationListener : function(listener) {
+		plab.accelerometer.addListener(listener);
+	},
+	removeDeviceAccelerationListener : function(listener) {
+		plab.accelerometer.removeListener(listener);
+	},
+	setDeviceAccelerationUpdateInterval : function(time) {
+		plab.accelerometer.setUpdateInterval(time);
 	}
 };
 

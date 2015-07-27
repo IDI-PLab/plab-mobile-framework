@@ -32,12 +32,22 @@ Depends on plugin [com.megster.cordova.bluetoothserial][6].
 As of version 2.0.0 this plugin will depend on plugin
 [cordova-plugin-device][5] to filter out iOS devices.
 
+### Vibration
+Vibration of device is dependent on plugin
+[cordova-plugin-vibration][9]
+
+### Acceleration
+Acceleration detection is dependent on plugin
+[cordova-plugin-device-motion][10]
+
 ### Installation of Plugins With Command-Line Interface
 In console, type:
 * `cordova plugin add cordova-plugin-device`
 * `cordova plugin add cordova-plugin-network-information`
 * `cordova plugin add https://github.com/randdusing/BluetoothLE`
 * `cordova plugin add com.megster.cordova.bluetoothserial`
+* `cordova plugin add cordova-plugin-vibration`
+* `cordova plugin add cordova-plugin-device-motion`
 
 Installation and Build
 ---
@@ -70,3 +80,5 @@ This project is powered by
 [6]: http://plugins.cordova.io/#/package/com.megster.cordova.bluetoothserial "Bluetooth serial"
 [7]: http://www.ntnu.edu	"Norwegian University of Science and Technology - NTNU" 
 [8]: http://www.npmjs.com/package/cordova-plugin-network-information	"Cordova Network Information Plugin"
+[9]: http://www.npmjs.com/package/cordova-plugin-vibration	"Cordova Vibration Plugin"
+[10]: http://www.npmjs.com/package/cordova-plugin-device-motion	"Cordova Device Motion Plugin"
