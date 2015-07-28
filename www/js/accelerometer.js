@@ -24,7 +24,7 @@ plab.accelerometer = {
 			if (plab.accelerometer.watchId !== null) {
 				navigator.accelerometer.clearWatch(plab.accelerometer.watchId);
 			}
-			var options = { frequency : plab.accelerometer.updateInterval };
+			var options = { "frequency" : plab.accelerometer.updateInterval };
 			plab.accelerometer.watchId = navigator.accelerometer.watchAcceleration(
 					plab.accelerometer.onSuccess,
 					plab.accelerometer.onError,
@@ -33,7 +33,7 @@ plab.accelerometer = {
 		},
 		addListener : function(listener) {
 			plab.accelerometer.listeners[plab.accelerometer.listeners.length] = listener;
-			if (watchId === null) {
+			if (plab.accelerometer.watchId === null) {
 				plab.accelerometer.updateListener();
 			}
 		},
