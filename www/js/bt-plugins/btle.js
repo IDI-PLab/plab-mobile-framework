@@ -202,7 +202,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		if (params.status == "subscribedResult") {
 			// Debug output
 			debugOut.notify.print("Received data: ");
-			debugOut.notify.println(JSON.stringify(obj));
+			debugOut.notify.println(JSON.stringify(params));
 
 			btMode.status.failure = false;
 
