@@ -11,6 +11,14 @@ students may communicate with the Bluetooth/ Bluetooth LE device through a
 [Processing][2] sketch located on an external web server. Interpretation of the
 sketch is done through [Processing.js][3].
 
+Help, Further Documentation
+---
+For further documentation than what is found in this README, API help and
+description of project architecture, see [the project wiki][11].
+
+Help with the app user interface can also be found in [the project wiki][12].
+![Screenshot](https://cloud.githubusercontent.com/assets/2333406/9002163/d4053e3c-3760-11e5-9a9e-581298379de8.png)
+
 Prerequisites
 ---
 To build one must have [Apache Cordova][1] installed. Check out how to use the
@@ -82,3 +90,5 @@ This project is powered by
 [8]: http://www.npmjs.com/package/cordova-plugin-network-information	"Cordova Network Information Plugin"
 [9]: http://www.npmjs.com/package/cordova-plugin-vibration	"Cordova Vibration Plugin"
 [10]: http://www.npmjs.com/package/cordova-plugin-device-motion	"Cordova Device Motion Plugin"
+[11]: https://github.com/IDI-PLab/plab-mobile-framework/wiki	"Project wiki"
+[12]: https://github.com/IDI-PLab/plab-mobile-framework/wiki/User-Interface	"User Interface Description"
