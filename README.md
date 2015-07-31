@@ -17,6 +17,7 @@ For further documentation than what is found in this README, API help and
 description of project architecture, see [the project wiki][11].
 
 Help with the app user interface can also be found in [the project wiki][12].
+
 ![Screenshot](https://cloud.githubusercontent.com/assets/2333406/9002163/d4053e3c-3760-11e5-9a9e-581298379de8.png)
 
 Prerequisites
