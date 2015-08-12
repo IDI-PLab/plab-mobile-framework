@@ -42,7 +42,7 @@ plab.accelerometer = {
 			if (i > -1) {
 				plab.accelerometer.listeners.splice(i, 1);
 			}
-			if (array.length === 0 && plab.accelerometer.watchId !== null) {
+			if (plab.accelerometer.listeners.length === 0 && plab.accelerometer.watchId !== null) {
 				navigator.accelerometer.clearWatch(plab.accelerometer.watchId);
 				plab.accelerometer.watchId = null;
 			}
