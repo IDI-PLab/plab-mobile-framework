@@ -74,7 +74,7 @@ var plab = {
 		out : {
 			// Log level indicates which messages are sent to their respective
 			// streams. >= 0 -> error messages, >= 1 -> warnings, >= 2 -> notifications.
-			logLevel : -1,
+			logLevel : 2,
 			// node : common html element to write to
 			node : null,
 			// The plabPrintStreams associated with each debug type.
@@ -453,8 +453,12 @@ var plab = {
 			// Ensure the screen is drawn.
 			plab.updateScreen ();
 		},
-		// showProcessing : the method resposible for setting up processing screen.
+		// showProcessing : the method resposible for delegation of setting up processing screen.
 		showProcessing : function (cached) {
+			plab.doShowProcessing(cached, false, false, null);
+		},
+		// doShowProcessing : the method that actually do work 
+		doShowProcessing : function(cached, fromArgs, isCode, dataArray) {
 			// Register back button call. May already have been registered, so use the safe call.
 			plab.registerBackButton();
 			
@@ -467,7 +471,7 @@ var plab = {
 			if (cached) {
 				// Start loading of processing
 				plab.processingFunc.startLoadCached ();
-			} else {
+			} else if (!fromArgs) {
 				// Get content of user select element and include library element.
 				var usrInput = document.getElementById("plab-user-input").value;
 				var includeLib = document.getElementById("plab-include-library").checked;
@@ -489,6 +493,18 @@ var plab = {
 
 				// Start loading of processing
 				plab.processingFunc.startLoadURLs ();
+			} else {
+				if (isCode) {
+					// Reset attempt counter
+					plab.processingFunc.attempt = 0;
+					// Start load
+					plab.processingFunc.startLoadGivenCode(dataArray);
+				} else {
+					// Reset attempt counter
+					plab.processingFunc.attempt = 0;
+					// Start load
+					plab.processingFunc.startLoadGivenURLs(dataArray);
+				}
 			}
 		},
 		// ----------- HIDE / SHOW SPECIFIC ITEMS -----------------------------

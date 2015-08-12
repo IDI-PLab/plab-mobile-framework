@@ -279,6 +279,45 @@ var plabLang = {
 			"en-gb" : "No Internet connection",
 			"no-nb" : "Ingen Internet tilgang"
 		},
+		// ----------- PLCUP protocol text ------------------------------------
+		// Settings
+		"plcup-setting-definition" : {
+			"en-gb" : "PLCUP",
+			"no-nb" : "PLCUP"
+		},
+		"plcup-setting-enable" : {
+			"en-gb" : "Enable PLCUP",
+			"no-nb" : "Sl\u00E5 p\u00E5 PLCUP"
+		},
+		"plcup-setting-timeout" : {
+			"en-gb" : "PLCUP timeout",
+			"no-nb" : "PLCUP tidsavbrudd"
+		},
+		"plcup-setting-description" : {
+			"en-gb" : "PLCUP - Programming Lab Code URI Protocol. Automatic retrieve code or code location from connected device",
+			"no-nb" : "PLCUP - Programming Lab Code URI Protocol. Automatisk henting av kode eller kodelokasjon fra tilkoblet enhet"
+		},
+		// in-app
+		"plcup-loading" : {
+			"en-gb" : "Loading PLCUP...",
+			"no-nb" : "PLCUP laster..."
+		},
+		"plcup-failure" : {
+			"en-gb" : "PLCUP failed!",
+			"no-nb" : "PLCUP feilet!"
+		},
+		"plcup-load-from-code" : {
+			"en-gb" : "Load fom PLCUP code",
+			"no-nb" : "Last fra PLCUP kode"
+		},
+		"plcup-load-from-uri" : {
+			"en-gb" : "Load fom PLCUP URI",
+			"no-nb" : "Last fra PLCUP URI"
+		},
+		"plcup-working" : {
+			"en-gb" : "PLCUP is working...",
+			"no-nb" : "PLCUP arbeider..."
+		},
 		/*
 		"" : {
 			"en-gb" : "",

@@ -63,6 +63,65 @@ plab.processingFunc = {
 			// And run
 			return new Processing(canvas, allCode);
 		},
+		loadAndCacheSketchFromCode : function(canvas, code) {
+			// Clear old cache
+			plab.processingFunc.cache.clear();
+			
+			// Load IncludeLib
+			function ajaxAsync(url, callback) {
+				var xhr = new XMLHttpRequest();
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState === 4) {
+						var error, status;
+						if (xhr.status !== 200 && xhr.status !== 0) {
+							error = "proc-err-xhr-status";
+							status = xhr.status;
+						} else if (xhr.responseText === "") {
+							// Give a hint when loading fails due to same-origin
+							// issues
+							if (("withCredentials" in new XMLHttpRequest())
+									&& (new XMLHttpRequest()).withCredentials === false
+									&& window.location.protocol === "file:") {
+								error = "proc-err-xhr-origin";
+							} else {
+								error = "proc-err-empty-file";
+							}
+						}
+
+						callback(xhr.responseText, error, status);
+					}
+				};
+				xhr.open("GET", url, true);
+				if (xhr.overrideMimeType) {
+					xhr.overrideMimeType("application/json");
+				}
+				xhr.setRequestHeader("If-Modified-Since",
+						"Fri, 01 Jan 1960 00:00:00 GMT"); // no cache
+				xhr.send(null);
+			}
+			
+			function onLoaded(resp, error, status) {
+				if (error) {
+					plab.out.err.println("Failed to load lib/InterfacesInc.pde: " + error + " " + status);
+				} else {
+					code.splice(0, 0, resp);
+				}
+				var allCode = code.join("\n");
+				// CACHE THE RESULTING CODE
+				try {
+					window.localStorage.setItem(
+									plab.processingFunc.processingInfo["cache-key"],
+									allCode
+					);
+				} catch (e) {
+					plab.out.err.println("Could not cache processing code");
+				}
+				// And load processing
+				return new Processing(canvas, allCode);
+			}
+			
+			ajaxAsync("lib/InterfacesInc.pde", onLoaded);
+		},
 		// Modified from processing.js 1.4.15 loadSketchFromSources
 		loadAndCacheSketchFromSources : function(canvas, sources) {
 			// Clear old cache
@@ -197,15 +256,9 @@ plab.processingFunc = {
 	// The definition of the function that starts the http request to load
 	// processing.
 	startLoadURLs : function() {
-		// Reset the number of times we have tried to see if a responce has been
-		// received
-		plab.processingFunc.checkCount = 0;
-		// Update counter of http request attempts.
-		plab.processingFunc.attempt++;
-		// Get the canvas that should be used
-		var canvas = document.getElementById("plab-canvas");
+		
 		// Get the URL(s) that should be loaded
-		var loadUrls = ["lib/InterfacesInc.pde"];
+		var loadUrls = [];
 		if (plab.processingFunc.processingInfo["include-library"]) {
 			loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-library-loc"];
 		}
@@ -213,6 +266,21 @@ plab.processingFunc = {
 		for ( var i = 0; i < plab.processingFunc.processingInfo["include-additional-files"].length; i++) {
 			loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-additional-files"][i];
 		}
+		
+		plab.processingFunc.startLoadGivenURLs(loadUrls);
+	},
+	startLoadGivenURLs : function(loadUrls) {
+		// Add include file to urls
+		loadUrls.splice(0, 0, "lib/InterfacesInc.pde");
+		
+		// Reset the number of times we have tried to see if a responce has been
+		// received
+		plab.processingFunc.checkCount = 0;
+		// Update counter of http request attempts.
+		plab.processingFunc.attempt++;
+		// Get the canvas that should be used
+		var canvas = document.getElementById("plab-canvas");
+		
 		plab.out.notify.println("Loading files" + JSON.stringify(loadUrls));
 		// Load the sketch to the canvas from the earlier built url, thereby
 		// starting a http request
@@ -228,6 +296,17 @@ plab.processingFunc = {
 		if (pInstance) {
 			plab.processingFunc.show(pInstance);
 		}
+	},
+	startLoadGivenCode : function(codeArray) {
+		// Reset the number of times we have tried to see if a responce has been
+		// received
+		plab.processingFunc.checkCount = 0;
+		// Update counter of http request attempts.
+		plab.processingFunc.attempt++;
+		
+		var canvas = document.getElementById("plab-canvas")
+		plab.processingFunc.cache.loadAndCacheSketchFromCode(canvas, codeArray);
+		plab.timers.processing = setTimeout(plab.processingFunc.showOrLoad, 500);
 	},
 	show : function(pInstance) {
 		// Get the canvas that will be used by processing

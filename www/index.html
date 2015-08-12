@@ -30,6 +30,9 @@
         <!-- Processing -->
         <script type="text/javascript" src="js/processing.js/processing-1.4.1.min.js"></script>
         
+        <!-- Programming Lab Code URI Protocol -->
+        <script type="text/javascript" src="js/plcup.js"></script>
+        
         <script type="text/javascript" src="cordova.js"></script>
     </head>
     <body class="plab">
@@ -96,6 +99,7 @@
     			<div class="plab-rerun">
     				<button id="plab-rerun-button" onclick="plab.showProcessing(true)"><span data-text-key="rerun-last"></span><img src="img/next.png" alt="Rerun last" /></button>
     			</div>
+    			<div id="plab-plcup-select"></div>
     			<div class="plab-list plab-need-internet">
     				<div data-text-key="user-input-desc">Skriv inn NTNU bruker</div>
     				<input id="plab-user-input" type="text" />
