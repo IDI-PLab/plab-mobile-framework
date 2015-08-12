@@ -46,6 +46,11 @@ var plabBT = {
 		// Id of the last connected device. Not currently used, but connect to prev device may be added later
 		deviceId : null,
 		
+		// listeners for incomming calls
+		receiveMessageCallbacks : [],
+		// listeners for on connected events
+		onConnectedCallbacks : [],
+		
 		// Sets a new module as active (if known)
 		setMode : function (id) {
 			
@@ -59,6 +64,9 @@ var plabBT = {
 			// Look through all installed modes, if the id is recognized, set the mode
 			for (var i = 0; i < plabBT.modes.length; i++) {
 				if (id == plabBT.modes[i].id) {
+					// Clear old message listeners
+					plabBT.receiveMessageCallbacks = [];
+					
 					plabBT.mode = plabBT.modes[i];
 					plabBT.mode.openMode();
 					return;
@@ -73,6 +81,8 @@ var plabBT = {
 			if (plabBT.mode !== null) {
 				plabBT.mode.closeMode();
 				plabBT.mode = null;
+				// Clear old message listeners
+				plabBT.receiveMessageCallbacks = [];
 			}
 		},
 		
@@ -173,7 +183,7 @@ var plabBT = {
 			// Disable possibility to update scan while connecting
 			document.getElementById("plab-update-btn").disabled = true;
 			// Do the actual connection
-			plabBT.mode.connectDevice(id, plab.showUserSelect);
+			plabBT.mode.connectDevice(id, plabBT.onConnected);
 		},
 		
 		
@@ -205,7 +215,40 @@ var plabBT = {
 			if (plabBT.mode === null) {
 				return;
 			}
-			plabBT.mode.receiveCallback(callback);
+			plabBT.receiveMessageCallbacks[plabBT.receiveMessageCallbacks.length] = callback;
+			
+		},
+		removeReceiveCallback : function(callback) {
+			var i = plabBT.receiveMessageCallbacks.indexOf(callback);
+			if (i > -1) {
+				plabBT.receiveMessageCallbacks.splice(i, 1);
+			}
+		},
+		onReceiveMessage : function(str) {
+			plabBT.receiveMessageCallbacks.forEach(function(callback) {
+				callback(str);
+			});
+		},
+		onConnected : function() {
+			// Listen to messages from this device
+			plabBT.mode.receiveCallback(plabBT.onReceiveMessage);
+			
+			// Do all registered callbacks
+			plabBT.onConnectedCallbacks.forEach(function(callback) {
+				callback();
+			});
+			
+			// Go to next screen
+			plab.showUserSelect();
+		},
+		addOnConnectedCallback : function(callback) {
+			plabBT.onConnectedCallbacks[plabBT.onConnectedCallbacks.length] = callback;
+		},
+		removeOnConnectedCallback : function(callback) {
+			var i = plabBT.onConnectedCallbacks.indexOf(callback);
+			if (i > -1) {
+				plabBT.onConnectedCallbacks.splice(i, 1);
+			}
 		}
 }
 
