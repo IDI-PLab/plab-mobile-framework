@@ -22,7 +22,7 @@ settingItem = {
 		"text-key" : "string", // Optional
 		"icon" : "relative-URL", // Optional
 		
-		"type" : "single-select/text/group/url/number", // Checkbox, radiogroup may be added later
+		"type" : "single-select/text/group/url/number/checkbox", // Radiogroup may be added later
 		"options" : [{
 		            	 "text-key" : "string". // Optional
 		            	 "icon" : "relative-URL", // Optional
@@ -84,7 +84,8 @@ plab.settingsController = {
 			case "text":
 			case "url":
 			case "number":
-				sett = this.createTextNumberOrUrlNode(item);
+			case "checkbox":
+				sett = this.createTextNumberCheckboxOrUrlNode(item);
 				break;
 			case "group":
 				var div = document.createElement("div");
@@ -147,7 +148,7 @@ plab.settingsController = {
 			div.appendChild(sel);
 			return div;
 		},
-		createTextNumberOrUrlNode : function(item) {
+		createTextNumberCheckboxOrUrlNode : function(item) {
 			var div = document.createElement("div");
 			this.createSettingHead(item,div);
 			
@@ -172,13 +173,27 @@ plab.settingsController = {
 			
 			var val = this.getSettingValue(item.id);
 			if (val === null){
-				val = typeof item["default-value"] !== "undefined" ? item["default-value"] : "";
+				if (item.type === "checkbox") {
+					val = typeof item["default-value"] !== "undefined" ? item["default-value"] : "false";
+				} else {
+					val = typeof item["default-value"] !== "undefined" ? item["default-value"] : "";
+				}
 				this.setSettingValue(item.id, val);
 			}
-			this.createSetAttributeNode("value", val, inp);
+			if (item.type === "checkbox") {
+				val = val == "true";	// Javascript is nice...
+				inp.checked = val;
+			} else {
+				this.createSetAttributeNode("value", val, inp);
+			}
 			
 			inp.addEventListener("change", function() {
-				var str = document.getElementById(item.id).value;
+				var str = "";
+				if (item.type === "checkbox") {
+					str = document.getElementById(item.id).checked ? "true" : "false";
+				} else {
+					str = document.getElementById(item.id).value;
+				}
 				window.localStorage.setItem(item.id, str);
 				if (typeof item.onValueChange === "function")
 					item.onValueChange(str);
