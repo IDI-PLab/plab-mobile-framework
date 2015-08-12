@@ -22,11 +22,13 @@ settingItem = {
 		"text-key" : "string", // Optional
 		"icon" : "relative-URL", // Optional
 		
-		"type" : "single-select/text/group", // Checkbox, radiogroup may be added later
+		"type" : "single-select/text/group/url/number", // Checkbox, radiogroup may be added later
 		"options" : [{
 		            	 "text-key" : "string". // Optional
 		            	 "icon" : "relative-URL", // Optional
-		            	 "value" : "string" // Only used for single-select. Others use default
+		            	 "value" : "string", // Only used for single-select. Others use default
+		            	 "min" : number, // Only used for number. Optional
+		            	 "max" : number // Only used for number. Optional
 		            } ], // Or array of settingItem if group is specified
 		"default-value" : "value-string", // Same as selected for single-select
 		"description-text-key" : "string",
@@ -81,7 +83,8 @@ plab.settingsController = {
 				break;
 			case "text":
 			case "url":
-				sett = this.createTextOrUrlNode(item);
+			case "number":
+				sett = this.createTextNumberOrUrlNode(item);
 				break;
 			case "group":
 				var div = document.createElement("div");
@@ -144,7 +147,7 @@ plab.settingsController = {
 			div.appendChild(sel);
 			return div;
 		},
-		createTextOrUrlNode : function(item) {
+		createTextNumberOrUrlNode : function(item) {
 			var div = document.createElement("div");
 			this.createSettingHead(item,div);
 			
@@ -157,6 +160,15 @@ plab.settingsController = {
 			var inp = document.createElement("input");
 			this.createSetAttributeNode("type", item.type, inp);
 			this.createSetAttributeNode("id", item.id, inp);
+			
+			if (item.type === "number") {
+				if (typeof item.options[0]["min"] !== "undefined") {
+					this.createSetAttributeNode("min", item.options[0]["min"], inp)
+				}
+				if (typeof item.options[0]["max"] !== "undefined") {
+					this.createSetAttributeNode("max", item.options[0]["max"], inp)
+				}
+			}
 			
 			var val = this.getSettingValue(item.id);
 			if (val === null){
