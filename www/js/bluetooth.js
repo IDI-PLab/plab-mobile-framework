@@ -225,6 +225,8 @@ var plabBT = {
 			}
 		},
 		onReceiveMessage : function(str) {
+			// Clean the received string for any carriage returns or newlines
+			str = str.replace(/\n|\r/gm,'');
 			plabBT.receiveMessageCallbacks.forEach(function(callback) {
 				callback(str);
 			});

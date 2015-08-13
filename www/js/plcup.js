@@ -124,6 +124,11 @@ plab.plcup = {
 			while (plcupHolder.firstChild) {
 				plcupHolder.removeChild(plcupHolder.firstChild);
 			}
+			// Clear error timeout
+			if (plab.plcup.timeout !== null) {
+				clearTimeout(plab.plcup.timeout);
+				plab.plcup.timeout = null;
+			}
 			// based on message content, add elements to DOM or fail
 			switch (str) {
 			case "PLCUP COD":
@@ -145,6 +150,12 @@ plab.plcup = {
 			}
 			break;
 		case plab.plcup.states.sentRequestStart:
+			// Clear and restart error timeout
+			if (plab.plcup.timeout !== null) {
+				clearTimeout(plab.plcup.timeout);
+				var time = plab.settingsController.getSettingValue(plab.plcup.settingInfo.timeoutId) * 1000;
+				plab.plcup.timeout = setTimeout(plab.plcup.plcupFailure, time);
+			}
 			if (str == "PLCUP BEG") {
 				plab.plcup.state = plab.plcup.states.receivedAnswerStartToken;
 				plab.plcup.receivedAnswer = [];
@@ -158,6 +169,12 @@ plab.plcup = {
 			} else if (str == "PLCUP ERR") {
 				plab.plcup.plcupFailure();
 			} else {
+				// Clear and restart error timeout
+				if (plab.plcup.timeout !== null) {
+					clearTimeout(plab.plcup.timeout);
+					var time = plab.settingsController.getSettingValue(plab.plcup.settingInfo.timeoutId) * 1000;
+					plab.plcup.timeout = setTimeout(plab.plcup.plcupFailure, time);
+				}
 				plab.plcup.receivedAnswer[plab.plcup.receivedAnswer.length] = str;
 			}
 			break;
@@ -251,6 +268,12 @@ plab.plcup = {
 			plab.plcup.state = plab.plcup.states.sentRequestStart;
 			// Send load request
 			plabBT.send("PLCUP G COD");
+			// Start error timeout
+			if (plab.plcup.timeout !== null) {
+				clearTimeout(plab.plcup.timeout);
+			}
+			var time = plab.settingsController.getSettingValue(plab.plcup.settingInfo.timeoutId) * 1000;
+			plab.plcup.timeout = setTimeout(plab.plcup.plcupFailure, time);
 		}
 	},
 	requestLoadFromURI : function() {
@@ -262,9 +285,20 @@ plab.plcup = {
 		plab.plcup.state = plab.plcup.states.sentRequestStart;
 		// Send load request
 		plabBT.send("PLCUP G URI");
+		// Start error timeout
+		if (plab.plcup.timeout !== null) {
+			clearTimeout(plab.plcup.timeout);
+		}
+		var time = plab.settingsController.getSettingValue(plab.plcup.settingInfo.timeoutId) * 1000;
+		plab.plcup.timeout = setTimeout(plab.plcup.plcupFailure, time);
 	},
 	
 	requestAnswerCompleted : function() {
+		// Clear error timeout
+		if (plab.plcup.timeout !== null) {
+			clearTimeout(plab.plcup.timeout);
+			plab.plcup.timeout = null;
+		}
 		// Update state to idle
 		plab.plcup.state = plab.plcup.states.idle;
 		// Stop listening

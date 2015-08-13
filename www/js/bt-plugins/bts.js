@@ -131,6 +131,9 @@ function plabAddBTSerial(debugOut, updateScreen) {
 			
 			// closeMode: Stop everything
 			btMode.closeMode = function () {
+				// Celar subscription listeners
+				btMode.subscribers = [];
+				
 				if (btMode.status.connected){
 					if (btMode.status.ready) {
 						// Unsubscribe

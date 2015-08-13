@@ -534,7 +534,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			// First run -> set up
 			btMode.closeMode = function() {
 				// Remove all listeners
-				// TODO
+				btMode.subscriptions = [];
 				// Close open connections
 				btMode.disconnectDevice();
 
