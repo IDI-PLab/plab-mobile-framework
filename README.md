@@ -22,11 +22,15 @@ Help with the app user interface can also be found in [the project wiki][12].
 
 Prerequisites
 ---
-To build one must have [Apache Cordova][1] installed. Check out how to use the
-[command-line interface](http://cordova.apache.org/docs/en/4.0.0/guide_cli_index.mt.html)
+To build one must have [Apache Cordova][1] installed. This document assume you are
+familiar with using the Command Line Interface (CLI) of Cordova.
 
 Dependent Plugins
 ---
+
+### Whitelist
+Android require whitelist plugin to load sketches from the web
+[cordova-plugin-whitelist][13]
 
 ### Network Information
 Internet connectivity checks are dependent on plugin
@@ -34,11 +38,16 @@ Internet connectivity checks are dependent on plugin
 
 ### Bluetooth LE Support
 Depends on plugins [cordova-plugin-device][5] and
-[com.randdusing.bluetoothle][4].
+[cordova-plugin-bluetoothle][4], 
+[Check out project source][14].
+
+A word of caution: The iOS version of this app has not been tested after
+updating to 3.x version of this plugin. So we recommend testing thoroughly
+if a build to iOS is performed.
 
 ### Bluetooth Support (Android only)
-Depends on plugin [com.megster.cordova.bluetoothserial][6].
-As of version 2.0.0 this plugin will depend on plugin
+Depends on plugin [cordova-plugin-bluetooth-serial][6].
+As of version 2.0.0 of this app, use of this plugin will depend on
 [cordova-plugin-device][5] to filter out iOS devices.
 
 ### Vibration
@@ -51,10 +60,11 @@ Acceleration detection is dependent on plugin
 
 ### Installation of Plugins With Command-Line Interface
 In console, type:
+* `cordoca plugin add cordova-plugin-whitelist`
 * `cordova plugin add cordova-plugin-device`
 * `cordova plugin add cordova-plugin-network-information`
-* `cordova plugin add https://github.com/randdusing/BluetoothLE`
-* `cordova plugin add com.megster.cordova.bluetoothserial`
+* `cordova plugin add cordova-plugin-bluetoothle`
+* `cordova plugin add cordova-plugin-bluetooth-serial`
 * `cordova plugin add cordova-plugin-vibration`
 * `cordova plugin add cordova-plugin-device-motion`
 
@@ -84,12 +94,14 @@ This project is powered by
 [1]: http://cordova.apache.org			"Cordova"
 [2]: https://processing.org			"Processing"
 [3]: http://processingjs.org			"Processing.js"
-[4]: https://github.com/randdusing/BluetoothLE	"Randdusing BluetoothLE"
+[4]: https://www.npmjs.com/package/cordova-plugin-bluetoothle	"Cordova Bluetooth LE Plugin"
 [5]: http://npmjs.com/package/cordova-plugin-device	"Cordova Device Plugin"
-[6]: http://plugins.cordova.io/#/package/com.megster.cordova.bluetoothserial "Bluetooth serial"
+[6]: https://www.npmjs.com/package/cordova-plugin-bluetooth-serial "Bluetooth Serial Plugin for PhoneGap"
 [7]: http://www.ntnu.edu	"Norwegian University of Science and Technology - NTNU" 
 [8]: http://www.npmjs.com/package/cordova-plugin-network-information	"Cordova Network Information Plugin"
 [9]: http://www.npmjs.com/package/cordova-plugin-vibration	"Cordova Vibration Plugin"
 [10]: http://www.npmjs.com/package/cordova-plugin-device-motion	"Cordova Device Motion Plugin"
 [11]: https://github.com/IDI-PLab/plab-mobile-framework/wiki	"Project wiki"
 [12]: https://github.com/IDI-PLab/plab-mobile-framework/wiki/User-Interface	"User Interface Description"
+[13]: https://www.npmjs.com/package/cordova-plugin-whitelist	"Cordova Whitelist Plugin"
+[14]: https://github.com/randdusing/BluetoothLE	"Randdusing BluetoothLE"
