@@ -368,9 +368,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				});
 			},
 			
-			{
-				"address" : address
-			}
+			{ "address" : address }
 		);
 	};
 	// ---------------- END ANDROID -------------------------------------------
