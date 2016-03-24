@@ -3,25 +3,45 @@
 }
 
 /* To level out some differences in device size and font size, these queries are added, with default */
-body {
-	font-size: 150%;
+.plab {
+	font-size: 110%;
+}
+/* -------- Default right align and round images ------------ */
+/* Placed at top to be overridden by device specific entries later*/
+.plab img {
+	border-radius: 7px;
+	float: right;
+	width: 40px;
+	height: auto;
 }
 
 @media only screen and (min-width : 480px) {
 	.plab {
-		font-size: 240%;
+		font-size: 140%;
+	}
+	.plab img {
+		border-radius: 10px;
+		width: 48px;
 	}
 }
 
 @media only screen and (min-width : 768px) {
 	.plab {
-		font-size: 320%;
+		font-size: 160%;
+	}
+	.plab img {
+		border-radius: 12px;
+		width: 56px;
 	}
 }
 
 @media only screen and (min-width : 1024px) {
 	.plab {
-		font-size: 480%;
+		font-size: 175%;
+	}
+	.plab img {
+		border-radius: 15px;
+		width: 64px;
 	}
 }
 /* ----------------------- MAIN ELEMENT DEFINITIONS ----------------------- */
@@ -42,12 +62,6 @@ body {
 	color: #ddeeff;
     text-align: center;
     font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
-}
-
-/* -------- Default right align and round images ------------ */
-.plab img {
-	border-radius: 10px;
-	float: right;
 }
 
 /* ----------------------- END MAIN ELEMENT DEFINITIONS ----------------------- */
