@@ -188,8 +188,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		// The info object for the subscription
 		var params = {
 			"address" : address,
-			"serviceUuid" : btMode.serviceInfo.serviceUUID,
-			"characteristicUuid" : btMode.serviceInfo.rxUUID,
+			"service" : btMode.serviceInfo.serviceUUID,
+			"characteristic" : btMode.serviceInfo.rxUUID,
 			"isNotification" : true
 		};
 
@@ -289,96 +289,92 @@ function plabAddBT4_0(debugOut, updateScreen) {
 	// discoverAndroid: Android specific discovery
 	btMode.discoverAndroid = function(address) {
 		debugOut.notify.println("btle: discoverAndroid called");
-		bluetoothle
-				.discover(
-						function(obj) {
-							debugOut.notify.println(JSON.stringify(obj));
-							if (obj.status == "discovered") {
-								// The device was discovered. Check if we found
-								// the
-								// correct connection data
-								var found = {
-									service : false,
-									rx : false,
-									tx : false
-								};
+		bluetoothle.discover(
+			function(obj) {
+				debugOut.notify.println(JSON.stringify(obj));
+				if (obj.status == "discovered") {try{
+					// The device was discovered. Check if we found
+					// the
+					// correct connection data
+					var found = {
+						service : false,
+						rx : false,
+						tx : false
+					};
 
-								// Service, rx and tx uuids. Used for discovered
-								// confirmation.
-								var sUuid = btMode.serviceInfo.serviceUUID
-										.toUpperCase();
-								var rxUuid = btMode.serviceInfo.rxUUID
-										.toUpperCase();
-								var txUuid = btMode.serviceInfo.txUUID
-										.toUpperCase();
+					// Service, rx and tx uuids. Used for discovered
+					// confirmation.
+					var sUuid = btMode.serviceInfo.serviceUUID.toUpperCase();
+					var rxUuid = btMode.serviceInfo.rxUUID.toUpperCase();
+					var txUuid = btMode.serviceInfo.txUUID.toUpperCase();
 
-								// Find the service, and set found properties
-								// properly
-								// --- START services
-								obj.services
-										.forEach(function(service) {
-											if (service.serviceUuid
-													.toUpperCase() == sUuid) {
-												found.service = true;
-												// Service found. Find rx and tx
-												// characteristics
+					// Find the service, and set found properties
+					// properly
+					// --- START services
+					obj.services.forEach(function(service) {
+						debugOut.warn.println("service");
+						if (service.uuid.toUpperCase() == sUuid) {
+							debugOut.warn.println("First");
+							found.service = true;
+							// Service found. Find rx and tx
+							// characteristics
 
-												// --- START characteristics
-												service.characteristics
-														.forEach(function(
-																characteristic) {
-															var uuid = characteristic.characteristicUuid
-																	.toUpperCase();
+							// --- START characteristics
+							service.characteristics.forEach(
+								function(characteristic) {
+									debugOut.warn.println("characteristic");
+									var uuid = characteristic.uuid.toUpperCase();
 
-															if (uuid === txUuid) {
-																if (typeof characteristic.properties.writeWithoutResponse !== "undefined"
-																		&& characteristic.properties.writeWithoutResponse) {
-																	found.tx = true;
-																}
-															}
+									if (uuid === txUuid) {
+										if (typeof characteristic.properties.writeWithoutResponse !== "undefined"
+												&& characteristic.properties.writeWithoutResponse) {
+											found.tx = true;
+										}
+									}
 
-															if (uuid === rxUuid) {
-																if (typeof characteristic.properties.notify !== "undefined"
-																		&& characteristic.properties.notify) {
-																	found.rx = true;
-																}
-															}
-														}); // --- END
-															// characteristics
-											}
-										}); // --- END services
-
-								// Call post platform specific discovery
-								// functionality
-								if (found.service && found.rx && found.tx) {
-									btMode.discoverSuccess({
-										"address" : obj.address
-									});
-								} else {
-									btMode.discoverFailure({
-										"address" : obj.address,
-										"error" : "ServiceNotFound",
-										"message" : "Service: " + found.service
-												+ " RX: " + found.rx + " TX: "
-												+ found.tx
-									});
+									if (uuid === rxUuid) {
+										if (typeof characteristic.properties.notify !== "undefined"
+												&& characteristic.properties.notify) {
+											found.rx = true;
+										}
+									}
 								}
-							} else {
-								btMode.discoverFailure({
-									"address" : obj.address,
-									"error" : "unknown status",
-									"message" : obj.status
-								});
-							}
-						}, function(obj) {
-							btMode.discoverFailure({
-								"address" : address,
-								"error" : obj.error,
-								"message" : obj.message
-							});
-						}, {
-							"address" : address
+							); // --- END characteristics
+						}
+					}); // --- END services
+
+					// Call post platform specific discovery
+					// functionality
+					if (found.service && found.rx && found.tx) {
+						btMode.discoverSuccess({
+							"address" : obj.address
 						});
+					} else {
+						btMode.discoverFailure({
+							"address" : obj.address,
+							"error" : "ServiceNotFound",
+							"message" : "Service: " + found.service
+									+ " RX: " + found.rx + " TX: "
+									+ found.tx
+						});
+					} } catch(e) { debugOut.err.println("Exception: " + e); }
+				} else {
+					btMode.discoverFailure({
+						"address" : obj.address,
+						"error" : "unknown status",
+						"message" : obj.status
+					});
+				}
+			}, function(obj) {
+				btMode.discoverFailure({
+					"address" : address,
+					"error" : obj.error,
+					"message" : obj.message
+				});
+			}, {
+				"address" : address
+			}
+		);
 	};
 	// ---------------- END ANDROID -------------------------------------------
 
@@ -397,129 +393,116 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		// The parameters to service discovery
 		var servicesParams = {
 			"address" : address,
-			"serviceUuids" : [ sUuid ]
+			"services" : [ sUuid ]
 		};
 		// The parameters to characteristics discovery
 		var characteristicParams = {
 			"address" : address,
-			"serviceUuid" : sUuid,
-			"characteristicUuids" : rntxUuid
+			"service" : sUuid,
+			"characteristics" : rntxUuid
 		};
 
 		// Do service discovery
-		bluetoothle
-				.services(
+		bluetoothle.services(
+			function(obj) {
+				if (obj.status == "services" && obj.services.length > 0) {
+
+					// The service has been found. We can now
+					// discover
+					// characteristics
+					bluetoothle.characteristics(
 						function(obj) {
-							if (obj.status == "services"
-									&& obj.serviceUuids.length > 0) {
-								// The service has been found. We can now
-								// discover
+							if (obj.status == "characteristics") {
+								// Some characteristics
+								// have been found.
+								// Checking for both tx
+								// and rx
+								// correctness
+								var found = {
+									rx : false,
+									tx : false
+								};
+								// --- START
+								// characteristics loop
+								obj.characteristics.forEach(function(characteristic) {
+									var uuid = characteristic.uuid.toUpperCase();
+
+									if (uuid === txUuid) {
+										if (typeof characteristic.properties.writeWithoutResponse !== "undefined"
+												&& characteristic.properties.writeWithoutResponse) {
+											found.tx = true;
+										}
+									}
+
+									if (uuid === rxUuid) {
+										if (typeof characteristic.properties.notify !== "undefined"
+												&& characteristic.properties.notify) {
+											found.rx = true;
+										}
+									}
+								}); // --- END
 								// characteristics
+								// loop
 
-								bluetoothle
-										.characteristics(
-												function(obj) {
-													if (obj.status == "characteristics") {
-														// Some characteristics
-														// have been found.
-														// Checking for both tx
-														// and rx
-														// correctness
-														var found = {
-															rx : false,
-															tx : false
-														};
-														// --- START
-														// characteristics loop
-														obj.characteristics
-																.forEach(function(
-																		characteristic) {
-																	var uuid = characteristic.characteristicUuid
-																			.toUpperCase();
-
-																	if (uuid === txUuid) {
-																		if (typeof characteristic.properties.writeWithoutResponse !== "undefined"
-																				&& characteristic.properties.writeWithoutResponse) {
-																			found.tx = true;
-																		}
-																	}
-
-																	if (uuid === rxUuid) {
-																		if (typeof characteristic.properties.notify !== "undefined"
-																				&& characteristic.properties.notify) {
-																			found.rx = true;
-																		}
-																	}
-																}); // --- END
-																	// characteristics
-																	// loop
-
-														// Assuming we do not
-														// need to discover
-														// descriptors, we are
-														// done
-														if (found.rx
-																&& found.tx) {
-															btMode
-																	.discoverSuccess({
-																		"address" : obj.address
-																	});
-														} else {
-															btMode
-																	.discoverFailure({
-																		"address" : obj.address,
-																		"error" : "CharacteristicNotFound",
-																		"message" : "RX: "
-																				+ found.rx
-																				+ " TX: "
-																				+ found.tx
-																	});
-														}
-													} else {
-														btMode
-																.discoverFailure({
-																	"address" : obj.address,
-																	"error" : "unknown status",
-																	"message" : obj.status
-																});
-													}
-												}, function(obj) {
-													btMode.discoverFailure({
-														"address" : address,
-														"error" : obj.error,
-														"message" : obj.message
-													});
-												}, characteristicParams);
-								// if (obj.status == "services" &&
-								// obj.serviceUuids.length >
-								// 0) {
-							} else {
-								if (obj.serviceUuids.length <= 0) {
-									btMode
-											.discoverFailure({
-												"address" : obj.address,
-												"error" : "ServiceNotFound",
-												"message" : "Service was not discovered"
-											});
+								// Assuming we do not
+								// need to discover
+								// descriptors, we are
+								// done
+								if (found.rx && found.tx) {
+									btMode.discoverSuccess({
+										"address" : obj.address
+									});
 								} else {
 									btMode.discoverFailure({
 										"address" : obj.address,
-										"error" : "unknown status",
-										"message" : obj.status
+										"error" : "CharacteristicNotFound",
+										"message" : "RX: " + found.rx + " TX: " + found.tx
 									});
 								}
+							} else {
+								btMode.discoverFailure({
+									"address" : obj.address,
+									"error" : "unknown status",
+									"message" : obj.status
+								});
 							}
-						},
-
-						function(obj) {
+						}, function(obj) {
 							btMode.discoverFailure({
 								"address" : address,
 								"error" : obj.error,
 								"message" : obj.message
 							});
-						},
+						}, characteristicParams
+					);
+					// if (obj.status == "services" &&
+					// obj.services.length >
+					// 0) {
+				} else {
+					if (obj.services.length <= 0) {
+						btMode.discoverFailure({
+							"address" : obj.address,
+							"error" : "ServiceNotFound",
+							"message" : "Service was not discovered"
+						});
+					} else {
+						btMode.discoverFailure({
+							"address" : obj.address,
+							"error" : "unknown status",
+							"message" : obj.status
+						});
+					}
+				}
+			},
 
-						servicesParams);
+			function(obj) {
+				btMode.discoverFailure({
+					"address" : address,
+					"error" : obj.error,
+					"message" : obj.message
+				});
+			},
+
+			servicesParams);
 	};
 	// ---------------- END iOS -----------------------------------------------
 
@@ -570,55 +553,51 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						debugOut.notify.println("Starting scan");
 
 						// Starting the actual scan for devices
-						bluetoothle
-								.startScan(
-										function(obj) {
-											// Scan successful function
-											debugOut.notify
-													.println("Scan result: "
-															+ JSON
-																	.stringify(obj));
+						bluetoothle.startScan(
+							function(obj) {
+								// Scan successful function
+								debugOut.notify.println("Scan result: " + JSON.stringify(obj));
 
-											if (obj.status == "scanResult") {
-												// If we have not identified
-												// this device
-												// before:
-												if (typeof scanResults[obj.address] === "undefined") {
-													scanResults[obj.address] = true;
-													// Create the descriptor
-													var name = obj.name === null ? "? - "
-															+ obj.address
-															: obj.name;
-													var desc = plabBT
-															.createDeviceDescriptor(
-																	obj.address,
-																	name);
-													listCallback(desc);
-												}
-											} else if (obj.status == "scanStarted") {
-												btMode.status.scanning = true;
-												btMode.timers.scanning = setTimeout(
-														btMode.stopListDevices,
-														scanTime);
-											} else {
-												debugOut.err
-														.println("StartScanFailure: Unknown status: "
-																+ obj.status);
-											}
-										}, function(obj) {
-											// Scan failure function
-											btMode.status.failure = true;
-											debugOut.err
-													.println("ScanFailure: "
-															+ obj.error + " - "
-															+ obj.message);
-											updateScreen();
-										}, null);
+								if (obj.status == "scanResult") {
+									// If we have not identified
+									// this device
+									// before:
+									if (typeof scanResults[obj.address] === "undefined") {
+										scanResults[obj.address] = true;
+										// Create the descriptor
+										var name = obj.name === null ? "? - "
+												+ obj.address
+												: obj.name;
+										var desc = plabBT
+												.createDeviceDescriptor(
+														obj.address,
+														name);
+										listCallback(desc);
+									}
+								} else if (obj.status == "scanStarted") {
+									btMode.status.scanning = true;
+									btMode.timers.scanning = setTimeout(
+											btMode.stopListDevices,
+											scanTime);
+								} else {
+									debugOut.err
+											.println("StartScanFailure: Unknown status: "
+													+ obj.status);
+								}
+							}, function(obj) {
+								// Scan failure function
+								btMode.status.failure = true;
+								debugOut.err
+										.println("ScanFailure: "
+												+ obj.error + " - "
+												+ obj.message);
+								updateScreen();
+							}, null
+						);
 					} else {
 						// If the btle status is not initialized, warn and wait
 						// for some time before scan
-						debugOut.warn
-								.println("Device not initialized, delaying scan!");
+						debugOut.warn.println("Device not initialized, delaying scan!");
 						setTimeout(scan, 500);
 					}
 				};
@@ -635,61 +614,59 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				}
 
 				if (btMode.status.scanning) {
-					bluetoothle
-							.stopScan(
-									function(obj) {
-										// If a postScan callback exists, it
-										// should be
-										// called independent of status
-										if (btMode.postScanCallback != null) {
-											btMode.postScanCallback();
-											btMode.postScanCallback = null; // Remove
-																			// so
-																			// it
-											// won't be
-											// called
-											// multiple
-											// times
-										}
-										// If an unknown status exists, tell
-										// debug
-										if (obj.status !== "scanStopped") {
-											debugOut.warn
-													.println("StopScanFailure: Unknown status: "
-															+ obj.status);
-										}
-										btMode.status.scanning = false;
-									},
-									function(obj) {
-										if (obj.message === "Not scanning") {
-											// If a postScan callback exists, it
-											// should be
-											// called
-											if (btMode.postScanCallback != null) {
-												btMode.postScanCallback(); // Remove
-																			// so
-																			// it
-												// won't be
-												// called
-												// multiple
-												// times
-												btMode.postScanCallback = null;
-											}
-											// Tell debug
-											debugOut.warn
-													.println("StopScanFailure: "
-															+ obj.error
-															+ " - "
-															+ obj.message);
-										} else {
-											debugOut.err
-													.println("StopScanFailure: "
-															+ obj.error
-															+ " - "
-															+ obj.message);
-										}
-										btMode.status.scanning = false;
-									});
+					bluetoothle.stopScan(
+						function(obj) {
+							// If a postScan callback exists, it
+							// should be
+							// called independent of status
+							if (btMode.postScanCallback != null) {
+								btMode.postScanCallback();
+								btMode.postScanCallback = null; // Remove
+																// so
+																// it
+								// won't be
+								// called
+								// multiple
+								// times
+							}
+							// If an unknown status exists, tell
+							// debug
+							if (obj.status !== "scanStopped") {
+								debugOut.warn
+										.println("StopScanFailure: Unknown status: "
+												+ obj.status);
+							}
+							btMode.status.scanning = false;
+						},
+						function(obj) {
+							if (obj.message === "Not scanning") {
+								// If a postScan callback exists, it
+								// should be
+								// called
+								if (btMode.postScanCallback != null) {
+									btMode.postScanCallback(); // Remove
+																// so
+																// it
+									// won't be
+									// called
+									// multiple
+									// times
+									btMode.postScanCallback = null;
+								}
+								// Tell debug
+								debugOut.warn.println("StopScanFailure: "
+												+ obj.error
+												+ " - "
+												+ obj.message);
+							} else {
+								debugOut.err.println("StopScanFailure: "
+												+ obj.error
+												+ " - "
+												+ obj.message);
+							}
+							btMode.status.scanning = false;
+						}
+					);
 				}
 			};
 			// ------------------ END SCAN ------------------------
@@ -698,8 +675,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			// connectDevice: connecting to device with id
 			btMode.connectDevice = function(id, successCallback) {
 				if (btMode.address !== null) {
-					debugOut.warn
-							.println("Tried to connect to device while still connected! Now disconnecting");
+					debugOut.warn.println("Tried to connect to device while still connected! Now disconnecting");
 					btMode.disconnectDevice();
 					return;
 				}
@@ -882,8 +858,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						"address" : btMode.address,
 						"value" : bluetoothle.bytesToEncodedString(bluetoothle
 								.stringToBytes(text)),
-						"serviceUuid" : btMode.serviceInfo.serviceUUID,
-						"characteristicUuid" : btMode.serviceInfo.txUUID,
+						"service" : btMode.serviceInfo.serviceUUID,
+						"characteristic" : btMode.serviceInfo.txUUID,
 						"type" : "noResponse"
 					};
 					// Write to the service characteristic
