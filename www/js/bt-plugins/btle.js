@@ -159,17 +159,13 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		}
 	};
 	btMode.serviceInfo = {
-		serviceUUID : "FFE0", // unique identifier for the Service used for
-		// communication
-		txUUID : "FFE1", // unique identifier for the TX Characteristic
-		// (Property = Notify)
-		rxUUID : "FFE1" // unique identifier for the RX Characteristic
-	// (Property = Write without response)
+		serviceUUID : "FFE0", // unique identifier for the Service used for communication
+		txUUID : "FFE1", // unique identifier for the TX Characteristic (Property = Notify)
+		rxUUID : "FFE1" // unique identifier for the RX Characteristic (Property = Write without response)
 	};
 	// List of message subscribers
 	btMode.subscriptions = [];
-	// Platforms: identify the supported platforms. Code differs based on
-	// platform
+	// Platforms: identify the supported platforms. Code differs based on platform
 	btMode.platforms = {
 		iOS : "iOS",
 		android : "Android"
@@ -194,10 +190,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		};
 
 		// do subscribe
-		bluetoothle.subscribe(btMode.subscribeSuccess, btMode.subscribeFailure,
-				params);
+		bluetoothle.subscribe(btMode.subscribeSuccess, btMode.subscribeFailure, params);
 
 	};
+
+
 	btMode.subscribeSuccess = function(params) {
 		if (params.status == "subscribedResult") {
 			// Debug output
@@ -207,23 +204,22 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			btMode.status.failure = false;
 
 			// Translate received message to real string
-			var recString = bluetoothle.bytesToString(bluetoothle
-					.encodedStringToBytes(params.value));
+			var recString = bluetoothle.bytesToString(bluetoothle.encodedStringToBytes(params.value));
 
 			// See if we received an "end of message" (aka newline)
 			if (recString.indexOf('\n') === -1) {
 				btMode.receiveString += recString;
 			} else {
-				// We received at least one message. concat the old string with
-				// the new
+
+				// We received at least one message. concat the old string with the new
 				recString = btMode.receiveString + recString;
 				// Split on newline
 				var splitString = recString.split("\n");
+
 				// Send all completed messages to listeners
 				for ( var i = 0; i < splitString.length - 1; i++) {
 					// Pass split messages to subscribers
-					debugOut.notify.println("Message passed on: "
-							+ splitString[i]);
+					debugOut.notify.println("Message passed on: " + splitString[i]);
 					for ( var j = 0; j < btMode.subscriptions.length; j++) {
 						btMode.subscriptions[j](splitString[i]);
 					}
@@ -252,9 +248,10 @@ function plabAddBT4_0(debugOut, updateScreen) {
 			btMode.disconnectByAddress(params.address);
 		}
 	};
+
+
 	btMode.subscribeFailure = function(params) {
-		debugOut.err.println("SubscribeFailure: " + obj.error + " - "
-				+ obj.message);
+		debugOut.err.println("SubscribeFailure: " + obj.error + " - " + obj.message);
 		btMode.status.ready = false;
 		btMode.status.failure = true;
 		updateScreen();
@@ -264,22 +261,26 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		btMode.disconnectDevice();
 	};
 
+
 	// discoveredService: called after service has been totally discovered.
 	// Starts serial communication.
 	btMode.discoverSuccess = function(params) {
 		// params = {"address" : ""}
 		btMode.startSubscribe(params.address);
 	};
+
+
 	btMode.discoverFailure = function(params) {
 		// params = {"address" : "", "error":"", "message":""}
-		dobugOut.err.println("Discovery of " + params.address + " failed: "
-				+ params.error + " - " + params.message);
+		debugOut.err.println("Discovery of " + params.address + " failed: " + params.error + " - " + params.message);
 		btMode.postConnectSuccessCallback = null;
 		btMode.status.ready = false;
 		btMode.status.failure = true;
 		updateScreen();
 		disconnectByAddress(params.address);
 	};
+
+
 
 	// ------------------------------------------------------------------------
 	// ---- START PLATFORM SPECIFIC DISCOVERY ---------------------------------
@@ -292,63 +293,55 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		bluetoothle.discover(
 			function(obj) {
 				debugOut.notify.println(JSON.stringify(obj));
-				if (obj.status == "discovered") {try{
-					// The device was discovered. Check if we found
-					// the
-					// correct connection data
+				if (obj.status == "discovered") {
+					// The device was discovered. Check if we found the correct connection data
 					var found = {
 						service : false,
 						rx : false,
 						tx : false
 					};
 
-					// Service, rx and tx uuids. Used for discovered
-					// confirmation.
+					// Service, rx and tx uuids. Used for discovered confirmation.
 					var sUuid = btMode.serviceInfo.serviceUUID.toUpperCase();
 					var rxUuid = btMode.serviceInfo.rxUUID.toUpperCase();
 					var txUuid = btMode.serviceInfo.txUUID.toUpperCase();
 
-					// Find the service, and set found properties
-					// properly
+					// Find the service, and set found properties properly
 					// --- START services
 					obj.services.forEach(function(service) {
-						debugOut.warn.println("service");
+						debugOut.notify.println("Service");
 						if (service.uuid.toUpperCase() == sUuid) {
-							debugOut.warn.println("First");
 							found.service = true;
-							// Service found. Find rx and tx
-							// characteristics
+							// Service found. Find rx and tx characteristics
 
 							// --- START characteristics
-							service.characteristics.forEach(
-								function(characteristic) {
-									debugOut.warn.println("characteristic");
-									var uuid = characteristic.uuid.toUpperCase();
+							service.characteristics.forEach(function(characteristic) {
+								debugOut.notify.println("Characteristic");
+								var uuid = characteristic.uuid.toUpperCase();
 
-									if (uuid === txUuid) {
-										if (typeof characteristic.properties.writeWithoutResponse !== "undefined"
-												&& characteristic.properties.writeWithoutResponse) {
-											found.tx = true;
-										}
-									}
-
-									if (uuid === rxUuid) {
-										if (typeof characteristic.properties.notify !== "undefined"
-												&& characteristic.properties.notify) {
-											found.rx = true;
-										}
+								if (uuid === txUuid) {
+									// Pleonasm aka code bloat?
+									if (typeof characteristic.properties.writeWithoutResponse !== "undefined"
+											&& characteristic.properties.writeWithoutResponse) {
+										found.tx = true;
 									}
 								}
-							); // --- END characteristics
+
+								if (uuid === rxUuid) {
+									// Pleonasm aka code bloat?
+									if (typeof characteristic.properties.notify !== "undefined"
+											&& characteristic.properties.notify) {
+										found.rx = true;
+									}
+								}
+							}); // --- END characteristics
 						}
 					}); // --- END services
 
 					// Call post platform specific discovery
 					// functionality
 					if (found.service && found.rx && found.tx) {
-						btMode.discoverSuccess({
-							"address" : obj.address
-						});
+						btMode.discoverSuccess({"address" : obj.address});
 					} else {
 						btMode.discoverFailure({
 							"address" : obj.address,
@@ -357,7 +350,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 									+ " RX: " + found.rx + " TX: "
 									+ found.tx
 						});
-					} } catch(e) { debugOut.err.println("Exception: " + e); }
+					}
 				} else {
 					btMode.discoverFailure({
 						"address" : obj.address,
@@ -365,13 +358,17 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						"message" : obj.status
 					});
 				}
-			}, function(obj) {
+			},
+			
+			function(obj) {
 				btMode.discoverFailure({
 					"address" : address,
 					"error" : obj.error,
 					"message" : obj.message
 				});
-			}, {
+			},
+			
+			{
 				"address" : address
 			}
 		);
@@ -422,8 +419,7 @@ function plabAddBT4_0(debugOut, updateScreen) {
 									rx : false,
 									tx : false
 								};
-								// --- START
-								// characteristics loop
+								// --- START characteristics loop
 								obj.characteristics.forEach(function(characteristic) {
 									var uuid = characteristic.uuid.toUpperCase();
 
@@ -440,18 +436,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 											found.rx = true;
 										}
 									}
-								}); // --- END
-								// characteristics
-								// loop
+								}); // --- END characteristics loop
 
-								// Assuming we do not
-								// need to discover
-								// descriptors, we are
-								// done
+								// Assuming we do not need to discover descriptors, we are done
 								if (found.rx && found.tx) {
-									btMode.discoverSuccess({
-										"address" : obj.address
-									});
+									btMode.discoverSuccess({"address" : obj.address});
 								} else {
 									btMode.discoverFailure({
 										"address" : obj.address,
@@ -466,7 +455,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 									"message" : obj.status
 								});
 							}
-						}, function(obj) {
+						},
+						
+						function(obj) {
 							btMode.discoverFailure({
 								"address" : address,
 								"error" : obj.error,
@@ -502,7 +493,8 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				});
 			},
 
-			servicesParams);
+			servicesParams
+		);
 	};
 	// ---------------- END iOS -----------------------------------------------
 
@@ -559,19 +551,12 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								debugOut.notify.println("Scan result: " + JSON.stringify(obj));
 
 								if (obj.status == "scanResult") {
-									// If we have not identified
-									// this device
-									// before:
+									// If we have not identified this device before:
 									if (typeof scanResults[obj.address] === "undefined") {
 										scanResults[obj.address] = true;
 										// Create the descriptor
-										var name = obj.name === null ? "? - "
-												+ obj.address
-												: obj.name;
-										var desc = plabBT
-												.createDeviceDescriptor(
-														obj.address,
-														name);
+										var name = obj.name === null ? "? - " + obj.address : obj.name;
+										var desc = plabBT.createDeviceDescriptor(obj.address, name);
 										listCallback(desc);
 									}
 								} else if (obj.status == "scanStarted") {
@@ -584,7 +569,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 											.println("StartScanFailure: Unknown status: "
 													+ obj.status);
 								}
-							}, function(obj) {
+							},
+							
+							function(obj) {
 								// Scan failure function
 								btMode.status.failure = true;
 								debugOut.err
@@ -592,7 +579,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 												+ obj.error + " - "
 												+ obj.message);
 								updateScreen();
-							}, null
+							},
+							
+							null
 						);
 					} else {
 						// If the btle status is not initialized, warn and wait
@@ -616,53 +605,28 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				if (btMode.status.scanning) {
 					bluetoothle.stopScan(
 						function(obj) {
-							// If a postScan callback exists, it
-							// should be
-							// called independent of status
+							// If a postScan callback exists, it should be called independent of status
 							if (btMode.postScanCallback != null) {
 								btMode.postScanCallback();
-								btMode.postScanCallback = null; // Remove
-																// so
-																// it
-								// won't be
-								// called
-								// multiple
-								// times
+								btMode.postScanCallback = null; // Remove so it won't be called multiple times
 							}
-							// If an unknown status exists, tell
-							// debug
+							// If an unknown status exists, tell debug
 							if (obj.status !== "scanStopped") {
-								debugOut.warn
-										.println("StopScanFailure: Unknown status: "
-												+ obj.status);
+								debugOut.warn.println("StopScanFailure: Unknown status: " + obj.status);
 							}
 							btMode.status.scanning = false;
 						},
 						function(obj) {
 							if (obj.message === "Not scanning") {
-								// If a postScan callback exists, it
-								// should be
-								// called
+								// If a postScan callback exists, it should be called
 								if (btMode.postScanCallback != null) {
-									btMode.postScanCallback(); // Remove
-																// so
-																// it
-									// won't be
-									// called
-									// multiple
-									// times
+									btMode.postScanCallback(); // Remove so it won't be called multiple times
 									btMode.postScanCallback = null;
 								}
 								// Tell debug
-								debugOut.warn.println("StopScanFailure: "
-												+ obj.error
-												+ " - "
-												+ obj.message);
+								debugOut.warn.println("StopScanFailure: " + obj.error + " - " + obj.message);
 							} else {
-								debugOut.err.println("StopScanFailure: "
-												+ obj.error
-												+ " - "
-												+ obj.message);
+								debugOut.err.println("StopScanFailure: " + obj.error + " - " + obj.message);
 							}
 							btMode.status.scanning = false;
 						}
@@ -689,14 +653,12 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				// Stop scan if needed
 				btMode.stopListDevices();
 				// Connect
-				var params = {
-					"address" : id
-				};
-				bluetoothle.connect(btMode.connectSuccess,
-						btMode.connectFailure, params);
-				btMode.timers.connecting = setTimeout(btMode.disconnectDevice,
-						5000);
+				var params = { "address" : id };
+				bluetoothle.connect(btMode.connectSuccess, btMode.connectFailure, params);
+				// In case connect does not return in time, we set a timeout of 5 seconds before disconnect
+				btMode.timers.connecting = setTimeout(btMode.disconnectDevice, 5000);
 			};
+
 			// Connect callbacks
 			btMode.connectSuccess = function(params) {
 				if (params.status == "connected") {
@@ -743,10 +705,10 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					updateScreen();
 					btMode.closeByAddress(params.address);
 				} else {
-					debugOut.err
-							.println("ConnectUnknownStatus" + params.status);
+					debugOut.err.println("ConnectUnknownStatus" + params.status);
 				}
 			};
+
 			btMode.connectFailure = function(params) {
 				// Connection failed
 				btMode.status.connected = false;
@@ -761,30 +723,28 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				}
 				updateScreen();
 			};
+
 			// ------------------ END CONNECT ------------------
 
 			// ------------------ DISCONNECT ------------------
-			// disconnectDevice: Disconnects from connected device (if
-			// connected)
+			// disconnectDevice: Disconnects from connected device (if connected)
 			btMode.disconnectDevice = function() {
 				if (btMode.address === null) {
-					debugOut.warn
-							.println("Disconnect called, but address was not set");
+					debugOut.warn.println("Disconnect called, but address was not set");
 				} else {
 					btMode.disconnectByAddress(btMode.address);
 				}
 			};
+
 			// Disconnect callbacks
 			btMode.disconnectSuccess = function(params) {
 				if (params.status == "disconnected") {
 					debugOut.notify.println("Disconnected from " + params.name);
 					btMode.closeByAddress(params.address);
 				} else if (params.status == "disconnecting") {
-					debugOut.notify.println("Disconnecting from " + params.name
-							+ ", address " + params.address);
+					debugOut.notify.println("Disconnecting from " + params.name + ", address " + params.address);
 				} else {
-					debugOut.err.println("Disconnect failure: Unknown status: "
-							+ params.status);
+					debugOut.err.println("Disconnect failure: Unknown status: " + params.status);
 					btMode.status.failure = true;
 					updateScreen();
 					return;
@@ -798,9 +758,9 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				}
 				updateScreen();
 			};
+
 			btMode.disconnectFailure = function(params) {
-				debugOut.err.println("DisconnectFailure: " + params.error
-						+ " - " + params.message);
+				debugOut.err.println("DisconnectFailure: " + params.error + " - " + params.message);
 				btMode.status.failure = true;
 				if (btMode.address !== null) {
 					var addr = btMode.address;
@@ -809,24 +769,21 @@ function plabAddBT4_0(debugOut, updateScreen) {
 				}
 				updateScreen();
 			};
+
 			// Do disconnect
 			btMode.disconnectByAddress = function(address) {
 				debugOut.notify.println("Disconnecting from: " + address);
-				var params = {
-					"address" : address
-				};
-				bluetoothle.disconnect(btMode.disconnectSuccess,
-						btMode.disconnectFailure, params);
+				var params = { "address" : address };
+				bluetoothle.disconnect(btMode.disconnectSuccess, btMode.disconnectFailure, params);
 			};
+
 			// Do close device (after disconnect)
 			btMode.closeByAddress = function(address) {
 				debugOut.notify.println("Closing device: " + address);
-				var params = {
-					"address" : address
-				};
-				bluetoothle.close(btMode.closeSuccess, btMode.closeFailure,
-						params);
+				var params = { "address" : address };
+				bluetoothle.close(btMode.closeSuccess, btMode.closeFailure, params);
 			};
+
 			// Close callbacks
 			btMode.closeSuccess = function(params) {
 				if (params.status == "closed") {
@@ -835,18 +792,18 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					btMode.status.connected = false;
 					btMode.status.failure = false;
 				} else {
-					debugOut.err.println("Close failure: Unknown status: "
-							+ params.status);
+					debugOut.err.println("Close failure: Unknown status: " + params.status);
 					btMode.status.failure = true;
 				}
 				updateScreen();
 			};
+
 			btMode.closeFailure = function(params) {
-				debugOut.err.println("CloseFailure: " + params.error + " - "
-						+ params.message);
+				debugOut.err.println("CloseFailure: " + params.error + " - " + params.message);
 				btMode.status.failure = true;
 				updateScreen();
 			};
+
 			// ------------------ END DICCONNECT ------------------
 
 			// -------------- SEND / RECEIVE ------------
@@ -863,11 +820,15 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						"type" : "noResponse"
 					};
 					// Write to the service characteristic
-					bluetoothle.write(function(obj) {
-					}, function(obj) {
-						debugOut.err.println("WriteFailure: " + obj.error
-								+ " - " + obj.message);
-					}, params);
+					bluetoothle.write(
+						function(obj) {},
+						
+						function(obj) {
+							debugOut.err.println("WriteFailure: " + obj.error + " - " + obj.message);
+						},
+						
+						params
+					);
 
 				} else {
 					debugOut.warn.println("WriteFailure: Not connected");
@@ -885,31 +846,26 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		// -------------- INIT -------------------
 		if (!btMode.status.initialized) {
 			bluetoothle.initialize(
+				function(obj) {
+					if (obj.status == "enabled") {
+						btMode.status.initialized = true;
+						updateScreen();
+					} else {
+						debugOut.warn.println("InitializeFailure: Unknown status: " + obj.status);
+					}
+				},
 
-			function(obj) {
-				if (obj.status == "enabled") {
-					btMode.status.initialized = true;
+				function(obj) {
+					// Failure to initialize
+					btMode.status.failure = true;
+					debugOut.err.println("InitializeFailure: " + obj.error + " - " + obj.message);
 					updateScreen();
-				} else {
-					debugOut.warn.println("InitializeFailure: Unknown status: "
-							+ obj.status);
-				}
-			},
+				},
 
-			function(obj) {
-				// Failure to initialize
-				btMode.status.failure = true;
-				debugOut.err.println("InitializeFailure: " + obj.error + " - "
-						+ obj.message);
-				updateScreen();
-			},
-
-			{
-				"request" : false
-			});
+				{ "request" : false }
+			);
 		}
 		// -------------- END INIT -------------------
-
 	};
 
 	// Add mode to parent app
@@ -921,21 +877,24 @@ function plabAddBT4_0(debugOut, updateScreen) {
 		"text-key" : "btle-servive-select",
 
 		"type" : "single-select",
-		"options" : [ {
-			"text-key" : "btle-default",
-			"value" : "default"
-		}, {
-			"text-key" : "btle-nordic",
-			"value" : "nordic"
-		} ],
+		"options" : [
+			{
+				"text-key" : "btle-default",
+				"value" : "default"
+			},
+			{
+				"text-key" : "btle-nordic",
+				"value" : "nordic"
+			}
+		],
 		"default-value" : "default",
 		"description-text-key" : "btle-service-select-desc",
 		"onValueChange" : function(string) {
 			btMode.serviceInfo = btMode.supportedServices[string];
 		}
 	});
-	var serviceSet = plab.settingsController
-			.getSettingValue("plab-btle-service");
+
+	var serviceSet = plab.settingsController.getSettingValue("plab-btle-service");
 	if (serviceSet !== null) {
 		btMode.serviceInfo = btMode.supportedServices[serviceSet];
 	}
@@ -944,8 +903,10 @@ function plabAddBT4_0(debugOut, updateScreen) {
 // Adding the btle module must be done after device is ready.
 document.addEventListener(
 	"deviceready",
+
 	function() {
 		plabAddBT4_0(plab.out, plab.updateScreen);
 	},
+
 	false
 );
