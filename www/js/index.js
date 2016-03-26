@@ -160,6 +160,7 @@ var plab = {
 		},
 		// onDeviceReady : the method called when cordova is set up, and its functionality is safe to call.
 		onDeviceReady : function () {
+
 			// Init debug
 			var n = document.getElementById ("plab-debug");
 			plab.out.init(n);
@@ -210,6 +211,9 @@ var plab = {
 			
 			// Register back button
 			plab.registerBackButton();
+
+			// Override default event handling; touch events transferred to mouse events. Kill native mouse events.
+			plab.eventOverrides.updateEventOverrideListeners();
 
 			// Show the first screen
 			plab.showIntro();

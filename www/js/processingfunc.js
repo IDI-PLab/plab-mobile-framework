@@ -309,10 +309,6 @@ plab.processingFunc = {
 		plab.timers.processing = null;
 		// Make the framework invisible
 		document.body.classList.remove("plab");
-		// --------------------------------------------------------------------
-		// Workaroung to fix touch event handling:
-		plab.processingFunc.updateTouchEventListeners();
-		// --------------------------------------------------------------------
 		try {
 			// The canvas should fill the screen
 			var w = plabPjsBridge.getWidth();
@@ -354,102 +350,5 @@ plab.processingFunc = {
 				plab.processingFunc.startLoad();
 			}
 		}
-	},
-
-	// ------------------------------------------------------------------------
-	// --- Workaround to treat touch events as mouse events ---
-	// --- Should be removed if a patch to processing.js to fix this is released
-	// ------------------------------------------------------------------------
-	touchToMouseDispatch : function(type, evt) {
-		plab.out.warn.println("Creating a mouse event: " + type);
-		// Should use new MouseEvent, but this fails. So:
-		var mev = document.createEvent("MouseEvents");
-		var t = evt.changedTouches[0];
-		mev.initMouseEvent(type, true, true, window, 1,
-			t.screenX, t.screenY, t.clientX, t.clientY,
-			evt.ctrlKey, evt.altKey, evt.shiftKey, evt.metaKey, 0, null
-		);
-		mev.testDbg = true;
-		// Stop the event from propagating further:
-//		evt.stopPropagation();
-		// Do the new dispatch:
-		plab.out.warn.println("Dispatching a mouse event");
-		var canvas = document.getElementById("plab-canvas");
-		canvas.dispatchEvent(mev);
-	},
-
-	debugMouse : function(evt) {
-		try {
-		if (evt.testDbg) {
-		plab.out.err.println("Mouse debug SELF");
-		} else {
-		plab.out.err.println("Mouse debug");
-		evt.preventDefault();
-		evt.stopPropagation();
-		return false;
-		}
-		} catch (e) {
-		plab.out.err.println(e);
-		}
-	},
-
-	dbgMs : function(evt) {
-		plab.out.err.println("Click");
-	},
-	dbgTap : function(evt) {
-		plab.out.err.println("Tap");
-	},
-
-	updateTouchEventListeners : function() {
-		plab.out.notify.println("Update listeners");
-		var canvas = document.getElementById("plab-canvas");
-		var p = plab.processingFunc.processingInstance;
-		plab.out.warn.println("start: " + (typeof p.touchStart !== "undefined")
-			+ " end: " + (typeof p.touchEnd !== "undefined")
-			+ " move: " + (typeof p.touchMove !== "undefined")
-			+ " cancel: " + (typeof p.touchCancel !== "undefined"));
-		canvas.removeEventListener("click", plab.processingFunc.dbgMs);
-		canvas.addEventListener("click", plab.processingFunc.dbgMs);
-		canvas.removeEventListener("mousedown", plab.processingFunc.debugMouse);
-		canvas.addEventListener("mousedown", plab.processingFunc.debugMouse);
-		canvas.removeEventListener("mouseup", plab.processingFunc.debugMouse);
-		canvas.addEventListener("mouseup", plab.processingFunc.debugMouse);
-		canvas.removeEventListener("touchstart", plab.processingFunc.handleTouchStart);
-		canvas.addEventListener("touchstart", plab.processingFunc.handleTouchStart);
-		canvas.removeEventListener("touchend", plab.processingFunc.handleTouchEnd);
-		canvas.addEventListener("touchend", plab.processingFunc.handleTouchEnd);
-		canvas.removeEventListener("touchcancel", plab.processingFunc.handleTouchCancel);
-		canvas.addEventListener("touchcancel", plab.processingFunc.handleTouchCancel);
-		canvas.removeEventListener("touchmove", plab.processingFunc.handleTouchMove);
-		canvas.addEventListener("touchmove", plab.processingFunc.handleTouchMove);
-		canvas.removeEventListener("tap", plab.processingFunc.dbgTap);
-		canvas.addEventListener("tap", plab.processingFunc.dbgTap);
-		plab.out.notify.println("Update listeners complete");
-	},
-
-	handleTouchStart : function(evt) {
-		evt.preventDefault();
-		plab.out.notify.println("Touch start");
-		plab.processingFunc.touchToMouseDispatch("mousedown", evt);
-		return false;
-	},
-	handleTouchEnd : function(evt) {
-//		evt.preventDefault();
-		plab.out.notify.println("Touch end");
-		plab.processingFunc.touchToMouseDispatch("mouseup", evt);
-		return false;
-	},
-	handleTouchMove : function(evt) {
-//		evt.preventDefault();
-		plab.out.notify.println("Touch move");
-		plab.processingFunc.touchToMouseDispatch("mousemove", evt);
-		return false;
-	},
-	handleTouchCancel : function(evt) {
-//		evt.preventDefault();
-		return plab.processingFunc.handleTouchEnd(evt);
 	}
-	// ------------------------------------------------------------------------
-	// --- Touch event workaround end ---
-	// ------------------------------------------------------------------------
 };
