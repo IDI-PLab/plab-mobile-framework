@@ -358,8 +358,9 @@ var plab = {
 				btn.addEventListener(
 						"click", 
 						function(evt) {
-							plab.out.notify.println("[select bt]: Setting mode " + evt.target.modeId);
-							plabBT.setMode(evt.target.modeId);
+							var mId = evt.currentTarget.modeId;
+							plab.out.notify.println("[select bt]: Setting mode " + mId);
+							plabBT.setMode(mId);
 							plab.showConnect();
 						}
 				);
