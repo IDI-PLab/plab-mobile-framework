@@ -182,8 +182,8 @@ body {
 }
 
 .plab input[type=checkbox] {
-	transform: scale(2.5);
-	-webkit-transform: scale(2.5);
+	transform: scale(1.5);
+	-webkit-transform: scale(1.5);
 	margin: 0.4ex;
 }
 

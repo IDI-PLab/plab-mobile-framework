@@ -34,6 +34,10 @@
 plab.eventOverrides = {
 	// Remember last start event target (only click when start target is same as end target)
 	lastStartTarget : null,
+	// To avoid clicking when touch has been moved a substancial amount, track where event started
+	screenStart : { x : 0, y : 0},
+	// Max squared distance, in screen pixel coordinates, from start position before a click is not produced
+	sqMaxDist : 1600,
 
 	touchToMouseDispatch : function(type, evt) {
 		// Should use new MouseEvent, but this fails. So initMouseEvent is used:
@@ -85,6 +89,9 @@ plab.eventOverrides = {
 	handleTouchStart : function(evt) {
 		// Remember the target:
 		plab.eventOverrides.lastStartTarget = evt.target;
+		// Remember the position
+		plab.eventOverrides.screenStart.x = evt.changedTouches[0].screenX;
+		plab.eventOverrides.screenStart.y = evt.changedTouches[0].screenY;
 		// Dispatch a move to the current position
 		plab.eventOverrides.touchToMouseDispatch("mousemove", evt);
 		// Dispatch mouse event
@@ -94,8 +101,14 @@ plab.eventOverrides = {
 		// Dispatch mouse event
 		plab.eventOverrides.touchToMouseDispatch("mouseup", evt);
 		// Should we simulate a click?
+		// 1: Do we have the same target?
 		if (evt.target === plab.eventOverrides.lastStartTarget) {
-			plab.eventOverrides.touchToMouseDispatch("click", evt);
+			var mDistX = plab.eventOverrides.screenStart.x - evt.changedTouches[0].screenX;
+			var mDistY = plab.eventOverrides.screenStart.y - evt.changedTouches[0].screenY;
+			// 2: Is moved distance from start not too far away?
+			if ((mDistX * mDistX + mDistY * mDistY) <= plab.eventOverrides.sqMaxDist) {
+				plab.eventOverrides.touchToMouseDispatch("click", evt);
+			}
 		}
 		plab.eventOverrides.lastStartTarget = null;
 	},
