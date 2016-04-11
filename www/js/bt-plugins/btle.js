@@ -579,7 +579,14 @@ function plabAddBT4_0(debugOut, updateScreen) {
 								updateScreen();
 							},
 							
-							null
+							{
+								"services" : [],
+								"allowDuplicates" : false,
+								"scanMode" : bluetoothle.SCAN_MODE_LOW_POWER,
+								"matchMode": bluetoothle.MATCH_MODE_AGGRESSIVE,
+								"matchNum" : bluetoothle.MATCH_NUM_ONE_ADVERTISEMENT,
+								"callbackType" : bluetoothle.CALLBACK_TYPE_ALL_MATCHES
+							}
 						);
 					} else {
 						// If the btle status is not initialized, warn and wait
@@ -860,7 +867,11 @@ function plabAddBT4_0(debugOut, updateScreen) {
 					updateScreen();
 				},
 
-				{ "request" : false }
+				{
+					"request" : false,
+					"statusReceiver" : true,
+					"restoreKey" : "plab_bt_framework"
+				}
 			);
 		}
 		// -------------- END INIT -------------------

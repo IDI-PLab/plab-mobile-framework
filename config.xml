@@ -12,6 +12,9 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+	<!-- Whitelist plugin, allow every location -->
+	<allow-navigation href="http://*/*" />
+	<allow-navigation href="https://*/*" />
     
     <!-- ORIENTATION -->
     <preference name="Orientation" value="portrait" />
