@@ -75,18 +75,21 @@ plab.eventOverrides = {
 		b.addEventListener("click", plab.eventOverrides.killNonSelfDispatched, true);
 
 		// Touch events should generate mouse events: allow:
-		b.removeEventListener("touchstart", plab.eventOverrides.handleTouchStart);
-		b.addEventListener("touchstart", plab.eventOverrides.handleTouchStart);
-		b.removeEventListener("touchend", plab.eventOverrides.handleTouchEnd);
-		b.addEventListener("touchend", plab.eventOverrides.handleTouchEnd);
-		b.removeEventListener("touchcancel", plab.eventOverrides.handleTouchCancel);
-		b.addEventListener("touchcancel", plab.eventOverrides.handleTouchCancel);
-		b.removeEventListener("touchmove", plab.eventOverrides.handleTouchMove);
-		b.addEventListener("touchmove", plab.eventOverrides.handleTouchMove);
+		b.removeEventListener("touchstart", plab.eventOverrides.handleTouchStarti, true);
+		b.addEventListener("touchstart", plab.eventOverrides.handleTouchStart, true);
+		b.removeEventListener("touchend", plab.eventOverrides.handleTouchEnd, true);
+		b.addEventListener("touchend", plab.eventOverrides.handleTouchEnd, true);
+		b.removeEventListener("touchcancel", plab.eventOverrides.handleTouchCancel, true);
+		b.addEventListener("touchcancel", plab.eventOverrides.handleTouchCancel, true);
+		b.removeEventListener("touchmove", plab.eventOverrides.handleTouchMove, true);
+		b.addEventListener("touchmove", plab.eventOverrides.handleTouchMove, true);
 		plab.out.notify.println("Update listeners complete");
 	},
 
 	handleTouchStart : function(evt) {
+		// Stop propagation of this event
+		evt.stopPropagation();
+		plab.out.notify.println("Touch event KILLED");
 		// Remember the target:
 		plab.eventOverrides.lastStartTarget = evt.target;
 		// Remember the position
@@ -98,6 +101,9 @@ plab.eventOverrides = {
 		plab.eventOverrides.touchToMouseDispatch("mousedown", evt);
 	},
 	handleTouchEnd : function(evt) {
+		// Stop propagation of this event
+		evt.stopPropagation();
+		plab.out.notify.println("Touch event KILLED");
 		// Dispatch mouse event
 		plab.eventOverrides.touchToMouseDispatch("mouseup", evt);
 		// Should we simulate a click?
@@ -113,10 +119,16 @@ plab.eventOverrides = {
 		plab.eventOverrides.lastStartTarget = null;
 	},
 	handleTouchMove : function(evt) {
+		// Stop propagation of this event
+		evt.stopPropagation();
+		plab.out.notify.println("Touch event KILLED");
 		// Dispatch mouse event
 		plab.eventOverrides.touchToMouseDispatch("mousemove", evt);
 	},
 	handleTouchCancel : function(evt) {
+		// Stop propagation of this event
+		evt.stopPropagation();
+		plab.out.notify.println("Touch event KILLED");
 		// We reuse the end handler, but hold this here in case we wish to change behaviour in the future
 		plab.eventOverrides.handleTouchEnd(evt);
 	}
