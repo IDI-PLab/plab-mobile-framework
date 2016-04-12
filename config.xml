@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="no.ntnu.idi.plab.bt_framework" version="2.1.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="no.ntnu.idi.plab.bt_framework" version="2.1.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>PLab</name>
     <description>
         A simple app that developed for the course Programming lab at NTNU. It allows the students to easily connect their mobile devices to a bluetooth (android only) or bluetooth 4.0 device and communicate to it through processing.
