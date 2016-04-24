@@ -563,19 +563,14 @@ function plabAddBT4_0(debugOut, updateScreen) {
 											btMode.stopListDevices,
 											scanTime);
 								} else {
-									debugOut.err
-											.println("StartScanFailure: Unknown status: "
-													+ obj.status);
+									debugOut.err.println("StartScanFailure: Unknown status: " + obj.status);
 								}
 							},
 							
 							function(obj) {
 								// Scan failure function
 								btMode.status.failure = true;
-								debugOut.err
-										.println("ScanFailure: "
-												+ obj.error + " - "
-												+ obj.message);
+								debugOut.err.println("ScanFailure: " + obj.error + " - " + obj.message);
 								updateScreen();
 							},
 							
@@ -595,7 +590,75 @@ function plabAddBT4_0(debugOut, updateScreen) {
 						setTimeout(scan, 500);
 					}
 				};
-				setTimeout(scan, 500);
+
+				// perm: permissions for coarse location and enabled service. Android 6+ fix
+				var perm = {
+					"coarse" : false,
+					"location" : false
+				};
+				// Anonymous function that checks (and requests) permissions to scan and discover devices
+				var allowStartScan = function() {
+					// This function is written as a fix to android 6+, and may be a bit messy.
+					// Check for coarse location privilieges
+					bluetoothle.hasPermission(function(param) {
+						perm["coarse"] = param["hasPermission"];
+						// Check if location services are enabled
+						bluetoothle.isLocationEnabled(function(param) {
+							perm["location"] = param["isLocationEnabled"];
+							// If coarse location privilieges are not granted, request
+							if (!perm["coarse"]) {
+								bluetoothle.requestPermission(
+									function(params) {
+										perm["coarse"] = params["requestPermission"];
+										if (!perm["coarse"]) {
+											btMode.status.scanning = false;
+											btMode.status.failure = true;
+											debugOut.warn.println("Was denied permission to do coarse location");
+											// TODO Give some meaningful UI visible feedback
+											updateScreen();
+										}
+									}, function(params) {
+										// Error. iOS or Android < 6 would end here (dependent on hasPermission above)
+										debugOut.err.println("Request permission failed: " + JSON.stringify(params));
+									}
+								);
+							}
+							// If location services not enabled, request
+							if (!perm["location"]) {
+								bluetoothle.requestLocation(
+									function(params) {
+										perm["location"] = params["requestLocation"];
+										if (!perm["location"]) {
+											btMode.status.scanning = false;
+											btMode.status.failure = true;
+											debugOut.warn.println("Was denied turning on location services");
+											// TODO Give some meaningful UI visible feedback
+											updateScreen();
+										}
+									}, function(params) {
+										// Error. iOS or Android < 6 would end here (dependent on isLocationEnabled above)
+										debugOut.err.println("Request location failed: " + JSON.stringify(params));
+									}
+								);
+							}
+						});
+					});
+				};
+
+				// start scanning function
+				var doStartScan = function() {
+					if (perm["coarse"] && perm["location"]) {
+						setTimeout(scan, 100);
+					} else {
+						setTimeout(doStartScan, 200);
+					}
+				};
+
+				// Ready for scan
+				allowStartScan();
+
+				// Periodically check if scanning is startable
+				setTimeout(doStartScan, 100);
 			};
 
 			// stopListDevices: stops the scan in progress, if scan is in
