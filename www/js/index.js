@@ -193,14 +193,26 @@ var plab = {
 						"description-text-key" : "domain-setting-description"
 					}
 			);
-			// Library file location
+			// Library file on/off and location
 			plab.settingsController.addSettingItem(
-					{
-						"id" : plab.processingFunc.processingInfo["library-key"],
-						"type" : "url",
-						"options" : [{"text-key" : "library-setting"}],
-						"default-value" : "http://"
-					}
+				{
+					"id" : "plab-libray-group",
+					"text-key" : "library-setting-definition",
+					"type" : "group",
+					"options" : [{
+							"id" : plab.processingFunc.processingInfo["library-include"],
+							"type" : "checkbox",
+							"options" : [{ "text-key" : "user-input-include-lib" }],
+							"default-value" : "false"
+						},
+						{
+							"id" : plab.processingFunc.processingInfo["library-key"],
+							"type" : "url",
+							"options" : [{"text-key" : "library-setting"}],
+							"default-value" : "http://"
+						}],
+					"description-text-key" : "library-setting-description"
+				}
 			);
 			
 			// Initialize Internet checks
@@ -430,14 +442,6 @@ var plab = {
 				document.getElementById('plab-user-input').value = oldName;
 			}
 			
-			// Check for stored library include. If found, fill in include checkbox with the stored name
-			var oldInc = window.localStorage.getItem('plab-include-library');
-			plab.out.notify.println("Old include: " + oldInc);
-			if (oldInc != null) {
-				oldInc = oldInc == "true";	// Just gotta love javascript..
-				document.getElementById('plab-include-library').checked = oldInc;
-			}
-			
 			// Force select file to be empty and ready to add
 			plab.processingFunc.processingInfo["include-additional-files"] = [];
 			var selList = document.getElementById("plab-addfile-list");
@@ -477,21 +481,18 @@ var plab = {
 				// Start loading of processing
 				plab.processingFunc.startLoadCached ();
 			} else if (!fromArgs) {
-				// Get content of user select element and include library element.
+				// Get content of user select element.
 				var usrInput = document.getElementById("plab-user-input").value;
-				var includeLib = document.getElementById("plab-include-library").checked;
 				// Build location url for processing. Remove whitespace characters from user input and addresses
 				plab.processingFunc.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base).replace(/\s/g, "");
 				plab.processingFunc.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix).replace(/\s/g, "");
 				plab.processingFunc.processingInfo["complete-address"] = plab.processingFunc.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingFunc.processingInfo["address-postfix"];
 
-				plab.processingFunc.processingInfo["include-library"] = includeLib;
+				plab.processingFunc.processingInfo["include-library"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["library-include"]) == "true";
 				plab.processingFunc.processingInfo["include-library-loc"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["library-key"]).replace(/\s/g, "");
 				
 				// Store the user name so it will be set next attempted load.
 				window.localStorage.setItem('plab-user-input', usrInput);
-				// Store include lib, so it will be set next attempted load
-				window.localStorage.setItem('plab-include-library', includeLib);
 
 				// Reset attempt counter
 				plab.processingFunc.attempt = 0;

@@ -30,10 +30,13 @@ plab.processingFunc = {
 			"base" : "plab-base-url",
 			"postfix" : "plab-postfix-url"
 		},
+		// Setting store keys
 		"library-key" : "plab-lib-loc",
+		"library-include" : "plab-include-library",
 
 		"cache-key" : "plab-processing-cache",
 
+		// Used data during load
 		"include-library" : false,
 		"include-library-loc" : "",
 

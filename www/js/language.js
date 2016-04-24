@@ -128,12 +128,12 @@ var plabLang = {
 			"no-nb" : "Oppgi skisse id. Betydningen kan endres i innstillinger. Standard er NTNU bruker"
 		},
 		"user-input-include-lib" : {
-			"en-gb" : "Include library file (defined in settings)",
-			"no-nb" : "Inkluder biblioteksfil (definert i instillinger)"
+			"en-gb" : "Include library file",
+			"no-nb" : "Inkluder biblioteksfil"
 		},
 		"add-pde-file" : {
-			"en-gb" : "Add a .pde file",
-			"no-nb" : "Legg til en .pde fil"
+			"en-gb" : "Add an extra .pde file",
+			"no-nb" : "Legg til en ekstra .pde fil"
 		},
 		"redir-tell-state" : {
 			"en-gb" : "Redirecting ..",
@@ -190,6 +190,14 @@ var plabLang = {
 		"domain-setting-base" : {
 			"en-gb" : "Input URL address base",
 			"no-nb" : "Skriv inn adressestart"
+		},
+		"library-setting-definition" : {
+			"en-gb" : "Processing library:",
+			"no-nb" : "Processing bibliotek:"
+		},
+		"library-setting-description" : {
+			"en-gb" : "Include an extra Processing library file for extra functionality",
+			"no-nb" : "Inkluder en ekstra Processingbiblioteksfil for utvidet funksjonalitet"
 		},
 		"library-setting" : {
 			"en-gb" : "Processing library location",
