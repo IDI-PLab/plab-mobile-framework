@@ -34,12 +34,16 @@ plab.processingFunc = {
 		"library-key" : "plab-lib-loc",
 		"library-include" : "plab-include-library",
 
+		// Cached sketch storage key
 		"cache-key" : "plab-processing-cache",
 
 		// Used data during load
 		"include-library" : false,
 		"include-library-loc" : "",
 
+		// Multi-file allow select key
+		"include-show-key" : "plab-show-multi-include",
+		// Multi-file sketch file list
 		"include-additional-files" : [],
 
 		"address-base" : "",
@@ -258,8 +262,11 @@ plab.processingFunc = {
 			loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-library-loc"];
 		}
 		loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["complete-address"];
-		for ( var i = 0; i < plab.processingFunc.processingInfo["include-additional-files"].length; i++) {
-			loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-additional-files"][i];
+		// Load additional files ONLY if additional files are visible in UI
+		if (plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["include-show-key"]) == "true") {
+			for ( var i = 0; i < plab.processingFunc.processingInfo["include-additional-files"].length; i++) {
+				loadUrls[loadUrls.length] = plab.processingFunc.processingInfo["include-additional-files"][i];
+			}
 		}
 		
 		plab.processingFunc.startLoadGivenURLs(loadUrls);

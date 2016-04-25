@@ -164,12 +164,43 @@ var plab = {
 			// Init debug
 			var n = document.getElementById ("plab-debug");
 			plab.out.init(n);
+
+			plab.out.notify.println("[START] Device ready, debug initialized");
 			
 			// App is already initialized, do not reload. onResume is normally
 			// called whenever the app is put back in focus. To avoid unnecessary
 			// initializations and still connected when first screen is shown,
 			// we add an empty method as this callback.
 			document.addEventListener("resume", plab.onResume, false);
+			
+			
+			// Functions that update url fields upon setting change
+			var updateURIPrefix = function(val) {
+				// Get element to update
+				var el = document.getElementById("plab-uri-prefix");
+				// Clear previous content
+				while (el.firstChild) { el.removeChild(el.firstChild); }
+				// create new text node child
+				el.appendChild(document.createTextNode(val.replace(/\s/g, "")));
+			};
+			var updateURIPostfix = function(val) {
+				// Get element to update
+				var el = document.getElementById("plab-uri-postfix");
+				// Clear previous content
+				while (el.firstChild) { el.removeChild(el.firstChild); }
+				// create new text node child
+				el.appendChild(document.createTextNode(val.replace(/\s/g, "")));
+			};
+			// Function that hide or show additional source code option
+			var updateShowMultiFile = function(val) {
+				// Comparison since input is expected to be string, and type conversions are not always performed
+				var el = document.getElementById("plab-addfile-container");
+				if (val == "true") {
+					el.classList.remove("plab-hidden");
+				} else {
+					el.classList.add("plab-hidden");
+				}
+			};
 			
 			// Time to add some fundamental settings
 			// Root domain/ default sketch
@@ -178,28 +209,46 @@ var plab = {
 						"id" : "plab-domain-group",
 						"text-key" : "domain-setting-definition",
 						"type" : "group",
-						"options" : [{
-									"id" : plab.processingFunc.processingInfo["url-keys"].base,
-									"type" : "url",
-									"options" : [{"text-key" : "domain-setting-base"}],
-									"default-value" : "http://folk.ntnu.no/"
-								},
-								{
-									"id" : plab.processingFunc.processingInfo["url-keys"].postfix,
-									"type" : "url",
-									"options" : [{"text-key" : "domain-setting-postfix"}],
-									"default-value" : "/plab/plab.pde"
-								}],
+						"options" : [
+							{
+								"id" : plab.processingFunc.processingInfo["include-show-key"],
+								"type" : "checkbox",
+								"options" : [{ "text-key" : "include-multi-file-setting" }],
+								"default-value" : "false",
+								"onValueChange" : updateShowMultiFile
+							},
+							{
+								"id" : plab.processingFunc.processingInfo["url-keys"].base,
+								"type" : "url",
+								"options" : [{"text-key" : "domain-setting-base"}],
+								"default-value" : "http://folk.ntnu.no/",
+								"onValueChange" : updateURIPrefix
+							},
+							{
+								"id" : plab.processingFunc.processingInfo["url-keys"].postfix,
+								"type" : "url",
+								"options" : [{"text-key" : "domain-setting-postfix"}],
+								"default-value" : "/plab/plab.pde",
+								"onValueChange" : updateURIPostfix
+							}
+						],
 						"description-text-key" : "domain-setting-description"
 					}
 			);
+			// Ensure initial values of prefix and postfix of uri
+			updateURIPrefix(plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base));
+			updateURIPostfix(plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix));
+			// Ensure initial class of plav-addfile-container
+			updateShowMultiFile(plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["include-show-key"]));
+
 			// Library file on/off and location
 			plab.settingsController.addSettingItem(
 				{
 					"id" : "plab-libray-group",
 					"text-key" : "library-setting-definition",
 					"type" : "group",
-					"options" : [{
+					"options" : [
+						{
 							"id" : plab.processingFunc.processingInfo["library-include"],
 							"type" : "checkbox",
 							"options" : [{ "text-key" : "user-input-include-lib" }],
@@ -210,7 +259,8 @@ var plab = {
 							"type" : "url",
 							"options" : [{"text-key" : "library-setting"}],
 							"default-value" : "http://"
-						}],
+						}
+					],
 					"description-text-key" : "library-setting-description"
 				}
 			);

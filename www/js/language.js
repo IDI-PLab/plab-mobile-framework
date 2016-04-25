@@ -183,6 +183,10 @@ var plabLang = {
 			"en-gb" : "Hide settings",
 			"no-nb" : "Skjul innstillinger"
 		},
+		"include-multi-file-setting" : {
+			"en-gb" : "Allow multiple files in sketch (advanced)",
+			"no-nb" : "Tillat flere filer i samme skisse (avansert)"
+		},
 		"domain-setting-definition" : {
 			"en-gb" : "Processing source URL:",
 			"no-nb" : "Processing kildefillokasjon:"
