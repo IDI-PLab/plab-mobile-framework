@@ -50,6 +50,10 @@ plab.processingFunc = {
 		"address-postfix" : "",
 		"complete-address" : ""
 	},
+	// When we retry loading of sketches, we need to remember if we were given som code or not.
+	givenCode : null,
+
+	// Cache: Store previous run sketch. Functionality to load from cache, and store to cache.
 	cache : {
 		clear : function() {
 			window.localStorage.removeItem(plab.processingFunc.processingInfo["cache-key"]);
@@ -272,6 +276,9 @@ plab.processingFunc = {
 		plab.processingFunc.startLoadGivenURLs(loadUrls);
 	},
 	startLoadGivenURLs : function(loadUrls) {
+		// Forget given code (if previously stored)
+		plab.processingFunc.givenCode = null;
+
 		// Add include file to urls
 		loadUrls.splice(0, 0, "lib/InterfacesInc.pde");
 		
@@ -293,6 +300,9 @@ plab.processingFunc = {
 	// The definition of the function that starts loading Processing sketch from
 	// cache
 	startLoadCached : function() {
+		// Forget given code (if previously stored)
+		plab.processingFunc.givenCode = null;
+
 		var canvas = document.getElementById("plab-canvas")
 		var pInstance = plab.processingFunc.cache.loadSketchFromCache(canvas);
 		if (pInstance) {
@@ -305,6 +315,8 @@ plab.processingFunc = {
 		plab.processingFunc.checkCount = 0;
 		// Update counter of http request attempts.
 		plab.processingFunc.attempt++;
+		// Remember the given code
+		plab.processingFunc.givenCode = codeArray;
 		
 		var canvas = document.getElementById("plab-canvas")
 		plab.processingFunc.cache.loadAndCacheSketchFromCode(canvas, codeArray);
@@ -357,7 +369,11 @@ plab.processingFunc = {
 						plab.processingFunc.showOrLoad, 500);
 			} else {
 				// otherwise start a new http request to load processing.
-				plab.processingFunc.startLoad();
+				if (plab.processingFunc.givenCode === null) {
+					plab.processingFunc.startLoadURLs();
+				} else {
+					plab.processingFunc.startLoadGivenCode(plab.processingFunc.givenCode);
+				}
 			}
 		}
 	}
