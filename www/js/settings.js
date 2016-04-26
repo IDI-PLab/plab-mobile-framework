@@ -183,7 +183,7 @@ plab.settingsController = {
 		
 		sel.addEventListener("change", function() {
 			var str = document.getElementById(item.id).value;
-			window.localStorage.setItem(item.id, str);
+			plab.settingsController.setSettingValue(item.id, str);
 			if (typeof item.onValueChange === "function")
 				item.onValueChange(str);
 		});
@@ -247,7 +247,7 @@ plab.settingsController = {
 			} else {
 				str = document.getElementById(item.id).value;
 			}
-			window.localStorage.setItem(item.id, str);
+			plab.settingsController.setSettingValue(item.id, str);
 			if (typeof item.onValueChange === "function")
 				item.onValueChange(str);
 		});
