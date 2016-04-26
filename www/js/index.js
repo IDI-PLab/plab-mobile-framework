@@ -127,13 +127,19 @@ var plab = {
 		timers : {
 			processing : null
 		},
+
+		// userSelectInfo : Setting storage id and app element id
+		userSelectInfo : {
+			settingId : "plab-user-input",
+			elementId : "plab-user-select-input"	// Can also be found in index.html
+		},
 		
 		// ---------- PROCESSING FUNCTIONALITY --------------------------------
 		// --- Located in processingfunc.js
 		
 		// ---------- INTERNET CONNECTIVITY -----------------------------------
 		// --- Located in internet.js
-		
+
 		// --------------------------------------------------------------------
 		// ----------------------- USER ERROR FEEDBACK ------------------------
 		// --------------------------------------------------------------------
@@ -158,6 +164,7 @@ var plab = {
 			// and here will disconnect app and make app ready to exit.
 			document.addEventListener("pause", plab.onPause, false);
 		},
+
 		// onDeviceReady : the method called when cordova is set up, and its functionality is safe to call.
 		onDeviceReady : function () {
 
@@ -172,8 +179,7 @@ var plab = {
 			// initializations and still connected when first screen is shown,
 			// we add an empty method as this callback.
 			document.addEventListener("resume", plab.onResume, false);
-			
-			
+
 			// Functions that update url fields upon setting change
 			var updateURIPrefix = function(val) {
 				// Get element to update
@@ -201,44 +207,69 @@ var plab = {
 					el.classList.add("plab-hidden");
 				}
 			};
+
 			
 			// Time to add some fundamental settings
+			// User setting (also found on screen directly before redirect)
+			plab.settingsController.addSettingItem(
+				{
+					"id" : plab.userSelectInfo.settingId,
+					"text-key" : "ntnu-user",
+					"type" : "text",
+					"options" : [{}],
+					"description-text-key" : "user-input-desc",
+					"default-value" : "USER"
+				}
+			);
+			// Update user select field (field found directly before redirect)
+			var usrSelEl = document.getElementById(plab.userSelectInfo.elementId);
+			usrSelEl.value = plab.settingsController.getSettingValue(plab.userSelectInfo.settingId);
+			// Add change listener to user select field
+			usrSelEl.addEventListener("change", function() {
+				plab.settingsController.setSettingValue(plab.userSelectInfo.settingId, this.value);
+			});
+			// Update user select field when setting change
+			plab.settingsController.addChangeListener(plab.userSelectInfo.settingId, function(id, oldVal, newVal) {
+				var el = document.getElementById(plab.userSelectInfo.elementId);
+				if (newVal !== el.value) { el.value = newVal; }
+			});
 			// Root domain/ default sketch
 			plab.settingsController.addSettingItem(
-					{
-						"id" : "plab-domain-group",
-						"text-key" : "domain-setting-definition",
-						"type" : "group",
-						"options" : [
-							{
-								"id" : plab.processingFunc.processingInfo["include-show-key"],
-								"type" : "checkbox",
-								"options" : [{ "text-key" : "include-multi-file-setting" }],
-								"default-value" : "false",
-								"onValueChange" : updateShowMultiFile
-							},
-							{
-								"id" : plab.processingFunc.processingInfo["url-keys"].base,
-								"type" : "url",
-								"options" : [{"text-key" : "domain-setting-base"}],
-								"default-value" : "http://folk.ntnu.no/",
-								"onValueChange" : updateURIPrefix
-							},
-							{
-								"id" : plab.processingFunc.processingInfo["url-keys"].postfix,
-								"type" : "url",
-								"options" : [{"text-key" : "domain-setting-postfix"}],
-								"default-value" : "/plab/plab.pde",
-								"onValueChange" : updateURIPostfix
-							}
-						],
-						"description-text-key" : "domain-setting-description"
-					}
+				// URI settings
+				{
+					"id" : "plab-domain-group",
+					"text-key" : "domain-setting-definition",
+					"type" : "group",
+					"options" : [
+						{
+							"id" : plab.processingFunc.processingInfo["include-show-key"],
+							"type" : "checkbox",
+							"options" : [{ "text-key" : "include-multi-file-setting" }],
+							"default-value" : "false",
+							"onValueChange" : updateShowMultiFile
+						},
+						{
+							"id" : plab.processingFunc.processingInfo["url-keys"].base,
+							"type" : "url",
+							"options" : [{"text-key" : "domain-setting-base"}],
+							"default-value" : "http://folk.ntnu.no/",
+							"onValueChange" : updateURIPrefix
+						},
+						{
+							"id" : plab.processingFunc.processingInfo["url-keys"].postfix,
+							"type" : "url",
+							"options" : [{"text-key" : "domain-setting-postfix"}],
+							"default-value" : "/plab/plab.pde",
+							"onValueChange" : updateURIPostfix
+						}
+					],
+					"description-text-key" : "domain-setting-description"
+				}
 			);
 			// Ensure initial values of prefix and postfix of uri
 			updateURIPrefix(plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base));
 			updateURIPostfix(plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix));
-			// Ensure initial class of plav-addfile-container
+			// Ensure initial class of plab-addfile-container
 			updateShowMultiFile(plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["include-show-key"]));
 
 			// Library file on/off and location
@@ -486,12 +517,6 @@ var plab = {
 				document.body.classList.add("plab-no-cache");
 			}
 			
-			// Check for stored user name. If found, fill in user select field with the stored name
-			var oldName = window.localStorage.getItem('plab-user-input');
-			if (oldName != null) {
-				document.getElementById('plab-user-input').value = oldName;
-			}
-			
 			// Force select file to be empty and ready to add
 			plab.processingFunc.processingInfo["include-additional-files"] = [];
 			var selList = document.getElementById("plab-addfile-list");
@@ -531,18 +556,23 @@ var plab = {
 				// Start loading of processing
 				plab.processingFunc.startLoadCached ();
 			} else if (!fromArgs) {
-				// Get content of user select element.
-				var usrInput = document.getElementById("plab-user-input").value;
+				// Get content of user select element/ stored setting
+				var usrInput = plab.settingsController.getSettingValue(plab.userSelectInfo.settingId);
+				if (typeof usrInput !== "string") {
+					usrInput = "";
+				}
+				// Clean string for whitespace
+				usrInput = usrInput.replace(/\s/g, "");
+				// Ensure cleaned string is stored
+				plab.settingsController.setSettingValue(plab.userSelectInfo.settingId, usrInput);
+
 				// Build location url for processing. Remove whitespace characters from user input and addresses
 				plab.processingFunc.processingInfo["address-base"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].base).replace(/\s/g, "");
 				plab.processingFunc.processingInfo["address-postfix"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["url-keys"].postfix).replace(/\s/g, "");
-				plab.processingFunc.processingInfo["complete-address"] = plab.processingFunc.processingInfo["address-base"] + usrInput.replace(/\s/g, "") + plab.processingFunc.processingInfo["address-postfix"];
+				plab.processingFunc.processingInfo["complete-address"] = plab.processingFunc.processingInfo["address-base"] + usrInput + plab.processingFunc.processingInfo["address-postfix"];
 
 				plab.processingFunc.processingInfo["include-library"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["library-include"]) == "true";
 				plab.processingFunc.processingInfo["include-library-loc"] = plab.settingsController.getSettingValue(plab.processingFunc.processingInfo["library-key"]).replace(/\s/g, "");
-				
-				// Store the user name so it will be set next attempted load.
-				window.localStorage.setItem('plab-user-input', usrInput);
 
 				// Reset attempt counter
 				plab.processingFunc.attempt = 0;

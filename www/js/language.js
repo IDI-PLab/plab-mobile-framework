@@ -187,6 +187,10 @@ var plabLang = {
 			"en-gb" : "Allow multiple files in sketch (advanced)",
 			"no-nb" : "Tillat flere filer i samme skisse (avansert)"
 		},
+		"ntnu-user" : {
+			"en-gb" : "NTNU Username",
+			"no-nb" : "NTNU brukernavn"
+		},
 		"domain-setting-definition" : {
 			"en-gb" : "Processing source URL:",
 			"no-nb" : "Processing kildefillokasjon:"
