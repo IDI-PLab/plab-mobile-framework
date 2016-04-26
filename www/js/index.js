@@ -180,6 +180,9 @@ var plab = {
 			// we add an empty method as this callback.
 			document.addEventListener("resume", plab.onResume, false);
 
+			// Replave link opening with the inAppBrowser plugin
+			window.open = cordova.InAppBrowser.open;
+
 			// Functions that update url fields upon setting change
 			var updateURIPrefix = function(val) {
 				// Get element to update

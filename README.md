@@ -28,6 +28,10 @@ familiar with using the Command Line Interface (CLI) of Cordova.
 Dependent Plugins
 ---
 
+### InAppBrowser
+We require the inappbrowser to open external links in the system browser.
+[cordova-plugin-inappbrowser][15]
+
 ### Whitelist
 Android require whitelist plugin to load sketches from the web
 [cordova-plugin-whitelist][13]
@@ -60,7 +64,8 @@ Acceleration detection is dependent on plugin
 
 ### Installation of Plugins With Command-Line Interface
 In console, type:
-* `cordoca plugin add cordova-plugin-whitelist`
+* `cordova plugin add cordova-plugin-inappbrowser`
+* `cordova plugin add cordova-plugin-whitelist`
 * `cordova plugin add cordova-plugin-device`
 * `cordova plugin add cordova-plugin-network-information`
 * `cordova plugin add cordova-plugin-bluetoothle`
@@ -105,3 +110,4 @@ This project is powered by
 [12]: https://github.com/IDI-PLab/plab-mobile-framework/wiki/User-Interface	"User Interface Description"
 [13]: https://www.npmjs.com/package/cordova-plugin-whitelist	"Cordova Whitelist Plugin"
 [14]: https://github.com/randdusing/BluetoothLE	"Randdusing BluetoothLE"
+[15]: https://www.npmjs.com/package/cordova-plugin-inappbrowser	"Cordova InAppBrowser Plugin"

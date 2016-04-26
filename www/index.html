@@ -40,19 +40,24 @@
     <canvas id="plab-canvas"></canvas>
     <nav id="plab-menu">
     	<!-- Two sections: Internal navigation (settings/home) and different settings (language) -->
-    	<ul id="plab-menu-setting">
-    		<li onClick="plabLangSupport.setLanguage('en-gb')">
-    			<img src="img/gb.png" alt="English" />
-    			English
-    		</li>
-    		<li onClick="plabLangSupport.setLanguage('no-nb')">
-    			<img src="img/nor.png" alt="Norsk" />
-    			Norsk
-    		</li>
-    		<li onClick="plab.settingsController.toggleSettings()">
-    			<img src="img/settings.png" alt="Settings" />
-    		</li>
-    	</ul>
+		<!-- Comments are to avoid whitespace in formatting -->
+    	<ul id="plab-menu-setting"><!--
+			--><li onClick="cordova.InAppBrowser.open('https://github.com/IDI-PLab/plab-mobile-framework/wiki', '_system')"><!--
+				--><img src="img/help.png" alt="Help" /><!--
+				-->Wiki<!--
+			--></li><!--
+    		--><li onClick="plabLangSupport.setLanguage('en-gb')"><!--
+    			--><img src="img/gb.png" alt="English" /><!--
+    			-->English<!--
+    		--></li><!--
+    		--><li onClick="plabLangSupport.setLanguage('no-nb')"><!--
+    			--><img src="img/nor.png" alt="Norsk" /><!--
+    			-->Norsk<!--
+    		--></li><!--
+    		--><li onClick="plab.settingsController.toggleSettings()"><!--
+    			--><img src="img/settings.png" alt="Settings" /><!--
+    		--></li><!--
+    	--></ul>
     	
     	<div class="plab-settings-menu">
     		<div id="plab-settings-menu"></div>
